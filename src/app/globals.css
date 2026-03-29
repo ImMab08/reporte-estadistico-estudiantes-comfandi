@@ -3,7 +3,7 @@
 @theme {
   --color-primary: oklch(0.402 0.18 261.562);
   --color-secondary: oklch(0.7525 0.1305 211.4957);
-  --color-bg: oklch(0.96 0.01 180);
+  --color-background: #f4f7f6;
   --color-card-bg: oklch(1 0 0);
 
   --color-text-main: oklch(0.28 0.02 260);
