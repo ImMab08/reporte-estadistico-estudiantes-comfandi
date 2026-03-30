@@ -10,13 +10,13 @@ export const navItems: NavItem[] = [
   },
   {
     text: "Estudiantes",
-    href: "/estudiantes",
+    href: "/students",
     icon: IconSchool,
     position: "main"
   },
   {
-    text: "Cónfiguración",
-    href: "/configuracion",
+    text: "Configuración",
+    href: "/settings",
     icon: IconSettings,
     position: "bottom"
   },
