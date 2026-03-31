@@ -15,7 +15,6 @@ export function StudentsFeaturePage() {
   // Bloqueo general del scroll cuando el menú lateral derechi
   // esta desplegado.
   useEffect(() => {
-
     if (openMenu) {
       document.body.classList.add("overflow-hidden");
     } else {
@@ -168,7 +167,6 @@ export function StudentsFeaturePage() {
                   countGrades(selectedStudent, "Bas"),
                   countGrades(selectedStudent, "Baj"),
                 ];
-                // La escala máxima será el número más alto de materias que tenga, o un mínimo de 6 para que se vea bien
                 const maxChartValue = Math.max(...counts, 6);
 
                 const chartData = [
@@ -178,32 +176,94 @@ export function StudentsFeaturePage() {
                   { label: "BAJ", value: counts[3], color: "bg-red-500" },
                 ];
 
+                // 3. Lógica para Promedio y Ranking (NUEVO)
+                const getStudentScore = (studentInfo: any) => {
+                  const g = Object.values(studentInfo.grades);
+                  if (g.length === 0) return 0;
+                  const total = g.reduce(
+                    (acc: number, val: any) => acc + (gradeWeight[val] || 0),
+                    0,
+                  );
+                  return total / g.length;
+                };
+
+                const currentScore = getStudentScore(selectedStudent);
+
+                // Calcular el puntaje de todos para saber la posición
+                const allScores = activeGrade.students
+                  .map((s: any) => ({
+                    name: s.name,
+                    score: getStudentScore(s),
+                  }))
+                  .sort((a: any, b: any) => b.score - a.score);
+
+                const rank =
+                  allScores.findIndex(
+                    (s: any) => s.name === selectedStudent.name,
+                  ) + 1;
+                const totalStudents = allScores.length;
+
                 return (
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-in fade-in duration-500">
-                    {/* 👤 COLUMNA IZQUIERDA: PERFIL Y GRÁFICO (5/12) */}
-                    <div className="lg:col-span-5 space-y-6">
-                      <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm flex flex-col">
-                        <div className="flex justify-between items-center mb-6 gap-4">
-                          {/* FOTO CIRCULAR */}
-                          <div className="relative p-1 bg-linear-to-tr from-primary to-blue-300 rounded-full shrink-0">
-                            <div className="w-50 h-50 rounded-full overflow-hidden border-4 border-white bg-gray-50">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 overflow-hidden gap-6 animate-in fade-in duration-500">
+                    {/* Columna izquierda */}
+                    {/* Columna izquierda */}
+                    <div className="lg:col-span-5 space-y-6 overflow-auto">
+                      <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm h-full flex flex-col overflow-hidden">
+                        {/* ======================================= */}
+                        {/* ZONA FIJA SUPERIOR: Foto y datos        */}
+                        {/* ======================================= */}
+                        <div className="flex gap-4 relative shrink-0 pb-4 border-b border-gray-100">
+                          {/* Foto del estudiante */}
+                          <div className="relative p-1 bg-linear-to-tr from-primary to-blue-300 rounded-xl shrink-0">
+                            <div className="w-28 h-28 lg:w-40 lg:h-40 rounded-xl overflow-hidden border-4 border-white bg-gray-50 flex items-center justify-center">
                               <iframe
                                 src="https://comfandisa-my.sharepoint.com/personal/1127918318_comfandi_com_co1/_layouts/15/embed.aspx?UniqueId=9751bc0d-beb5-4206-908a-f304b3fe8468"
                                 width="100%"
                                 height="100%"
                                 className="pointer-events-none scale-[1.60] origin-center"
-                                scrolling="no"
                                 title={selectedStudent.name}
                               ></iframe>
                             </div>
                           </div>
 
-                          {/* Gráfico de barras */}
-                          <div className="flex-1 max-w-50 border border-gray-100 rounded-2xl p-4 shadow-inner bg-gray-50/50">
+                          {/* Datos del estudiante */}
+                          <div className="w-full space-y-1">
+                            <h3 className="text-2xl font-black mb-1 text-gray-800 leading-tight">
+                              {selectedStudent.name}
+                            </h3>
+                            <p className="text-sm font-bold text-gray-500">
+                              Grado: {activeGrade.gradeLabel}
+                            </p>
+                            <p className="text-sm leading-2 font-bold text-gray-500">
+                              Curso: {activeGrade.gradeLabel}
+                            </p>
+                          </div>
+
+                          <div className="absolute right-0 top-0">
+                            <h4 className="text-base font-bold text-gray-500 text-right">
+                              Puesto
+                            </h4>
+                            <div className="flex justify-end gap-1">
+                              <span className="text-xs font-black text-amber-500">
+                                #{rank}
+                              </span>
+                              <span className="text-xs font-bold text-gray-400">
+                                de {totalStudents}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* ======================================= */}
+                        {/* ZONA SCROLLEABLE: Gráficos y más        */}
+                        {/* ======================================= */}
+                        <div className="flex-1 overflow-y-auto pr-2 mt-4 space-y-4 custom-scrollbar">
+                          {/* Gráfico de Barras Original */}
+                          <div className="w-full border border-gray-100 rounded-2xl p-4 shadow-inner bg-gray-50/50">
                             <h4 className="text-[10px] uppercase font-bold text-gray-500 mb-3 text-center">
                               Materias por nivel
                             </h4>
-                            <div className="flex h-25 items-end justify-between gap-2 border-l border-b border-gray-200 pl-2 pb-1 relative">
+                            <div className="flex h-50 items-end justify-between gap-2 border-l border-b border-gray-200 pl-2 pb-1 relative">
                               {/* Eje Y Dinámico */}
                               <div className="absolute -left-4 top-0 bottom-0 flex flex-col justify-between text-[9px] text-gray-400 py-1">
                                 <span>{maxChartValue}</span>
@@ -217,9 +277,7 @@ export function StudentsFeaturePage() {
                                   key={i}
                                   className="flex flex-col items-center flex-1 h-full"
                                 >
-                                  {/* Contenedor Gris (Track) */}
                                   <div className="w-full h-full bg-white rounded-t-md relative flex items-end overflow-hidden border border-gray-100">
-                                    {/* Barra de Color (Fill) */}
                                     <div
                                       className={`w-full ${bar.color} rounded-t-sm transition-all duration-1000 ease-out`}
                                       style={{
@@ -235,67 +293,84 @@ export function StudentsFeaturePage() {
                               ))}
                             </div>
                           </div>
-                        </div>
 
-                        <h3 className="text-2xl font-black text-gray-800 leading-tight">
-                          {selectedStudent.name}
-                        </h3>
-                        <span className="text-xs font-bold uppercase tracking-wider text-gray-400 mt-1 mb-6">
-                          Grado: {activeGrade.gradeLabel}
-                        </span>
+                          {/* Fortalezas y Áreas de Mejora */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                            {/* Destaca en... */}
+                            <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4">
+                              <h4 className="text-xs font-bold text-emerald-700 mb-3 flex items-center gap-1.5">
+                                <span>🚀</span> Fortalezas
+                              </h4>
+                              <ul className="space-y-2">
+                                {sortedGrades
+                                  .filter(
+                                    (g: any) =>
+                                      g[1] === "Sup" || g[1] === "Alt",
+                                  )
+                                  .slice(0, 3)
+                                  .map(([sub, val]: any, i: number) => (
+                                    <li
+                                      key={i}
+                                      className="text-[11px] font-semibold text-emerald-800 flex justify-between items-center bg-white/60 p-1.5 rounded-lg border border-emerald-100/50"
+                                    >
+                                      <span className="truncate pr-2">
+                                        {sub}
+                                      </span>
+                                      <span className="bg-emerald-200 text-emerald-800 px-1.5 py-0.5 rounded text-[9px]">
+                                        {val}
+                                      </span>
+                                    </li>
+                                  ))}
+                              </ul>
+                            </div>
 
-                        <div className="grid grid-cols-2 gap-4 w-full">
-                          <div className="p-3 bg-red-50 rounded-2xl border border-red-100">
-                            <p className="text-[10px] uppercase font-bold text-red-400">
-                              Bajos
-                            </p>
-                            <p className="text-2xl font-black text-red-600">
-                              {counts[3]}
-                            </p>
+                            {/* Requiere atención en... */}
+                            <div className="bg-rose-50/50 border border-rose-100 rounded-2xl p-4">
+                              <h4 className="text-xs font-bold text-rose-700 mb-3 flex items-center gap-1.5">
+                                <span>⚠️</span> Atención en
+                              </h4>
+                              <ul className="space-y-2">
+                                {sortedGrades
+                                  .filter(
+                                    (g: any) =>
+                                      g[1] === "Baj" || g[1] === "Bas",
+                                  )
+                                  .reverse()
+                                  .slice(0, 3)
+                                  .map(([sub, val]: any, i: number) => (
+                                    <li
+                                      key={i}
+                                      className="text-[11px] font-semibold text-rose-800 flex justify-between items-center bg-white/60 p-1.5 rounded-lg border border-rose-100/50"
+                                    >
+                                      <span className="truncate pr-2">
+                                        {sub}
+                                      </span>
+                                      <span className="bg-rose-200 text-rose-800 px-1.5 py-0.5 rounded text-[9px]">
+                                        {val}
+                                      </span>
+                                    </li>
+                                  ))}
+                              </ul>
+                            </div>
                           </div>
-                          <div className="p-3 bg-green-50 rounded-2xl border border-green-100">
-                            <p className="text-[10px] uppercase font-bold text-green-400">
-                              Superiores
-                            </p>
-                            <p className="text-2xl font-black text-green-600">
-                              {counts[0]}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
 
-                      {/* TARJETAS DE OBSERVACIÓN */}
-                      <div className="space-y-4">
-                        <div className="bg-amber-50/50 p-4 rounded-2xl border border-amber-100">
-                          <h4 className="text-sm font-bold text-amber-700 flex items-center gap-2 mb-1">
-                            ⚠️ Posibles causas
-                          </h4>
-                          <p className="text-sm text-amber-800/80 leading-relaxed">
-                            {selectedStudent.causas ||
-                              "Sin observaciones registradas."}
-                          </p>
-                        </div>
-                        <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
-                          <h4 className="text-sm font-bold text-blue-700 flex items-center gap-2 mb-1">
-                            💡 Recomendaciones
-                          </h4>
-                          <p className="text-sm text-blue-800/80 leading-relaxed">
-                            {selectedStudent.recomendaciones ||
-                              "Seguir con el plan de estudio estándar."}
-                          </p>
+                          {/* AQUI PUEDES AGREGAR MÁS CONTENIDO, EL SCROLL FUNCIONARÁ AUTOMÁTICAMENTE */}
                         </div>
                       </div>
                     </div>
 
                     {/* Tabla de informatica de las materias */}
-                    <div className="lg:col-span-4 bg-white border border-gray-100 rounded-3xl p-4 shadow-sm overflow-hidden flex flex-col">
-
-                      <div className="flex-1 overflow-auto pr-2 custom-scrollbar">
+                    <div className="lg:col-span-7 bg-white border border-gray-100 rounded-2xl p-2 shadow-sm overflow-hidden flex flex-col">
+                      <div className="flex-1 overflow-auto">
                         <table className="w-full text-sm text-left">
                           <thead className="text-xs text-gray-400 uppercase bg-gray-50/80 sticky top-0 z-10 backdrop-blur-sm">
                             <tr>
-                              <th className="text-base px-4 py-3 rounded-l-xl font-semibold">Materia</th>
-                              <th className="text-base px-4 py-3 rounded-r-xl w-24 font-semibold">Nota</th>
+                              <th className="text-base px-4 py-3 rounded-l-xl font-semibold">
+                                Materia
+                              </th>
+                              <th className="text-base px-4 py-3 rounded-r-xl w-24 font-semibold text-center">
+                                Nota
+                              </th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-200">
@@ -313,12 +388,12 @@ export function StudentsFeaturePage() {
                                   key={i}
                                   className="hover:bg-gray-50/50 transition-colors group"
                                 >
-                                  <td className="px-4 py-2 text-sm font-medium text-gray-600 group-hover:text-gray-900">
+                                  <td className="px-4 py-3 text-sm font-medium text-gray-600 group-hover:text-gray-900">
                                     {sub}
                                   </td>
-                                  <td className="px-4 py-2 text-sm ">
+                                  <td className="px-4 py-3 text-sm flex justify-center">
                                     <span
-                                      className={`px-2.5 py-1 text-[10px] font-black uppercase rounded-lg border ${colorMap[val] || "bg-gray-100"}`}
+                                      className={`px-3 py-1 text-[11px] font-black uppercase rounded-lg border ${colorMap[val] || "bg-gray-100"}`}
                                     >
                                       {val}
                                     </span>
@@ -338,29 +413,6 @@ export function StudentsFeaturePage() {
       </section>
     </>
   );
-}
-
-// =============================
-// 🔧 HELPERS
-// =============================
-
-function formatName(name: string) {
-  return name.toLowerCase().replace(/\s+/g, "_");
-}
-
-function getBadgeColor(val: string) {
-  switch (val) {
-    case "Baj":
-      return "bg-red-100 text-red-600";
-    case "Bas":
-      return "bg-yellow-100 text-yellow-600";
-    case "Alt":
-      return "bg-blue-100 text-blue-600";
-    case "Sup":
-      return "bg-green-100 text-green-600";
-    default:
-      return "bg-gray-100 text-gray-500";
-  }
 }
 
 function countGrades(student: any, type: string) {

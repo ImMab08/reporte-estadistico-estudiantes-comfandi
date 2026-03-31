@@ -9,10 +9,39 @@
   --color-text-main: oklch(0.28 0.02 260);
   --color-text-muted: oklch(0.52 0.02 260);
 
-  --color-border: oklch(0.90 0.01 260);
+  --color-border: oklch(0.9 0.01 260);
 
   --color-bajo: oklch(0.66 0.22 15);
   --color-basico: oklch(0.85 0.17 85);
   --color-alto: oklch(0.65 0.16 240);
   --color-superior: oklch(0.72 0.12 190);
+}
+
+
+/* 1. Para Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+/* 2. Para Chrome, Edge y Safari */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #e5e7eb;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
 }
