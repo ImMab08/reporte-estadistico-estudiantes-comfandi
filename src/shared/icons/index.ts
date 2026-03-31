@@ -1,5 +1,7 @@
 export * from './icon_info'
+export * from './icon_menu'
 export * from './icon_home'
+export * from './icon_close'
 export * from './icon_error'
 export * from './icon_school'
 export * from './icon_logout'
