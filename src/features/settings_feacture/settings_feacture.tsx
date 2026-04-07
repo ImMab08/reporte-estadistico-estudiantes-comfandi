@@ -1,284 +1,175 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
 
-import { dropBoxGradeStudents } from "./data";
+import { useEffect, useMemo, useState } from "react";
 
 import { parseExcel } from "@/src/utils/parseExcel";
-import { getGrades, saveGradeData } from "@/src/utils/storage";
-import { processStudents } from "@/src/utils/processStudents";
-
+import { processAcademicPeriod } from "@/src/utils/processAcademicPeriod";
 import {
-  IconDeleteForever,
-  IconKeyboardArrowUp,
-  IconUploadFile,
-  IconWarning,
-} from "@/src/shared/icons";
+  getAcademicSnapshots,
+  saveAcademicSnapshot,
+} from "@/src/utils/academicStorage";
+
+import { IconQuickReference, IconUploadFile } from "@/src/shared/icons";
+
+import { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
+import { detectAcademicPeriod } from "@/src/utils/detectAcademicPeriod";
 
 export function SettingsFeacture() {
-  const [open, setOpen] = useState(false);
-  const [openSection, setOpenSection] = useState<string | null>(null);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [snapshots, setSnapshots] = useState<AcademicPeriodSnapshot[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const [grades, setGrades] = useState<any[]>([]);
-
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const isDisabled = !selected;
-
-  //? Cerrar dropbox al hacer clic por fuera
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-        setOpenSection(null);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  // ⚡ Temporal mientras conectamos selector real
+  const currentYear = new Date().getFullYear();
+  const currentPeriod = detectAcademicPeriod;
 
   useEffect(() => {
-    const data = getGrades();
-    setGrades(data);
+    const data = Object.values(getAcademicSnapshots());
+    const sorted = data.sort(
+      (a, b) =>
+        new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime(),
+    );
+
+    setSnapshots(sorted);
   }, []);
+
+  const latestSnapshot = useMemo(() => {
+    return snapshots[0] ?? null;
+  }, [snapshots]);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file || !selected) return;
+    if (!file) return;
 
     try {
+      setIsUploading(true);
+
       const rawData = await parseExcel(file);
-      const { students, subjects } = processStudents(rawData);
 
-      const newGrade = {
-        gradeId: selected,
-        gradeLabel: selectedLabel,
-        students,
-        subjects,
-        createdAt: new Date().toISOString(),
-      };
+      const detectedPeriod = detectAcademicPeriod(file.name);
 
-      saveGradeData(newGrade);
-      setGrades((prev) => [...prev, newGrade]);
-			setSelected(null);
+      const snapshot = processAcademicPeriod({
+        data: rawData,
+        fileName: file.name,
+        year: currentYear,
+        period: detectedPeriod,
+      });
 
-      console.log("Guardado:", newGrade);
+      saveAcademicSnapshot(snapshot);
+
+      const updated = Object.values(getAcademicSnapshots()).sort(
+        (a, b) =>
+          new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime(),
+      );
+
+      setSnapshots(updated);
     } catch (error) {
-      console.error("Error procesando archivo", error);
+      console.error("Error procesando archivo académico:", error);
+    } finally {
+      setIsUploading(false);
+      e.target.value = "";
     }
   }
 
-  //? Obtener label seleccionado
-  const selectedLabel =
-    dropBoxGradeStudents.flatMap((g) => g.groups).find((g) => g.id === selected)
-      ?.label || "Seleccionar grupo";
-
   return (
-    <section className="p-4 size-full flex flex-col">
-      {/* Encabezado principal */}
-      <header className="py-4 border-b-2 border-border">
-        <h1 className="text-3xl font-bold text-primary">Configuración</h1>
-        <h2 className="text-sm text-gray-500">
-          Carga y gestiona los datos de estudiantes
-        </h2>
+    <section className="h-full w-full bg-slate-50 p-4 flex flex-col overflow-hidden">
+      {/* Header */}
+      <header className="mb-6 border-b border-border pb-4 shrink-0">
+        <h1 className="text-4xl font-bold text-primary">Estudiantes</h1>
+        <p className="text-slate-500 mt-1 mb-1">
+          Consulta individual del rendimiento académico
+        </p>
       </header>
 
       {/* Contenido */}
-      <section className="flex items-center justify-center flex-1 min-h-0 mt-5 space-x-4">
-        {/* Lado izquierdo */}
-        <div className="size-full p-4 rounded-2xl border border-border space-y-8 bg-white">
-          {/* Primer parte */}
-          <div className="space-y-2">
-            <header className="">
-              <h3 className="text-2xl font-bold text-primary">
-                1. Seleccionar Grado
-              </h3>
-              <h4 className="text-xs text-gray-500">
-                Elige el grado al que pertenecen los datos del excel que vas a
-                cargar
-              </h4>
-            </header>
-            <div className="w-full relative" ref={dropdownRef}>
-              {/* Botón principal */}
-              <button
-                onClick={() => setOpen(!open)}
-                className="w-full flex justify-between items-center px-4 py-3 rounded-xl border border-border bg-white shadow-sm hover:bg-gray-50 transition cursor-pointer"
-              >
-                <p className="text-sm font-medium text-gray-700">
-                  Grado seleccionado:{" "}
-                  <span className="font-bold">{selectedLabel}</span>
-                </p>
-                <div className="flex items-center gap-1 relative">
-                  {selected && (
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelected(null);
-                      }}
-                      className="transition"
-                    >
-                      <IconDeleteForever />
-                    </div>
-                  )}
+      <section className="grid grid-cols-12 gap-6 flex-1 min-h-0">
+        {/* Panel derecho */}
+        <div className="col-span-12 lg:col-span-7 rounded-xl border overflow-hidden border-border bg-white p-4 shadow-sm flex flex-col min-h-0">
+          <header className="space-y-1 shrink-0">
+            <h2 className="text-2xl font-bold text-primary">Carga de datos</h2>
+            <p className="text-gray-500 text-base">
+              Sube el archivo Excel consolidado con todos los estudiantes del
+              periodo académico.
+            </p>
+          </header>
 
-                  <IconKeyboardArrowUp
-                    className={`transition-transform duration-300 ${
-                      open ? "rotate-0" : "rotate-180"
-                    }`}
-                  />
-                </div>
-              </button>
+          {/* Upload zone */}
+          <div
+            onClick={() =>
+              document.getElementById("academicFileInput")?.click()
+            }
+            className="flex-1 min-h-0 mt-4 border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center text-center px-4 cursor-pointer hover:bg-gray-50 transition"
+          >
+            <IconUploadFile
+              className="text-gray-400 mb-5"
+              width={70}
+              height={70}
+            />
 
-              {/* Dropdown */}
-              {open && (
-                <div className="mt-2 border absolute z-50 w-full border-border rounded-lg p-2 bg-white shadow-lg max-h-64 overflow-y-auto">
-                  {dropBoxGradeStudents.map((section) => (
-                    <div key={section.grade} className="bg-white">
-                      {/* Grado */}
-                      <button
-                        onClick={() =>
-                          setOpenSection(
-                            openSection === section.grade
-                              ? null
-                              : section.grade,
-                          )
-                        }
-                        className="w-full flex justify-between bg-white cursor-pointer items-center px-3 py-2 rounded-lg hover:bg-gray-100 transition"
-                      >
-                        <span className="font-medium text-gray-700">
-                          Grado {section.grade}
-                        </span>
-                        <span className="text-xs">
-                          {openSection === section.grade ? "−" : "+"}
-                        </span>
-                      </button>
+            <h3 className="text-2xl font-semibold text-gray-700">
+              Arrastra o selecciona el Excel
+            </h3>
 
-                      {/* Grupos */}
-                      {openSection === section.grade && (
-                        <div className="ml-4 mt-1 space-y-1 bg-white">
-                          {section.groups.map((group) => (
-                            <button
-                              key={group.id}
-                              onClick={() => {
-                                setSelected(group.id);
-                                setOpen(false);
-                                setOpenSection(null);
-                              }}
-                              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition cursor-pointer
-                            ${
-                              selected === group.id
-                                ? "bg-primary text-white"
-                                : "hover:bg-gray-100 text-gray-700"
-                            }`}
-                            >
-                              {group.label}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+            <p className="text-gray-500 max-w-xl">
+              Archivo general del colegio por periodo académico
+            </p>
 
-          {/* Segunda parte */}
-          <div className="space-y-2">
-            <header className="">
-              <h3 className="text-2xl font-bold text-primary">
-                2. Cargar archivo de excel
-              </h3>
-              <h4 className="text-xs text-gray-500">
-                Arrastra y suelta un archivo Excel o haz clic para seleccionar
-              </h4>
-            </header>
-            <div
-              className={`w-full border-2 border-dashed border-border rounded-xl p-6 py-32 text-center transition ${isDisabled ? "opacity-50 cursor-not-allowed " : "hover:bg-gray-50 cursor-pointer"}`}
-              onClick={() => {
-                if (isDisabled) return;
-                document.getElementById("fileInput")?.click();
-              }}
+            <p className="text-sm text-gray-400">
+              Formatos soportados: .xlsx, .xls
+            </p>
+
+            <button
+              type="button"
+              className="mt-8 cursor-pointer px-8 py-4 rounded-2xl bg-primary text-white font-semibold hover:opacity-90 transition"
             >
-              {isDisabled ? (
-                <div className="flex flex-col items-center">
-                  <IconWarning
-                    className="text-gray-500 mb-3"
-                    width={50}
-                    height={50}
-                  />
-                  <p className="text-base text-gray-500">
-                    Para cargar un archivo, primero <br /> debes de seleccionar
-                    un grado.
-                  </p>
-                  <p className="text-sm text-gray-400 mt-3">
-                    Formatos: .xlsx, .xls
-                  </p>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center">
-                  <IconUploadFile
-                    className="text-gray-500 mb-3"
-                    width={50}
-                    height={50}
-                  />
-                  <p className="text-base text-gray-500">
-                    Arrastra un archivo de Excel aquí <br /> o haz clic para
-                    seleccionar uno
-                  </p>
-                  <p className="text-sm text-gray-400 mt-3">
-                    Formatos: .xlsx, .xls
-                  </p>
-                  <input
-                    id="fileInput"
-                    type="file"
-                    accept=".xlsx, .xls"
-                    className="hidden"
-                    onChange={(e) => handleFile(e)}
-                    disabled={isDisabled}
-                  />
-                </div>
-              )}
-            </div>
+              {isUploading ? "Procesando archivo..." : "Seleccionar archivo"}
+            </button>
+
+            <input
+              id="academicFileInput"
+              type="file"
+              accept=".xlsx, .xls"
+              className="hidden"
+              onChange={handleFile}
+            />
           </div>
         </div>
 
-        {/* Lado derecho */}
-        <div className="size-full p-4 rounded-2xl border border-border overflow-y-auto bg-white">
-          <h3 className="text-xl font-bold mb-4 text-primary">
-            Archivos cargados
-          </h3>
+        {/* Panel izquierdo */}
+        <div className="col-span-12 lg:col-span-5 flex flex-col min-h-0">
+          <div className="rounded-xl border border-border bg-white p-4 shadow-sm flex flex-col flex-1 min-h-0">
+            <h3 className="text-2xl font-bold text-primary mb-5 shrink-0">
+              Documentos cargados
+            </h3>
 
-          {grades.length === 0 ? (
-            <p className="text-gray-500 text-sm">
-              No hay archivos cargados aún
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {grades.map((grade, index) => (
-                <div
-                  key={index}
-                  className="p-4 border rounded-xl bg-gray-50 shadow-sm"
-                >
-                  <p className="font-semibold text-gray-800">
-                    {grade.gradeLabel}
-                  </p>
+            {snapshots.length === 0 ? (
+              <div className="flex-1 rounded-xl flex flex-col items-center justify-center text-center text-gray-400 p-4">
+                <IconQuickReference className="size-14 mb-3" />
+                <p className="text-lg">No hay datos cargados.</p>
+              </div>
+            ) : (
+              <div className="flex-1 overflow-y-auto space-y-4 min-h-0">
+                {snapshots.map((snapshot) => (
+                  <div
+                    key={snapshot.id}
+                    className="rounded-xl border border-border p-4 bg-gray-50"
+                  >
+                    <p className="font-semibold text-gray-800">
+                      Periodo {snapshot.period} · Año {snapshot.year}
+                    </p>
 
-                  <p className="text-xs text-gray-500">
-                    {new Date(grade.createdAt).toLocaleString()}
-                  </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {new Date(snapshot.uploadedAt).toLocaleString()}
+                    </p>
 
-                  <div className="mt-2 text-sm text-gray-600">
-                    <p>👥 Estudiantes: {grade.students.length}</p>
-                    <p>📚 Materias: {grade.subjects.length}</p>
+                    <div className="mt-3 flex items-center justify-between text-sm">
+                      <span>👥 {snapshot.stats.totalStudents} estudiantes</span>
+                      <span>📚 {snapshot.subjects.length} materias</span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </section>
     </section>

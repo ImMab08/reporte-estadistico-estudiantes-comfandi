@@ -1,269 +1,402 @@
 "use client";
 
-import { IconQuickReference } from "@/src/shared/icons";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { getGrades } from "@/src/utils/storage";
+import { useEffect, useMemo, useState } from "react";
 import {
-  Chart as ChartJS,
-  ArcElement,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
   Tooltip,
   Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-} from "chart.js";
-import { Pie, Bar } from "react-chartjs-2";
+} from "recharts";
 
-// Registrar charts
-ChartJS.register(
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement
-);
+import { getAcademicSnapshots } from "@/src/utils/academicStorage";
+import type {
+  AcademicPeriodSnapshot,
+  StudentRecord,
+} from "@/src/shared/types/academic.types";
+
+const COLORS = ["#ef4444", "#f59e0b", "#3b82f6", "#10b981"];
+
+function countLevels(students: StudentRecord[]) {
+  const stats = { Bajo: 0, Basico: 0, Alto: 0, Superior: 0 };
+
+  students.forEach((student) => {
+    Object.values(student.grades).forEach((value) => {
+      const v = String(value).toLowerCase();
+
+      if (v.includes("baj")) stats.Bajo++;
+      else if (v.includes("bas")) stats.Basico++;
+      else if (v.includes("alt")) stats.Alto++;
+      else if (v.includes("sup")) stats.Superior++;
+    });
+  });
+
+  return stats;
+}
+
+function riskCount(students: StudentRecord[]) {
+  return students.filter((student) =>
+    Object.values(student.grades).some((v) =>
+      String(v).toLowerCase().includes("baj"),
+    ),
+  ).length;
+}
+
+function topCriticalSubjects(students: StudentRecord[]) {
+  const map: Record<string, number> = {};
+
+  students.forEach((student) => {
+    Object.entries(student.grades).forEach(([subject, value]) => {
+      if (String(value).toLowerCase().includes("baj")) {
+        map[subject] = (map[subject] || 0) + 1;
+      }
+    });
+  });
+
+  return Object.entries(map)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4)
+    .map(([subject, count]) => ({ subject, count }));
+}
+
+function topCriticalGrades(students: StudentRecord[]) {
+  const map: Record<string, number> = {};
+
+  students.forEach((student) => {
+    const hasRisk = Object.values(student.grades).some((v) =>
+      String(v).toLowerCase().includes("baj"),
+    );
+
+    if (hasRisk) {
+      map[student.grade] = (map[student.grade] || 0) + 1;
+    }
+  });
+
+  return Object.entries(map)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([grade, count]) => ({ grade, count }));
+}
 
 export function HomeFeaturePage() {
-  const [grades, setGrades] = useState<any[]>([]);
-  const [activeGrade, setActiveGrade] = useState<any>(null);
+  const [snapshots, setSnapshots] = useState<AcademicPeriodSnapshot[]>([]);
+  const [selectedId, setSelectedId] = useState("");
+  const [compareId, setCompareId] = useState("");
+  const [selectedGrade, setSelectedGrade] = useState("all");
+  const [selectedGroup, setSelectedGroup] = useState("all");
 
   useEffect(() => {
-    const data = getGrades();
-    setGrades(data);
+    const data = Object.values(getAcademicSnapshots()).sort(
+      (a, b) => a.period - b.period,
+    );
 
-    if (data.length > 0) {
-      setActiveGrade(data[0]);
+    setSnapshots(data);
+
+    if (data.length) {
+      const latest = data[data.length - 1];
+      setSelectedId(latest.id);
+
+      if (data.length > 1) {
+        setCompareId(data[data.length - 2].id);
+      }
     }
   }, []);
 
-  // =============================
-  // 📊 GLOBAL STATS
-  // =============================
-  function getGlobalStats(grade: any) {
-    let Baj = 0,
-      Bas = 0,
-      Alt = 0,
-      Sup = 0;
+  const activeSnapshot = useMemo(
+    () => snapshots.find((s) => s.id === selectedId) ?? null,
+    [snapshots, selectedId],
+  );
 
-    grade.students.forEach((student: any) => {
-      Object.values(student.grades).forEach((val: any) => {
-        if (val === "Baj") Baj++;
-        if (val === "Bas") Bas++;
-        if (val === "Alt") Alt++;
-        if (val === "Sup") Sup++;
-      });
+  const compareSnapshot = useMemo(
+    () => snapshots.find((s) => s.id === compareId) ?? null,
+    [snapshots, compareId],
+  );
+
+  const gradeOptions = useMemo(() => {
+    if (!activeSnapshot) return [];
+
+    return [...new Set(activeSnapshot.students.map((s) => s.grade))].sort(
+      (a, b) => Number(a) - Number(b),
+    );
+  }, [activeSnapshot]);
+
+  const groupOptions = useMemo(() => {
+    if (!activeSnapshot) return [];
+
+    const groups = activeSnapshot.students
+      .filter((s) =>
+        selectedGrade === "all" ? true : s.grade === selectedGrade,
+      )
+      .map((s) => s.group);
+
+    return [...new Set(groups)].sort((a, b) => Number(a) - Number(b));
+  }, [activeSnapshot, selectedGrade]);
+
+  const filteredStudents = useMemo(() => {
+    if (!activeSnapshot) return [];
+
+    return activeSnapshot.students.filter((student) => {
+      const gradeMatch =
+        selectedGrade === "all" || student.grade === selectedGrade;
+
+      const groupMatch =
+        selectedGroup === "all" || student.group === selectedGroup;
+
+      return gradeMatch && groupMatch;
     });
+  }, [activeSnapshot, selectedGrade, selectedGroup]);
+
+  const pieData = useMemo(() => {
+    const levels = countLevels(filteredStudents);
+
+    return Object.entries(levels).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  }, [filteredStudents]);
+
+  const comparison = useMemo(() => {
+    if (!compareSnapshot) return null;
+
+    const current = riskCount(filteredStudents);
+
+    const previousStudents = compareSnapshot.students.filter((student) => {
+      const gradeMatch =
+        selectedGrade === "all" || student.grade === selectedGrade;
+
+      const groupMatch =
+        selectedGroup === "all" || student.group === selectedGroup;
+
+      return gradeMatch && groupMatch;
+    });
+
+    const previous = riskCount(previousStudents);
+
+    const delta =
+      previous === 0 ? 0 : ((previous - current) / previous) * 100;
 
     return {
-      Baj,
-      Bas,
-      Alt,
-      Sup,
-      total: Baj + Bas + Alt + Sup,
+      current,
+      improvement: delta.toFixed(1),
     };
-  }
+  }, [
+    filteredStudents,
+    compareSnapshot,
+    selectedGrade,
+    selectedGroup,
+  ]);
 
-  // =============================
-  // 📚 SUBJECT STATS
-  // =============================
-  function getSubjectStats(grade: any) {
-    const result: any = {};
+  const trendData = useMemo(() => {
+    return snapshots.map((snapshot) => {
+      const students = snapshot.students.filter((student) => {
+        const gradeMatch =
+          selectedGrade === "all" || student.grade === selectedGrade;
 
-    grade.subjects.forEach((sub: string) => {
-      result[sub] = { Baj: 0, Bas: 0, Alt: 0, Sup: 0 };
-    });
+        const groupMatch =
+          selectedGroup === "all" || student.group === selectedGroup;
 
-    grade.students.forEach((student: any) => {
-      Object.entries(student.grades).forEach(([sub, val]: any) => {
-        if (result[sub] && result[sub][val] !== undefined) {
-          result[sub][val]++;
-        }
+        return gradeMatch && groupMatch;
       });
+
+      return {
+        period: `P${snapshot.period}`,
+        riesgo: riskCount(students),
+        promedio: students.length,
+      };
     });
+  }, [snapshots, selectedGrade, selectedGroup]);
 
-    return result;
+  const criticalSubjects = useMemo(
+    () => topCriticalSubjects(filteredStudents),
+    [filteredStudents],
+  );
+
+  const criticalGrades = useMemo(
+    () => topCriticalGrades(filteredStudents),
+    [filteredStudents],
+  );
+
+  if (!activeSnapshot) {
+    return <div className="p-10">No hay datos cargados.</div>;
   }
-
-  const globalStats = activeGrade ? getGlobalStats(activeGrade) : null;
-  const subjectStats = activeGrade ? getSubjectStats(activeGrade) : null;
 
   return (
-    <section className="p-4 size-full flex flex-col">
-      {/* Encabezado */}
-      <header className="py-4 border-b-2 border-border">
-        <h1 className="text-3xl font-bold text-primary">
-          Reporte general
-        </h1>
-        <h2 className="text-sm text-gray-500">
+    <section className="p-6 bg-slate-50 min-h-screen">
+      <header className="mb-6 border-b border-slate-200 pb-4">
+        <h1 className="text-4xl font-bold text-primary">Informe General</h1>
+        <p className="text-slate-500">
           Vista general del rendimiento académico
-        </h2>
+        </p>
       </header>
 
-      {/* ========================= */}
-      {/* 🔴 SIN DATOS (tu diseño) */}
-      {/* ========================= */}
-      {grades.length === 0 && (
-        <section className="flex flex-col items-center justify-center flex-1 min-h-0">
-          <div className="flex flex-col items-center space-y-5 p-20 border-4 border-primary border-dashed rounded-xl">
-            <div className="flex flex-col items-center text-center">
-              <IconQuickReference
-                width={50}
-                height={50}
-                className="text-primary"
-              />
+      <div className="bg-white rounded-3xl border border-slate-200 p-4 grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6 shadow-sm">
+        <select
+          className="rounded-2xl border p-4"
+          value={selectedId}
+          onChange={(e) => setSelectedId(e.target.value)}
+        >
+          {snapshots.map((s) => (
+            <option key={s.id} value={s.id}>
+              Periodo {s.period} · Año {s.year}
+            </option>
+          ))}
+        </select>
 
-              <p className="text-2xl text-primary font-bold">
-                <span>No hay datos cargados</span>
-              </p>
+        <select
+          className="rounded-2xl border p-4"
+          value={compareId}
+          onChange={(e) => setCompareId(e.target.value)}
+        >
+          <option value="">Sin comparación</option>
+          {snapshots
+            .filter((s) => s.id !== selectedId)
+            .map((s) => (
+              <option key={s.id} value={s.id}>
+                Periodo {s.period}
+              </option>
+            ))}
+        </select>
 
-              <p className="text-sm text-gray-400 mt-2">
-                Para ver los reportes, primero debes <br />
-                cargar un archivo Excel con los datos de los estudiantes.
-              </p>
-            </div>
+        <select
+          className="rounded-2xl border p-4"
+          value={selectedGrade}
+          onChange={(e) => {
+            setSelectedGrade(e.target.value);
+            setSelectedGroup("all");
+          }}
+        >
+          <option value="all">Todos los grados</option>
+          {gradeOptions.map((grade) => (
+            <option key={grade} value={grade}>
+              {grade}°
+            </option>
+          ))}
+        </select>
 
-            <Link
-              href="/settings"
-              className="mt-4 px-4 py-2 bg-primary hover:bg-white hover:text-primary border-2 border-primary transition-colors duration-300 rounded-xl text-white cursor-pointer"
-            >
-              Ir a configuración
-            </Link>
-          </div>
-        </section>
-      )}
+        <select
+          className="rounded-2xl border p-4"
+          value={selectedGroup}
+          onChange={(e) => setSelectedGroup(e.target.value)}
+        >
+          <option value="all">Todos los grupos</option>
+          {groupOptions.map((group) => (
+            <option key={group} value={group}>
+              Grupo {group}
+            </option>
+          ))}
+        </select>
+      </div>
 
-      {/* ========================= */}
-      {/* 🟢 CON DATOS */}
-      {/* ========================= */}
-      {grades.length > 0 && activeGrade && (
-        <section className="flex flex-col flex-1 min-h-0 mt-5 space-y-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <KpiCard title="Estudiantes" value={filteredStudents.length} />
+        <KpiCard title="Materias" value={activeSnapshot.subjects.length} />
+        <KpiCard title="Estudiantes en riesgo" value={comparison?.current ?? 0} />
+        <KpiCard
+          title="Índice de recuperación"
+          value={`${comparison?.improvement ?? 0}%`}
+        />
+      </div>
 
-          {/* SELECTOR (minimalista) */}
-          <div className="flex gap-2 flex-wrap">
-            {grades.map((g, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveGrade(g)}
-                className={`px-4 py-2 rounded-xl border text-sm transition
-                  ${
-                    activeGrade.gradeId === g.gradeId
-                      ? "bg-primary text-white"
-                      : "bg-white hover:bg-gray-100"
-                  }
-                `}
-              >
-                {g.gradeLabel}
-              </button>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+        <Panel title="Rendimiento General">
+          <ResponsiveContainer width="100%" height={320}>
+            <PieChart>
+              <Pie data={pieData} dataKey="value" innerRadius={70} outerRadius={120}>
+                {pieData.map((_, index) => (
+                  <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </Panel>
+
+        <Panel title="Comparativa entre Periodos">
+          <ResponsiveContainer width="100%" height={320}>
+            <LineChart data={trendData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="period" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="riesgo" stroke="#ef4444" strokeWidth={3} />
+              <Line type="monotone" dataKey="promedio" stroke="#3b82f6" strokeWidth={3} />
+            </LineChart>
+          </ResponsiveContainer>
+        </Panel>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <Panel title="Alertas Académicas">
+          <div className="space-y-3">
+            {filteredStudents.slice(0, 3).map((student) => (
+              <div key={student.id} className="flex justify-between rounded-2xl border p-3 bg-slate-50">
+                <span>{student.name}</span>
+                <span className="text-red-500">Riesgo</span>
+              </div>
             ))}
           </div>
+        </Panel>
 
-          {/* MÉTRICAS */}
-          <div className="grid grid-cols-3 gap-4">
-            <Card title="Estudiantes" value={activeGrade.students.length} />
-            <Card title="Materias" value={activeGrade.subjects.length} />
-            <Card title="Registros" value={globalStats?.total} />
+        <Panel title="Materias más Críticas">
+          <div className="space-y-3">
+            {criticalSubjects.map((item, index) => (
+              <div key={item.subject} className="flex justify-between rounded-2xl border p-3 bg-slate-50">
+                <span>{index + 1}. {item.subject}</span>
+                <span>{item.count}</span>
+              </div>
+            ))}
           </div>
+        </Panel>
 
-          {/* GRÁFICOS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 min-h-0">
-
-            {/* PIE */}
-            <div className="p-4 bg-white rounded-2xl border">
-              <h3 className="text-sm text-gray-500 mb-2">
-                Distribución general
-              </h3>
-
-              <Pie
-                data={{
-                  labels: ["Bajo", "Básico", "Alto", "Superior"],
-                  datasets: [
-                    {
-                      data: [
-                        globalStats?.Baj,
-                        globalStats?.Bas,
-                        globalStats?.Alt,
-                        globalStats?.Sup,
-                      ],
-                      backgroundColor: [
-                        "#ef4444",
-                        "#f59e0b",
-                        "#3b82f6",
-                        "#10b981",
-                      ],
-                    },
-                  ],
-                }}
-              />
-            </div>
-
-            {/* BAR */}
-            <div className="p-4 bg-white rounded-2xl border overflow-hidden">
-              <h3 className="text-sm text-gray-500 mb-2">
-                Rendimiento por materia
-              </h3>
-
-              <Bar
-                data={{
-                  labels: Object.keys(subjectStats || {}),
-                  datasets: [
-                    {
-                      label: "Bajos",
-                      data: Object.keys(subjectStats || {}).map(
-                        (l) => subjectStats[l].Baj
-                      ),
-                      backgroundColor: "#ef4444",
-                    },
-                    {
-                      label: "Básicos",
-                      data: Object.keys(subjectStats || {}).map(
-                        (l) => subjectStats[l].Bas
-                      ),
-                      backgroundColor: "#f59e0b",
-                    },
-                    {
-                      label: "Altos",
-                      data: Object.keys(subjectStats || {}).map(
-                        (l) => subjectStats[l].Alt
-                      ),
-                      backgroundColor: "#3b82f6",
-                    },
-                    {
-                      label: "Superiores",
-                      data: Object.keys(subjectStats || {}).map(
-                        (l) => subjectStats[l].Sup
-                      ),
-                      backgroundColor: "#10b981",
-                    },
-                  ],
-                }}
-                options={{
-                  responsive: true,
-                  scales: {
-                    x: { stacked: true },
-                    y: { stacked: true, beginAtZero: true },
-                  },
-                }}
-              />
-            </div>
+        <Panel title="Grados más Críticos">
+          <div className="space-y-3">
+            {criticalGrades.map((item, index) => (
+              <div key={item.grade} className="flex justify-between rounded-2xl border p-3 bg-slate-50">
+                <span>{index + 1}. {item.grade}°</span>
+                <span>{item.count}</span>
+              </div>
+            ))}
           </div>
-        </section>
-      )}
+        </Panel>
+      </div>
     </section>
   );
 }
 
-// =============================
-// 🧩 CARD
-// =============================
-function Card({ title, value }: any) {
+function Panel({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="p-4 bg-white rounded-2xl border text-center">
-      <p className="text-xs text-gray-400">{title}</p>
-      <p className="text-2xl font-bold text-primary">
-        {value ?? 0}
-      </p>
+    <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+      <h3 className="text-2xl font-bold mb-4 text-slate-800">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+function KpiCard({
+  title,
+  value,
+}: {
+  title: string;
+  value: string | number;
+}) {
+  return (
+    <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm min-h-[120px] flex flex-col justify-center">
+      <p className="text-sm text-slate-500">{title}</p>
+      <p className="text-4xl font-bold text-primary mt-2">{value}</p>
     </div>
   );
 }
