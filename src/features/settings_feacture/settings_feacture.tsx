@@ -74,14 +74,14 @@ export function SettingsFeacture() {
     <section className="h-full w-full bg-slate-50 p-4 flex flex-col overflow-hidden">
       {/* Header */}
       <header className="mb-6 border-b border-border pb-4 shrink-0">
-        <h1 className="text-4xl font-bold text-primary">Estudiantes</h1>
+        <h1 className="text-4xl font-bold text-primary">Configuración</h1>
         <p className="text-slate-500 mt-1 mb-1">
           Consulta individual del rendimiento académico
         </p>
       </header>
 
       {/* Contenido */}
-      <section className="grid grid-cols-12 gap-6 flex-1 min-h-0">
+      <section className="grid grid-cols-12 gap-4 flex-1 min-h-0">
         {/* Panel derecho */}
         <div className="col-span-12 lg:col-span-7 rounded-xl border overflow-hidden border-border bg-white p-4 shadow-sm flex flex-col min-h-0">
           <header className="space-y-1 shrink-0">

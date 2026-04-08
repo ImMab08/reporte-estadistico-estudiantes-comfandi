@@ -7,19 +7,47 @@ import type {
   StudentRecord,
 } from "@/src/shared/types/academic.types";
 import { IconQuickReference } from "@/src/shared/icons";
+import Image from "next/image";
 
-function normalizeName(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toUpperCase();
+function normalizePhotoName(value: string) {
+  return value.replace(/\s+/g, " ").trim();
 }
 
 function getStudentPhotoPath(student: StudentRecord) {
-  const normalized = normalizeName(student.name);
-  return `/students/${student.grade}-${student.group}/${normalized}.jpg`;
+  const folder = `Yumbo ${student.grade}-${student.group}`;
+  const fileName = `${normalizePhotoName(student.name)}.jpg`;
+
+  return `/img/fotos_estudiantes_yumbo_2026/${folder}/${fileName}`;
+}
+
+function isVisibleSubject(subject: string, value: unknown) {
+  if (value === null || value === undefined) return false;
+
+  const subjectName = String(subject).trim().toUpperCase();
+  const text = String(value).trim().toUpperCase();
+
+  // Omitir columnas que no son materias
+  const excludedFields = ["#", "PERDIDAS", "PÉRDIDAS"];
+
+  if (excludedFields.includes(subjectName)) return false;
+
+  // Omitir valores vacíos
+  if (!text) return false;
+  if (text === "#") return false;
+  if (text === "-") return false;
+  if (text === "N/A") return false;
+  if (text === "NA") return false;
+  if (text === "NO APLICA") return false;
+
+  return true;
+}
+
+function normalizeText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
 }
 
 function classifyStudent(student: StudentRecord) {
@@ -30,13 +58,15 @@ function classifyStudent(student: StudentRecord) {
     superior: 0,
   };
 
-  Object.values(student.grades).forEach((value) => {
-    const v = String(value).toLowerCase();
+  Object.entries(student.grades).forEach(([subject, value]) => {
+    if (!isVisibleSubject(subject, value)) return;
 
-    if (v.includes("baj")) levels.bajo++;
-    else if (v.includes("bas")) levels.basico++;
-    else if (v.includes("alt")) levels.alto++;
-    else if (v.includes("sup")) levels.superior++;
+    const v = normalizeText(String(value));
+
+    if (v.includes("bajo")) levels.bajo++;
+    else if (v.includes("basico")) levels.basico++;
+    else if (v.includes("alto")) levels.alto++;
+    else if (v.includes("superior")) levels.superior++;
   });
 
   return levels;
@@ -58,6 +88,9 @@ export function StudentsFeaturePage() {
   }, []);
 
   const activeSnapshot = snapshots[0] ?? null;
+  const [subjectSort, setSubjectSort] = useState<"alphabetical" | "grade">(
+    "grade",
+  );
 
   const gradeOptions = useMemo(() => {
     if (!activeSnapshot) return [];
@@ -82,36 +115,112 @@ export function StudentsFeaturePage() {
   const filteredStudents = useMemo(() => {
     if (!activeSnapshot) return [];
 
-    return activeSnapshot.students.filter((student) => {
-      const gradeMatch =
-        selectedGrade === "all" || student.grade === selectedGrade;
+    const normalizedSearch = search.trim().toLowerCase();
 
-      const groupMatch =
-        selectedGroup === "all" || student.group === selectedGroup;
+    return activeSnapshot.students
+      .filter((student) => {
+        const gradeMatch =
+          selectedGrade === "all" || student.grade === selectedGrade;
 
-      const searchMatch =
-        !search ||
-        student.name.toLowerCase().includes(search.toLowerCase()) ||
-        student.id.toLowerCase().includes(search.toLowerCase());
+        const groupMatch =
+          selectedGroup === "all" || student.group === selectedGroup;
 
-      return gradeMatch && groupMatch && searchMatch;
-    });
+        const searchMatch =
+          !normalizedSearch ||
+          student.name.toLowerCase().includes(normalizedSearch) ||
+          student.id.toLowerCase().includes(normalizedSearch);
+
+        return gradeMatch && groupMatch && searchMatch;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name, "es"));
   }, [activeSnapshot, selectedGrade, selectedGroup, search]);
 
-  useEffect(() => {
-    if (!selectedStudentId && filteredStudents.length) {
-      setSelectedStudentId(filteredStudents[0].id);
-    }
-  }, [filteredStudents, selectedStudentId]);
+  // useEffect(() => {
+  //   if (!selectedStudentId && filteredStudents.length) {
+  //     setSelectedStudentId(filteredStudents[0].id);
+  //   }
+  // }, [filteredStudents, selectedStudentId]);
 
+  // const selectedStudent =
+  //   filteredStudents.find((s) => s.id === selectedStudentId) ??
+  //   filteredStudents[0] ??
+  //   null;
   const selectedStudent =
-    filteredStudents.find((s) => s.id === selectedStudentId) ??
-    filteredStudents[0];
+    filteredStudents.find((s) => s.id === selectedStudentId) ?? null;
 
-  if (!activeSnapshot || !selectedStudent) {
+  const visibleSubjects = useMemo(() => {
+    if (!selectedStudent) return [];
+
+    return Object.entries(selectedStudent.grades).filter(([subject, level]) =>
+      isVisibleSubject(subject, level),
+    );
+  }, [selectedStudent]);
+
+  const sortedSubjects = useMemo(() => {
+    const levelOrder: Record<string, number> = {
+      superior: 4,
+      alto: 3,
+      basico: 2,
+      básico: 2,
+      bajo: 1,
+    };
+
+    const subjects = [...visibleSubjects];
+
+    if (subjectSort === "alphabetical") {
+      return subjects.sort(([a], [b]) => a.localeCompare(b));
+    }
+
+    return subjects.sort(([, levelA], [, levelB]) => {
+      const a = levelOrder[String(levelA).toLowerCase()] || 0;
+      const b = levelOrder[String(levelB).toLowerCase()] || 0;
+      return b - a;
+    });
+  }, [visibleSubjects, subjectSort]);
+
+  const metrics = useMemo(() => {
+    if (!selectedStudent) {
+      return {
+        bajo: 0,
+        basico: 0,
+        alto: 0,
+        superior: 0,
+      };
+    }
+
+    return classifyStudent(selectedStudent);
+  }, [selectedStudent]);
+
+  const strengths = useMemo(() => {
+    if (!selectedStudent) return [];
+
+    return Object.entries(selectedStudent.grades)
+      .filter(
+        ([subject, v]) =>
+          isVisibleSubject(subject, v) &&
+          ["alto", "superior"].some((k) => String(v).toLowerCase().includes(k)),
+      )
+      .slice(0, 3)
+      .map(([k]) => k);
+  }, [selectedStudent]);
+
+  const attention = useMemo(() => {
+    if (!selectedStudent) return [];
+
+    return Object.entries(selectedStudent.grades)
+      .filter(
+        ([subject, v]) =>
+          isVisibleSubject(subject, v) &&
+          ["bajo", "basico"].some((k) => String(v).toLowerCase().includes(k)),
+      )
+      .slice(0, 3)
+      .map(([k]) => k);
+  }, [selectedStudent]);
+
+  if (!activeSnapshot) {
     return (
       <div className="size-full bg-slate-50 p-4 flex flex-col overflow-hidden">
-        <header className="mb-6 border-b border-border pb-4 shrink-0">
+        <header className="mb-4 border-b border-border pb-4 shrink-0">
           <h1 className="text-4xl font-bold text-primary">Estudiantes</h1>
           <p className="text-slate-500 mt-1 mb-1">
             Consulta individual del rendimiento académico
@@ -126,119 +235,58 @@ export function StudentsFeaturePage() {
     );
   }
 
-  const metrics = classifyStudent(selectedStudent);
-
-  const strengths = Object.entries(selectedStudent.grades)
-    .filter(([, v]) =>
-      ["alto", "superior"].some((k) => String(v).toLowerCase().includes(k)),
-    )
-    .slice(0, 3)
-    .map(([k]) => k);
-
-  const attention = Object.entries(selectedStudent.grades)
-    .filter(([, v]) =>
-      ["bajo", "basico"].some((k) => String(v).toLowerCase().includes(k)),
-    )
-    .slice(0, 3)
-    .map(([k]) => k);
-
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
-      <div className="max-w-[1600px] mx-auto">
-        <header className="mb-6 border-b border-slate-200 pb-4">
-          <h1 className="text-4xl font-black text-blue-900">Estudiantes</h1>
-          <p className="text-slate-500 mt-1">
-            Consulta individual del rendimiento académico
-          </p>
-        </header>
+    <section className="size-full bg-slate-50 p-4 flex flex-col overflow-hidden">
+      <header className="mb-4 border-b border-slate-200 pb-4 shrink-0">
+        <h1 className="text-4xl font-bold text-blue-900">Estudiantes</h1>
+        <p className="text-slate-500 mt-1">
+          Consulta individual del rendimiento académico
+        </p>
+      </header>
 
-        <div className="grid grid-cols-12 gap-6">
-          <aside className="col-span-3 bg-white rounded-3xl border border-slate-200 shadow-sm p-4 space-y-4">
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 px-4 py-3"
-              placeholder="Buscar estudiante..."
-            />
-
-            <div className="grid grid-cols-2 gap-3">
-              <select
-                value={selectedGrade}
-                onChange={(e) => {
-                  setSelectedGrade(e.target.value);
-                  setSelectedGroup("all");
-                }}
-                className="rounded-2xl border border-slate-200 px-4 py-3"
-              >
-                <option value="all">Todos</option>
-                {gradeOptions.map((grade) => (
-                  <option key={grade} value={grade}>
-                    {grade}°
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={selectedGroup}
-                onChange={(e) => setSelectedGroup(e.target.value)}
-                className="rounded-2xl border border-slate-200 px-4 py-3"
-              >
-                <option value="all">Grupo</option>
-                {groupOptions.map((group) => (
-                  <option key={group} value={group}>
-                    {group}
-                  </option>
-                ))}
-              </select>
+      <section className="gap-4 flex flex-1 min-h-0 overflow-hidden rounded-xl">
+        <section className="w-full min-h-0 overflow-hidden bg-white border border-border rounded-xl flex flex-col">
+          {!selectedStudent ? (
+            <div className="flex-1 flex items-center justify-center text-slate-400 text-xl font-medium">
+              Selecciona un estudiante para ver su información
             </div>
-
-            <div className="rounded-2xl border border-slate-200 overflow-hidden max-h-[700px] overflow-y-auto">
-              {filteredStudents.map((student) => (
-                <button
-                  key={student.id}
-                  onClick={() => setSelectedStudentId(student.id)}
-                  className={`w-full text-left px-4 py-3 border-t border-slate-100 hover:bg-slate-50 ${
-                    selectedStudent.id === student.id
-                      ? "bg-blue-700 text-white"
-                      : "text-slate-700"
-                  }`}
-                >
-                  {student.name}
-                </button>
-              ))}
-            </div>
-          </aside>
-
-          <main className="col-span-9 grid grid-cols-12 gap-6">
-            <section className="col-span-7 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="p-6 flex gap-6">
-                <div className="w-52 h-64 rounded-2xl bg-slate-200 overflow-hidden shrink-0">
-                  <img
+          ) : (
+            <>
+              <div className="p-4 flex gap-4 shrink-0">
+                <div className="relative w-52 h-64 rounded-2xl bg-slate-200 overflow-hidden shrink-0">
+                  <Image
                     src={getStudentPhotoPath(selectedStudent)}
                     alt={selectedStudent.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover object-center"
+                    sizes="230px"
                   />
                 </div>
 
                 <div className="flex-1">
-                  <h2 className="text-4xl font-black text-slate-800 leading-tight">
+                  <h2 className="text-4xl font-bold text-slate-800">
                     {selectedStudent.name}
                   </h2>
 
-                  <p className="text-slate-500 mt-3 text-xl">
-                    Código: {selectedStudent.id}
-                  </p>
+                  <p className="text-slate-400">Código: {selectedStudent.id}</p>
 
-                  <div className="inline-block mt-3 px-4 py-2 rounded-xl bg-slate-100 text-slate-700">
-                    {selectedStudent.grade}° · Grupo {selectedStudent.group}
+                  <div className="inline-block mt-2">
+                    <p>
+                      <span className="font-semibold">Grado:</span>{" "}
+                      {selectedStudent.grade}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Curso:</span>{" "}
+                      {selectedStudent.grade}-{selectedStudent.group}
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-4 gap-2 mt-6">
                     {[
-                      ["Bajo", metrics.bajo, "bg-red-500"],
-                      ["Básico", metrics.basico, "bg-amber-400"],
-                      ["Alto", metrics.alto, "bg-blue-500"],
                       ["Superior", metrics.superior, "bg-emerald-500"],
+                      ["Alto", metrics.alto, "bg-blue-500"],
+                      ["Básico", metrics.basico, "bg-amber-400"],
+                      ["Bajo", metrics.bajo, "bg-red-500"],
                     ].map(([label, value, color]) => (
                       <div key={String(label)} className="text-center">
                         <div
@@ -250,73 +298,113 @@ export function StudentsFeaturePage() {
                       </div>
                     ))}
                   </div>
+                </div>
+              </div>
 
-                  <div className="grid grid-cols-2 gap-4 mt-6">
-                    <div className="rounded-2xl border border-slate-200 p-4">
-                      <p className="text-red-500 font-bold text-2xl">
-                        Pérdidas: {metrics.bajo}
-                      </p>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 p-4">
-                      <p className="text-emerald-500 font-bold text-2xl">
-                        Fortalezas: {metrics.alto + metrics.superior}
-                      </p>
-                    </div>
+              <div className="flex-1 min-h-0 overflow-y-auto p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-2xl font-bold text-slate-800">
+                    Materias
+                  </h3>
+
+                  <div className="flex gap-3">
+                    <select
+                      value={subjectSort}
+                      onChange={(e) =>
+                        setSubjectSort(
+                          e.target.value as "alphabetical" | "grade",
+                        )
+                      }
+                      className="rounded-xl border border-slate-300 px-3 py-2 text-sm cursor-pointer"
+                    >
+                      <option value="grade">Por rendimiento</option>
+                      <option value="alphabetical">Por materias</option>
+                    </select>
                   </div>
                 </div>
-              </div>
 
-              <div className="border-t border-slate-200 p-6">
-                <h3 className="text-2xl font-bold text-slate-800 mb-4">
-                  Observaciones
-                </h3>
-
-                <div className="space-y-3 text-lg">
-                  <p>
-                    ✅ <span className="font-semibold">Fortalezas:</span>{" "}
-                    {strengths.join(", ") || "Sin fortalezas destacadas"}
-                  </p>
-                  <p>
-                    ⚠️ <span className="font-semibold">Atención:</span>{" "}
-                    {attention.join(", ") || "Sin alertas"}
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            <section className="col-span-5 bg-white rounded-3xl border border-slate-200 shadow-sm p-6">
-              <h3 className="text-2xl font-bold text-slate-800 mb-6">
-                Materias
-              </h3>
-
-              <div className="space-y-4">
-                {Object.entries(selectedStudent.grades).map(
-                  ([subject, level]) => (
+                <div className="space-y-2">
+                  {sortedSubjects.map(([subject, level]) => (
                     <div
                       key={subject}
-                      className="flex items-center justify-between border-b border-slate-100 pb-3"
+                      className="flex items-center justify-between border-b border-slate-300 pb-2"
                     >
-                      <span className="text-lg text-slate-700">{subject}</span>
-                      <span className="px-3 py-1 rounded-xl text-white text-sm font-bold bg-blue-500">
+                      <span className="text-slate-600">{subject}</span>
+                      <span className="px-3 py-1 rounded-lg text-white text-sm font-bold bg-blue-500">
                         {String(level)}
                       </span>
                     </div>
-                  ),
-                )}
-              </div>
+                  ))}
+                </div>
 
-              <div className="mt-8">
-                <h3 className="text-2xl font-bold text-slate-800 mb-4">
-                  Evolución por Periodos
-                </h3>
-                <div className="h-56 rounded-2xl border border-slate-200 flex items-center justify-center text-slate-400">
-                  Próximo: comparativa P1 · P2 · P3
+                <div className="mt-8">
+                  <h3 className="text-2xl font-bold text-slate-800 mb-4">
+                    Evolución por Periodos
+                  </h3>
+
+                  <div className="h-56 rounded-2xl border border-slate-200 flex items-center justify-center text-slate-400">
+                    Próximo: comparativa P1 · P2 · P3
+                  </div>
                 </div>
               </div>
-            </section>
-          </main>
-        </div>
-      </div>
-    </div>
+            </>
+          )}
+        </section>
+
+        <aside className="max-w-100 w-120 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col space-y-2">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+            placeholder="Buscar estudiante..."
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <select
+              value={selectedGrade}
+              onChange={(e) => {
+                setSelectedGrade(e.target.value);
+                setSelectedGroup("all");
+              }}
+              className="rounded-2xl border border-slate-200 px-4 py-3 cursor-pointer"
+            >
+              <option value="all">Grados</option>
+              {gradeOptions.map((grade) => (
+                <option key={grade} value={grade}>
+                  {grade}°
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={selectedGroup}
+              onChange={(e) => setSelectedGroup(e.target.value)}
+              className="rounded-2xl border border-slate-200 px-4 py-3 cursor-pointer"
+            >
+              <option value="all">Grupo</option>
+              {groupOptions.map((group) => (
+                <option key={group} value={group}>
+                  {group}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="rounded-2xl border border-slate-200 overflow-hidden max-h-175 overflow-y-auto">
+            {filteredStudents.map((student) => (
+              <button
+                key={student.id}
+                onClick={() => setSelectedStudentId(student.id)}
+                className={`w-full text-left px-4 py-3 border-t cursor-pointer border-slate-100 hover:bg-slate-200 transition-all duration-300 hover:text-primary ${
+                  selectedStudent?.id === student.id
+                    ? "bg-primary text-white"
+                    : "text-slate-700"
+                }`}
+              >
+                {student.name}
+              </button>
+            ))}
+          </div>
+        </aside>
+      </section>
+    </section>
   );
 }
