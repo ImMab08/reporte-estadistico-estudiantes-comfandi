@@ -18,14 +18,13 @@ type PieItem = {
 
 type Props = {
   data: PieItem[];
+  title: string;
 };
 
-export function PerformancePie({ data }: Props) {
+export function PerformancePie({ data, title }: Props) {
   return (
     <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-      <h3 className="text-2xl font-bold mb-4 text-slate-800">
-        Rendimiento General
-      </h3>
+      <h3 className="text-2xl font-bold mb-4 text-slate-800">{title}</h3>
 
       <ResponsiveContainer width="100%" height={320}>
         <PieChart>

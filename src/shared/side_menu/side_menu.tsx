@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { navItems } from "./data";
-import { IconLogout } from "../icons";
 import { usePathname } from "next/navigation";
 
 export function SideMenu() {
@@ -16,10 +15,10 @@ export function SideMenu() {
         <div className="flex w-full justify-center pb-4 border-b-2 border-primary/10">
           <Image
             alt=""
-            width={150}
-            height={150}
+            width={90}
+            height={90}
             className="object-contain"
-            src="/img/logo/logo_comfandi_blue.svg"
+            src="/img/logo/logo_edumetrics.svg"
           />
         </div>
 
@@ -38,20 +37,18 @@ export function SideMenu() {
                     href={item.href}
                     className="flex space-x-2 items-stretch group"
                   >
-                    <div className={`w-1 bg-primary rounded-full origin-left transition-transform duration-300 ${isActive ? "scale-y-100" : "scale-y-0 group-hover:scale-y-100"}`}></div>
+                    <div
+                      className={`w-1 bg-primary rounded-full origin-left transition-transform duration-300 ${isActive ? "scale-y-100" : "scale-y-0 group-hover:scale-y-100"}`}
+                    ></div>
                     <div
                       className={`flex relative items-center space-x-2 w-full py-1 px-2 rounded-lg transition-all duration-300
                         ${
                           isActive
                             ? "bg-primary text-white"
                             : "text-primary bg-white  group-hover:bg-primary group-hover:text-white -left-3 group-hover:left-0"
-                        }`
-                      }
+                        }`}
                     >
-                      <Icon
-                        width={20}
-                        hanging={20}
-                      />
+                      <Icon width={20} hanging={20} />
 
                       <p className="font-semibold transition-colors duration-300">
                         {item.text}
@@ -76,19 +73,18 @@ export function SideMenu() {
                     href={item.href}
                     className="flex space-x-2 items-stretch group"
                   >
-                    <div className={`w-1 bg-primary rounded-full origin-left transition-transform duration-300 ${isActive ? "scale-y-100" : "scale-y-0 group-hover:scale-y-100"}`}></div>
-                    <div className={`flex relative items-center space-x-2 w-full py-1 px-2 rounded-lg transition-all duration-300
+                    <div
+                      className={`w-1 bg-primary rounded-full origin-left transition-transform duration-300 ${isActive ? "scale-y-100" : "scale-y-0 group-hover:scale-y-100"}`}
+                    ></div>
+                    <div
+                      className={`flex relative items-center space-x-2 w-full py-1 px-2 rounded-lg transition-all duration-300
                         ${
                           isActive
                             ? "bg-primary text-white"
                             : "text-primary bg-white  group-hover:bg-primary group-hover:text-white -left-3 group-hover:left-0"
-                        }`
-                      }
+                        }`}
                     >
-                      <Icon
-                        width={20}
-                        hanging={20}
-                      />
+                      <Icon width={20} hanging={20} />
 
                       <p className="font-semibold transition-colors duration-300">
                         {item.text}
@@ -101,10 +97,16 @@ export function SideMenu() {
         </div>
 
         {/* Cerrar sesión */}
-        <div className="mt-4 flex flex-col space-y-2 p-2 pt-4 border-t-2 border-primary/10 rounded-lg cursor-pointer duration-300 text-red-500 hover:text-red-600">
-          <div className="flex items-center space-x-2">
-            <IconLogout width={20} hanging={20} />
-            <p className="font-semibold">Cerrar sesión</p>
+        <div className="mt-4 flex flex-col space-y-2 p-2 pt-4 border-t-2 border-primary/10 rounded-lg text-primary">
+          <div className="flex flex-col items-center space-x-2 text-xs text-center space-y-1">
+            <div>
+              <p className="font-semibold">Comfandi</p>
+              <p className="font-semibold">Campus E Yumbo</p>
+            </div>
+            <p>Todos los derechos reservados.</p>
+            <p className="">
+              © 2026 Edumetricks by FY <br />
+            </p>
           </div>
         </div>
       </div>

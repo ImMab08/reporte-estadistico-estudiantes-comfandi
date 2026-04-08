@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { parseExcel } from "@/src/utils/parseExcel";
 import { processAcademicPeriod } from "@/src/utils/processAcademicPeriod";
@@ -13,14 +13,14 @@ import { IconQuickReference, IconUploadFile } from "@/src/shared/icons";
 
 import { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
 import { detectAcademicPeriod } from "@/src/utils/detectAcademicPeriod";
+import Image from "next/image";
 
 export function SettingsFeacture() {
   const [snapshots, setSnapshots] = useState<AcademicPeriodSnapshot[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
-  // ⚡ Temporal mientras conectamos selector real
+  // Temporal mientras conectamos selector real
   const currentYear = new Date().getFullYear();
-  const currentPeriod = detectAcademicPeriod;
 
   useEffect(() => {
     const data = Object.values(getAcademicSnapshots());
@@ -31,10 +31,6 @@ export function SettingsFeacture() {
 
     setSnapshots(sorted);
   }, []);
-
-  const latestSnapshot = useMemo(() => {
-    return snapshots[0] ?? null;
-  }, [snapshots]);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -73,11 +69,23 @@ export function SettingsFeacture() {
   return (
     <section className="h-full w-full bg-slate-50 p-4 flex flex-col overflow-hidden">
       {/* Header */}
-      <header className="mb-6 border-b border-border pb-4 shrink-0">
-        <h1 className="text-4xl font-bold text-primary">Configuración</h1>
-        <p className="text-slate-500 mt-1 mb-1">
-          Consulta individual del rendimiento académico
-        </p>
+      <header className="mb-6 border-b border-border py-3.25 shrink-0 flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold text-primary">Configuración</h1>
+          <p className="text-slate-500 mt-1 mb-1">
+            Consulta individual del rendimiento académico
+          </p>
+        </div>
+
+        <div className="flex justify-center">
+          <Image
+            alt=""
+            width={150}
+            height={150}
+            className="object-contain"
+            src="/img/logo/logo_comfandi_blue.svg"
+          />
+        </div>
       </header>
 
       {/* Contenido */}

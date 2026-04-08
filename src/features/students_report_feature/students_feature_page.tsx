@@ -6,7 +6,7 @@ import type {
   AcademicPeriodSnapshot,
   StudentRecord,
 } from "@/src/shared/types/academic.types";
-import { IconQuickReference } from "@/src/shared/icons";
+import { IconQuickReference, IconWebTraffic } from "@/src/shared/icons";
 import Image from "next/image";
 
 function normalizePhotoName(value: string) {
@@ -135,18 +135,10 @@ export function StudentsFeaturePage() {
       .sort((a, b) => a.name.localeCompare(b.name, "es"));
   }, [activeSnapshot, selectedGrade, selectedGroup, search]);
 
-  // useEffect(() => {
-  //   if (!selectedStudentId && filteredStudents.length) {
-  //     setSelectedStudentId(filteredStudents[0].id);
-  //   }
-  // }, [filteredStudents, selectedStudentId]);
-
-  // const selectedStudent =
-  //   filteredStudents.find((s) => s.id === selectedStudentId) ??
-  //   filteredStudents[0] ??
-  //   null;
   const selectedStudent =
     filteredStudents.find((s) => s.id === selectedStudentId) ?? null;
+
+  console.log("estudiantes: ", filteredStudents);
 
   const visibleSubjects = useMemo(() => {
     if (!selectedStudent) return [];
@@ -220,11 +212,23 @@ export function StudentsFeaturePage() {
   if (!activeSnapshot) {
     return (
       <div className="size-full bg-slate-50 p-4 flex flex-col overflow-hidden">
-        <header className="mb-4 border-b border-border pb-4 shrink-0">
-          <h1 className="text-4xl font-bold text-primary">Estudiantes</h1>
-          <p className="text-slate-500 mt-1 mb-1">
-            Consulta individual del rendimiento académico
-          </p>
+        <header className="mb-4 border-b border-border py-3.25 shrink-0 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-primary">Estudiantes</h1>
+            <p className="text-slate-500 mt-1 mb-1">
+              Consulta individual del rendimiento académico
+            </p>
+          </div>
+
+          <div className="flex justify-center">
+            <Image
+              alt=""
+              width={150}
+              height={150}
+              className="object-contain"
+              src="/img/logo/logo_comfandi_blue.svg"
+            />
+          </div>
         </header>
 
         <div className="bg-white flex-1 overflow-auto rounded-xl border border-border p-4 text-center text-gray-400 flex flex-col items-center justify-center space-y-2">
@@ -237,18 +241,33 @@ export function StudentsFeaturePage() {
 
   return (
     <section className="size-full bg-slate-50 p-4 flex flex-col overflow-hidden">
-      <header className="mb-4 border-b border-slate-200 pb-4 shrink-0">
-        <h1 className="text-4xl font-bold text-blue-900">Estudiantes</h1>
-        <p className="text-slate-500 mt-1">
-          Consulta individual del rendimiento académico
-        </p>
+      <header className="mb-4 border-b border-border py-3.25 shrink-0 flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold text-primary">Estudiantes</h1>
+          <p className="text-slate-500 mt-1 mb-1">
+            Consulta individual del rendimiento académico
+          </p>
+        </div>
+
+        <div className="flex justify-center">
+          <Image
+            alt=""
+            width={150}
+            height={150}
+            className="object-contain"
+            src="/img/logo/logo_comfandi_blue.svg"
+          />
+        </div>
       </header>
 
       <section className="gap-4 flex flex-1 min-h-0 overflow-hidden rounded-xl">
         <section className="w-full min-h-0 overflow-hidden bg-white border border-border rounded-xl flex flex-col">
           {!selectedStudent ? (
-            <div className="flex-1 flex items-center justify-center text-slate-400 text-xl font-medium">
-              Selecciona un estudiante para ver su información
+            <div className="flex-1 flex flex-col items-center justify-center text-center leading-6 text-slate-400 text-xl font-medium">
+              <IconWebTraffic className="size-18" />
+              <p>
+                Selecciona un estudiante <br /> para ver su información
+              </p>
             </div>
           ) : (
             <>
@@ -399,7 +418,12 @@ export function StudentsFeaturePage() {
                     : "text-slate-700"
                 }`}
               >
-                {student.name}
+                <div>
+                  <p className="text-sm text-slate-400">
+                    Curso: {student.grade}-{student.group}
+                  </p>
+                  {student.name}
+                </div>
               </button>
             ))}
           </div>
