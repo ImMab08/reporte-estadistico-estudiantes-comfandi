@@ -78,6 +78,7 @@ export function StudentsFeaturePage() {
   const [selectedGroup, setSelectedGroup] = useState("all");
   const [search, setSearch] = useState("");
   const [selectedStudentId, setSelectedStudentId] = useState("");
+  const [selectedPeriodId, setSelectedPeriodId] = useState("");
 
   useEffect(() => {
     const data = Object.values(getAcademicSnapshots()).sort(
@@ -87,7 +88,29 @@ export function StudentsFeaturePage() {
     setSnapshots(data);
   }, []);
 
-  const activeSnapshot = snapshots[0] ?? null;
+  const activeSnapshot =
+    snapshots.find((snapshot) => snapshot.id === selectedPeriodId) ??
+    snapshots[0] ??
+    null;
+
+  useEffect(() => {
+    if (!selectedPeriodId && snapshots.length > 0) {
+      setSelectedPeriodId(snapshots[0].id);
+    }
+  }, [snapshots, selectedPeriodId]);
+
+  useEffect(() => {
+    if (!activeSnapshot || !selectedStudentId) return;
+
+    const existsInCurrentPeriod = activeSnapshot.students.some(
+      (student) => student.id === selectedStudentId,
+    );
+
+    if (!existsInCurrentPeriod) {
+      setSelectedStudentId("");
+    }
+  }, [activeSnapshot, selectedStudentId]);
+
   const [subjectSort, setSubjectSort] = useState<"alphabetical" | "grade">(
     "grade",
   );
@@ -300,22 +323,28 @@ export function StudentsFeaturePage() {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-2 mt-6">
-                    {[
-                      ["Superior", metrics.superior, "bg-emerald-500"],
-                      ["Alto", metrics.alto, "bg-blue-500"],
-                      ["Básico", metrics.basico, "bg-amber-400"],
-                      ["Bajo", metrics.bajo, "bg-red-500"],
-                    ].map(([label, value, color]) => (
-                      <div key={String(label)} className="text-center">
-                        <div
-                          className={`${color} text-white rounded-xl py-3 text-2xl font-bold`}
-                        >
-                          {value}
+                  <div className="mt-4">
+                    <p className="mb-2 text-lg">
+                      <span className="font-semibold">Periodo:</span>{" "}
+                      {activeSnapshot.period} · {activeSnapshot.year}
+                    </p>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[
+                        ["Superior", metrics.superior, "bg-emerald-500"],
+                        ["Alto", metrics.alto, "bg-blue-500"],
+                        ["Básico", metrics.basico, "bg-amber-400"],
+                        ["Bajo", metrics.bajo, "bg-red-500"],
+                      ].map(([label, value, color]) => (
+                        <div key={String(label)} className="text-center">
+                          <div
+                            className={`${color} text-white rounded-xl py-3 text-2xl font-bold`}
+                          >
+                            {value}
+                          </div>
+                          <p className="mt-2 text-slate-500">{label}</p>
                         </div>
-                        <p className="mt-2 text-slate-500">{label}</p>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -374,17 +403,30 @@ export function StudentsFeaturePage() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+            className="w-full rounded-xl border border-slate-200 p-2"
             placeholder="Buscar estudiante..."
           />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="w-full">
+            <select
+              value={selectedPeriodId}
+              onChange={(e) => setSelectedPeriodId(e.target.value)}
+              className="rounded-xl w-full border border-slate-200 p-2 cursor-pointer"
+            >
+              {snapshots.map((snapshot) => (
+                <option key={snapshot.id} value={snapshot.id}>
+                  Periodo {snapshot.period} · {snapshot.year}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
             <select
               value={selectedGrade}
               onChange={(e) => {
                 setSelectedGrade(e.target.value);
                 setSelectedGroup("all");
               }}
-              className="rounded-2xl border border-slate-200 px-4 py-3 cursor-pointer"
+              className="rounded-xl border border-slate-200 p-2 cursor-pointer"
             >
               <option value="all">Grados</option>
               {gradeOptions.map((grade) => (
@@ -397,7 +439,7 @@ export function StudentsFeaturePage() {
             <select
               value={selectedGroup}
               onChange={(e) => setSelectedGroup(e.target.value)}
-              className="rounded-2xl border border-slate-200 px-4 py-3 cursor-pointer"
+              className="rounded-xl border border-slate-200 p-2 cursor-pointer"
             >
               <option value="all">Grupo</option>
               {groupOptions.map((group) => (

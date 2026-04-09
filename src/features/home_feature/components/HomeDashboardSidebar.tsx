@@ -1,6 +1,6 @@
 type SnapshotOption = {
   id: string;
-  period: number;
+  period: number; 
   year: number;
 };
 

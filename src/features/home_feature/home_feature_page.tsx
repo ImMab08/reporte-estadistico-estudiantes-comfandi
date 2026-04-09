@@ -51,7 +51,7 @@ export function HomeFeaturePage() {
 
   const performanceTitle =
     selectedGrade === "all"
-      ? "Rendimiento general por periodo"
+      ? "Rendimiento general"
       : selectedGroup === "all"
         ? `Rendimiento general, grado: ${selectedGrade}°`
         : `Rendimiento general, grado: ${selectedGrade}°-${selectedGroup}`;
@@ -91,9 +91,7 @@ export function HomeFeaturePage() {
       <header className="mb-4 border-b border-border py-3.25 shrink-0 flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold text-primary">Inicio</h1>
-          <p className="text-slate-500 mt-1 mb-1">
-            Vista general del rendimiento academico
-          </p>
+          <p className="text-slate-500 mt-1 mb-1">Vista general del rendimiento academico</p>
         </div>
 
         <div className="flex justify-center">
@@ -109,6 +107,9 @@ export function HomeFeaturePage() {
 
       <section className="gap-4 flex flex-1 min-h-0 overflow-hidden rounded-xl">
         <section className="p-4 w-full min-h-0 overflow-auto bg-white border border-border rounded-xl flex flex-col">
+          <div className="text-3xl mb-4 text-primary font-bold">
+            <p className="">{performanceTitle}</p>
+          </div>
           <DashboardKpis
             totalStudents={analytics.kpis.totalStudents}
             studentsAtRisk={analytics.kpis.studentsAtRisk}

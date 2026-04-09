@@ -95,7 +95,8 @@ export function usePeriodAnalytics(students: StudentRecord[]) {
         grade: student.grade,
         group: student.group,
         lowCount: counts.low,
-        highCount: counts.high + counts.superior,
+        highCount: counts.superior,
+        // highCount: counts.superior + counts.high,
       };
 
       // destacados
