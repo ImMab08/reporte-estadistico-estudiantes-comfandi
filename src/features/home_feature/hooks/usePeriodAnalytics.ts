@@ -12,10 +12,7 @@ type RankedCourse = {
 };
 
 type RankedStudent = {
-  id: string;
-  name: string;
-  grade: string;
-  group: string;
+  student: StudentRecord;
   lowCount: number;
   highCount: number;
 };
@@ -90,10 +87,7 @@ export function usePeriodAnalytics(students: StudentRecord[]) {
       }
 
       const studentData: RankedStudent = {
-        id: student.id,
-        name: student.name,
-        grade: student.grade,
-        group: student.group,
+        student,
         lowCount: counts.low,
         highCount: counts.superior,
         // highCount: counts.superior + counts.high,

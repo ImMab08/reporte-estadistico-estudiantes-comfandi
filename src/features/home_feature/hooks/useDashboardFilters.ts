@@ -1,16 +1,24 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
 
-export function useDashboardFilters(
-  snapshots: AcademicPeriodSnapshot[],
-) {
-  const [selectedId, setSelectedId] = useState("");
-  const [selectedGrade, setSelectedGrade] = useState("all");
-  const [selectedGroup, setSelectedGroup] = useState("all");
+type UseDashboardFiltersProps = {
+  snapshots: AcademicPeriodSnapshot[];
+  selectedPeriodId: string;
+  selectedGrade: string;
+  selectedGroup: string;
+  selectedStudentId: string;
+};
 
+export function useDashboardFilters({
+  snapshots,
+  selectedPeriodId,
+  selectedGrade,
+  selectedGroup,
+  selectedStudentId,
+}: UseDashboardFiltersProps) {
   const activeSnapshot = useMemo(
-    () => snapshots.find((s) => s.id === selectedId) ?? null,
-    [snapshots, selectedId],
+    () => snapshots.find((s) => s.id === selectedPeriodId) ?? null,
+    [snapshots, selectedPeriodId],
   );
 
   const gradeOptions = useMemo(() => {
@@ -43,17 +51,19 @@ export function useDashboardFilters(
       const groupMatch =
         selectedGroup === "all" || student.group === selectedGroup;
 
-      return gradeMatch && groupMatch;
+      const studentMatch =
+        !selectedStudentId || student.id === selectedStudentId;
+
+      return gradeMatch && groupMatch && studentMatch;
     });
-  }, [activeSnapshot, selectedGrade, selectedGroup]);
+  }, [
+    activeSnapshot,
+    selectedGrade,
+    selectedGroup,
+    selectedStudentId,
+  ]);
 
   return {
-    selectedId,
-    setSelectedId,
-    selectedGrade,
-    setSelectedGrade,
-    selectedGroup,
-    setSelectedGroup,
     activeSnapshot,
     gradeOptions,
     groupOptions,

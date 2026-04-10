@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
-import { getAcademicSnapshots } from "@/src/utils/academicStorage";
 import type { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
+import { getAcademicSnapshots } from "@/src/utils/academicStorage";
 
 import { useDashboardFilters } from "./hooks/useDashboardFilters";
 import { usePeriodAnalytics } from "./hooks/usePeriodAnalytics";
@@ -15,9 +16,11 @@ import { CriticalGrades } from "./components/CriticalGrades";
 import { TopStudents } from "./components/TopStudents";
 import { RiskStudents } from "./components/RiskStudents";
 import { IconQuickReference } from "@/src/shared/icons";
-import Image from "next/image";
+import { useFilterUrlState } from "@/src/shared/hooks/useFilterUrlState";
 
 export function HomeFeaturePage() {
+  const { state, updateState } = useFilterUrlState();
+  const [selectedPeriodId, setSelectedPeriodId] = useState(state.period);
   const [snapshots, setSnapshots] = useState<AcademicPeriodSnapshot[]>([]);
 
   useEffect(() => {
@@ -28,33 +31,40 @@ export function HomeFeaturePage() {
     setSnapshots(data);
   }, []);
 
-  const {
-    selectedId,
-    setSelectedId,
-    selectedGrade,
-    setSelectedGrade,
-    selectedGroup,
-    setSelectedGroup,
-    activeSnapshot,
-    gradeOptions,
-    groupOptions,
-    filteredStudents,
-  } = useDashboardFilters(snapshots);
-
   useEffect(() => {
-    if (!selectedId && snapshots.length > 0) {
-      setSelectedId(snapshots[0].id);
+    if (!selectedPeriodId && snapshots.length > 0) {
+      const defaultPeriod = snapshots[0].id;
+      setSelectedPeriodId(defaultPeriod);
+      updateState({ period: defaultPeriod });
     }
-  }, [snapshots, selectedId, setSelectedId]);
+  }, [snapshots, selectedPeriodId, updateState]);
+
+  const { activeSnapshot, gradeOptions, groupOptions, filteredStudents } =
+    useDashboardFilters({
+      snapshots,
+      selectedPeriodId: state.period,
+      selectedGrade: state.grade,
+      selectedGroup: state.group,
+      selectedStudentId: state.student,
+    });
 
   const analytics = usePeriodAnalytics(filteredStudents);
 
   const performanceTitle =
-    selectedGrade === "all"
+    state.grade === "all"
       ? "Rendimiento general"
-      : selectedGroup === "all"
-        ? `Rendimiento general, grado: ${selectedGrade}°`
-        : `Rendimiento general, grado: ${selectedGrade}°-${selectedGroup}`;
+      : state.grade === "all"
+        ? `Rendimiento general, grado: ${state.grade}°`
+        : `Rendimiento general, grado: ${state.grade}°-${state.group}`;
+
+  const clearFilters = () => {
+    updateState({
+      period: state.period,
+      grade: "all",
+      group: "all",
+      student: "",
+    });
+  };
 
   if (!activeSnapshot) {
     return (
@@ -88,10 +98,12 @@ export function HomeFeaturePage() {
 
   return (
     <section className="size-full bg-slate-50 p-4 flex flex-col overflow-hidden">
-      <header className="mb-4 border-b border-border py-3.25 shrink-0 flex items-center justify-between">
+      <header className="mb-4 border-b border-border pb-3.25 shrink-0 flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold text-primary">Inicio</h1>
-          <p className="text-slate-500 mt-1 mb-1">Vista general del rendimiento academico</p>
+          <p className="text-slate-500 mt-1 mb-1">
+            Vista general del rendimiento academico
+          </p>
         </div>
 
         <div className="flex justify-center">
@@ -134,14 +146,33 @@ export function HomeFeaturePage() {
 
         <DashboardSidebar
           snapshots={snapshots}
-          selectedId={selectedId}
-          setSelectedId={setSelectedId}
-          selectedGrade={selectedGrade}
-          setSelectedGrade={setSelectedGrade}
-          selectedGroup={selectedGroup}
-          setSelectedGroup={setSelectedGroup}
+          selectedId={state.period}
+          setSelectedId={(value) =>
+            updateState({
+              period: value,
+              grade: "all",
+              group: "all",
+              student: "",
+            })
+          }
+          selectedGrade={state.grade}
+          setSelectedGrade={(value) =>
+            updateState({
+              grade: value,
+              group: "all",
+              student: "",
+            })
+          }
+          selectedGroup={state.group}
+          setSelectedGroup={(value) =>
+            updateState({
+              group: value,
+              student: "",
+            })
+          }
           gradeOptions={gradeOptions}
           groupOptions={groupOptions}
+          clearFilters={clearFilters}
         />
       </section>
     </section>

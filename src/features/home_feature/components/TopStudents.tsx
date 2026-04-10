@@ -1,8 +1,8 @@
+import { StudentInteractiveCard } from "@/src/components/layout/student_interactive_card";
+import { StudentRecord } from "@/src/shared/types/academic.types";
+
 type TopStudent = {
-  id: string;
-  name: string;
-  grade: string;
-  group: string;
+  student: StudentRecord;
   highCount: number;
 };
 
@@ -23,24 +23,25 @@ export function TopStudents({ data }: Props) {
             No hay estudiantes destacados en este filtro.
           </p>
         ) : (
-          data.map((student, index) => (
-            <div
+          data.map(({ student, highCount }, index) => (
+            <StudentInteractiveCard
               key={student.id}
-              className="flex justify-between rounded-2xl border p-3 bg-slate-50"
+              student={student}
+              onClick={() => console.log("abrir modal", student.id)}
             >
-              <div>
-                <p className="font-semibold text-slate-700">
-                  {index + 1}. {student.name}
-                </p>
-                <p className="text-sm text-slate-400">
-                  {student.grade}°-{student.group}
-                </p>
-              </div>
+              <div className="flex justify-between rounded-2xl border p-3 bg-slate-50">
+                <div>
+                  <p className="font-semibold text-slate-700">
+                    {index + 1}. {student.name}
+                  </p>
+                  <p className="text-sm text-slate-400">
+                    {student.grade}°-{student.group}
+                  </p>
+                </div>
 
-              <span className="font-bold text-emerald-500">
-                {student.highCount}
-              </span>
-            </div>
+                <span className="font-bold text-emerald-500">{highCount}</span>
+              </div>
+            </StudentInteractiveCard>
           ))
         )}
       </div>

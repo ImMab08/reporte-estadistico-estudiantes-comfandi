@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { getAcademicSnapshots } from "@/src/utils/academicStorage";
 import type {
   AcademicPeriodSnapshot,
   StudentRecord,
 } from "@/src/shared/types/academic.types";
-import { IconQuickReference, IconWebTraffic } from "@/src/shared/icons";
-import Image from "next/image";
+import { useFilterUrlState } from "@/src/shared/hooks/useFilterUrlState";
+import { IconQuickReference, IconRefresh, IconWebTraffic } from "@/src/shared/icons";
+import { useStudentFilters } from "@/src/shared/hooks/useStudentFilters";
 
 function normalizePhotoName(value: string) {
   return value.replace(/\s+/g, " ").trim();
@@ -73,12 +75,29 @@ function classifyStudent(student: StudentRecord) {
 }
 
 export function StudentsFeaturePage() {
+  //? Constantes
+  // Intercepting routes + parallel routes
   const [snapshots, setSnapshots] = useState<AcademicPeriodSnapshot[]>([]);
-  const [selectedGrade, setSelectedGrade] = useState("all");
-  const [selectedGroup, setSelectedGroup] = useState("all");
-  const [search, setSearch] = useState("");
-  const [selectedStudentId, setSelectedStudentId] = useState("");
-  const [selectedPeriodId, setSelectedPeriodId] = useState("");
+
+  const {
+    search,
+    selectedGrade,
+    selectedGroup,
+    selectedStudentId,
+    selectedPeriodId,
+    activeSnapshot,
+    isGroupDisabled,
+    handleSearch,
+    handlePeriodChange,
+    handleGradeChange,
+    handleGroupChange,
+    handleStudentSelect,
+    clearFilters,
+  } = useStudentFilters(snapshots);
+
+  const [subjectSort, setSubjectSort] = useState<"alphabetical" | "grade">(
+    "grade",
+  );
 
   useEffect(() => {
     const data = Object.values(getAcademicSnapshots()).sort(
@@ -87,33 +106,6 @@ export function StudentsFeaturePage() {
 
     setSnapshots(data);
   }, []);
-
-  const activeSnapshot =
-    snapshots.find((snapshot) => snapshot.id === selectedPeriodId) ??
-    snapshots[0] ??
-    null;
-
-  useEffect(() => {
-    if (!selectedPeriodId && snapshots.length > 0) {
-      setSelectedPeriodId(snapshots[0].id);
-    }
-  }, [snapshots, selectedPeriodId]);
-
-  useEffect(() => {
-    if (!activeSnapshot || !selectedStudentId) return;
-
-    const existsInCurrentPeriod = activeSnapshot.students.some(
-      (student) => student.id === selectedStudentId,
-    );
-
-    if (!existsInCurrentPeriod) {
-      setSelectedStudentId("");
-    }
-  }, [activeSnapshot, selectedStudentId]);
-
-  const [subjectSort, setSubjectSort] = useState<"alphabetical" | "grade">(
-    "grade",
-  );
 
   const gradeOptions = useMemo(() => {
     if (!activeSnapshot) return [];
@@ -264,7 +256,7 @@ export function StudentsFeaturePage() {
 
   return (
     <section className="size-full bg-slate-50 p-4 flex flex-col overflow-hidden">
-      <header className="mb-4 border-b border-border py-3.25 shrink-0 flex items-center justify-between">
+      <header className="mb-4 border-b border-border pb-3.25 shrink-0 flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold text-primary">Estudiantes</h1>
           <p className="text-slate-500 mt-1 mb-1">
@@ -400,16 +392,25 @@ export function StudentsFeaturePage() {
         </section>
 
         <aside className="max-w-100 w-120 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col space-y-2">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold text-primary">Filtros</h1>
+            <button
+              onClick={clearFilters}
+              className="rounded-xl border border-slate-200 p-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+            >
+              <IconRefresh className="text-primary" />
+            </button>
+          </div>
           <input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
             className="w-full rounded-xl border border-slate-200 p-2"
             placeholder="Buscar estudiante..."
           />
           <div className="w-full">
             <select
               value={selectedPeriodId}
-              onChange={(e) => setSelectedPeriodId(e.target.value)}
+              onChange={(e) => handlePeriodChange(e.target.value)}
               className="rounded-xl w-full border border-slate-200 p-2 cursor-pointer"
             >
               {snapshots.map((snapshot) => (
@@ -422,10 +423,7 @@ export function StudentsFeaturePage() {
           <div className="grid grid-cols-2 gap-2">
             <select
               value={selectedGrade}
-              onChange={(e) => {
-                setSelectedGrade(e.target.value);
-                setSelectedGroup("all");
-              }}
+              onChange={(e) => handleGradeChange(e.target.value)}
               className="rounded-xl border border-slate-200 p-2 cursor-pointer"
             >
               <option value="all">Grados</option>
@@ -438,8 +436,9 @@ export function StudentsFeaturePage() {
 
             <select
               value={selectedGroup}
-              onChange={(e) => setSelectedGroup(e.target.value)}
-              className="rounded-xl border border-slate-200 p-2 cursor-pointer"
+              disabled={isGroupDisabled}
+              onChange={(e) => handleGroupChange(e.target.value)}
+              className="rounded-xl border border-slate-200 p-2 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400"
             >
               <option value="all">Grupo</option>
               {groupOptions.map((group) => (
@@ -453,7 +452,7 @@ export function StudentsFeaturePage() {
             {filteredStudents.map((student) => (
               <button
                 key={student.id}
-                onClick={() => setSelectedStudentId(student.id)}
+                onClick={() => handleStudentSelect(student.id)}
                 className={`w-full text-left px-4 py-3 border-t cursor-pointer border-slate-100 hover:bg-slate-200 transition-all duration-300 hover:text-primary ${
                   selectedStudent?.id === student.id
                     ? "bg-primary text-white"

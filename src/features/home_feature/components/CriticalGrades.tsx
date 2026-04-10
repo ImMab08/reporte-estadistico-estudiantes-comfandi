@@ -11,7 +11,7 @@ export function CriticalGrades({ data }: Props) {
   return (
     <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
       <h3 className="text-2xl font-bold mb-4 text-slate-800">
-        Cursos más Críticos
+        Cursos con más bajos
       </h3>
 
       <div className="space-y-3">

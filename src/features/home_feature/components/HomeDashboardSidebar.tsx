@@ -1,6 +1,8 @@
+import { IconRefresh } from "@/src/shared/icons";
+
 type SnapshotOption = {
   id: string;
-  period: number; 
+  period: number;
   year: number;
 };
 
@@ -14,6 +16,7 @@ type Props = {
   setSelectedGroup: (value: string) => void;
   gradeOptions: string[];
   groupOptions: string[];
+  clearFilters: () => void;
 };
 
 export function DashboardSidebar({
@@ -26,13 +29,22 @@ export function DashboardSidebar({
   setSelectedGroup,
   gradeOptions,
   groupOptions,
+  clearFilters
 }: Props) {
   return (
     <aside className="max-w-100 w-120 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col space-y-2">
-      <h1 className="text-2xl font-bold text-primary">Filtros</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold text-primary">Filtros</h1>
+        <button
+          onClick={clearFilters}
+          className="rounded-xl border border-slate-200 p-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+        >
+          <IconRefresh className="text-primary" />
+        </button>
+      </div>
 
       <select
-        className="rounded-2xl border p-4 cursor-pointer"
+        className="rounded-xl w-full border border-slate-200 p-2 cursor-pointer"
         value={selectedId}
         onChange={(e) => setSelectedId(e.target.value)}
       >
@@ -44,7 +56,7 @@ export function DashboardSidebar({
       </select>
 
       <select
-        className="rounded-2xl border p-4 cursor-pointer"
+        className="rounded-xl w-full border border-slate-200 p-2 cursor-pointer"
         value={selectedGrade}
         onChange={(e) => {
           setSelectedGrade(e.target.value);
@@ -60,7 +72,7 @@ export function DashboardSidebar({
       </select>
 
       <select
-        className="rounded-2xl border p-4 cursor-pointer"
+        className="rounded-xl w-full border border-slate-200 p-2 cursor-pointer"
         value={selectedGroup}
         onChange={(e) => setSelectedGroup(e.target.value)}
       >

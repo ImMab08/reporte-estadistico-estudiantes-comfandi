@@ -69,7 +69,7 @@ export function SettingsFeacture() {
   return (
     <section className="h-full w-full bg-slate-50 p-4 flex flex-col overflow-hidden">
       {/* Header */}
-      <header className="mb-6 border-b border-border py-3.25 shrink-0 flex items-center justify-between">
+      <header className="mb-6 border-b border-border pb-3.25 shrink-0 flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold text-primary">Configuración</h1>
           <p className="text-slate-500 mt-1 mb-1">
