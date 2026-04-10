@@ -13,7 +13,7 @@ type Props = {
 
 export function RiskStudents({ data }: Props) {
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+    <div className="bg-white rounded-xl border border-border p-4 shadow-sm">
       <h3 className="text-2xl font-bold mb-4 text-slate-800">
         Estudiantes en Riesgo
       </h3>
@@ -29,7 +29,7 @@ export function RiskStudents({ data }: Props) {
               key={student.id}
               student={student}
             >
-              <div className="flex justify-between rounded-2xl border p-3 bg-slate-50">
+              <div className="flex justify-between rounded-2xl border border-border p-4">
                 <div>
                   <p className="font-semibold text-slate-700">
                     {index + 1}. {student.name}

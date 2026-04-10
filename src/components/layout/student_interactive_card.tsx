@@ -19,7 +19,7 @@ export function StudentInteractiveCard({
 
   return (
     <div
-      className="relative"
+      className="relative w-full"
       onMouseEnter={() => setShowPreview(true)}
       onMouseLeave={() => setShowPreview(false)}
     >
@@ -31,7 +31,7 @@ export function StudentInteractiveCard({
       </div>
 
       <div
-        className={`absolute right-full top-0 z-100 mr-3 w-96 rounded-2xl border border-slate-200 bg-white p-4 shadow-xl transition-all duration-200 ease-out ${
+        className={`absolute w-auto top-full left-0 z-100 mt-2 rounded-2xl border border-border bg-white shadow-xl transition-all duration-200 ease-out ${
           showPreview
             ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
             : "pointer-events-none -translate-y-1 scale-95 opacity-0"
