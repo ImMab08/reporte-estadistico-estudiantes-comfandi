@@ -35,9 +35,22 @@ export function StudentsFeaturePage() {
     clearFilters,
   } = useStudentFilters(snapshots);
 
-  const [subjectSort, setSubjectSort] = useState<"alphabetical" | "grade">(
-    "grade",
-  );
+  const [subjectSort] = useState<"alphabetical" | "grade">("grade");
+  const [localSearch, setLocalSearch] = useState(search);
+
+  useEffect(() => {
+    setLocalSearch(search);
+  }, [search]);
+
+  const normalizedSearch = localSearch.trim().toLowerCase();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleSearch(localSearch);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [localSearch, handleSearch]);
 
   useEffect(() => {
     const data = Object.values(getAcademicSnapshots()).sort(
@@ -70,8 +83,6 @@ export function StudentsFeaturePage() {
   const filteredStudents = useMemo(() => {
     if (!activeSnapshot) return [];
 
-    const normalizedSearch = search.trim().toLowerCase();
-
     return activeSnapshot.students
       .filter((student) => {
         const gradeMatch =
@@ -88,8 +99,7 @@ export function StudentsFeaturePage() {
         return gradeMatch && groupMatch && searchMatch;
       })
       .sort((a, b) => a.name.localeCompare(b.name, "es"));
-  }, [activeSnapshot, selectedGrade, selectedGroup, search]);
-
+  }, [activeSnapshot, selectedGrade, selectedGroup, normalizedSearch]);
   const selectedStudent =
     filteredStudents.find((s) => s.id === selectedStudentId) ?? null;
 
@@ -124,32 +134,6 @@ export function StudentsFeaturePage() {
       return b - a;
     });
   }, [visibleSubjects, subjectSort]);
-
-  const strengths = useMemo(() => {
-    if (!selectedStudent) return [];
-
-    return Object.entries(selectedStudent.grades)
-      .filter(
-        ([subject, v]) =>
-          isVisibleSubject(subject, v) &&
-          ["alto", "superior"].some((k) => String(v).toLowerCase().includes(k)),
-      )
-      .slice(0, 3)
-      .map(([k]) => k);
-  }, [selectedStudent]);
-
-  const attention = useMemo(() => {
-    if (!selectedStudent) return [];
-
-    return Object.entries(selectedStudent.grades)
-      .filter(
-        ([subject, v]) =>
-          isVisibleSubject(subject, v) &&
-          ["bajo", "basico"].some((k) => String(v).toLowerCase().includes(k)),
-      )
-      .slice(0, 3)
-      .map(([k]) => k);
-  }, [selectedStudent]);
 
   if (!activeSnapshot) {
     return (
@@ -220,8 +204,8 @@ export function StudentsFeaturePage() {
             </button>
           </div>
           <input
-            value={search}
-            onChange={(e) => handleSearch(e.target.value)}
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
             className="w-full rounded-xl border border-slate-200 p-2"
             placeholder="Buscar estudiante..."
           />
