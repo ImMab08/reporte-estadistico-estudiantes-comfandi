@@ -1,29 +1,71 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   classifyStudent,
   getStudentPhotoPath,
+  isVisibleSubject,
 } from "@/src/utils/studentPhotoPreview";
 
 import { IconWebTraffic } from "@/src/shared/icons";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  LabelList,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
-type Props = {
+interface Props {
   selectedStudent: any;
   activeSnapshot: any;
-  sortedSubjects: any;
-};
+  comparisonChartData: any;
+}
 
 export function StudentDetailsFeacture({
   selectedStudent,
   activeSnapshot,
-  sortedSubjects,
+  comparisonChartData,
 }: Props) {
   const [subjectSort, setSubjectSort] = useState<"alphabetical" | "grade">(
     "grade",
   );
+  const visibleSubjects = useMemo(() => {
+    if (!selectedStudent) return [];
+
+    return Object.entries(selectedStudent.grades).filter(([subject, level]) =>
+      isVisibleSubject(subject, level),
+    );
+  }, [selectedStudent]);
+
+  const sortedSubjects = useMemo(() => {
+    const levelOrder: Record<string, number> = {
+      superior: 4,
+      alto: 3,
+      basico: 2,
+      básico: 2,
+      bajo: 1,
+    };
+
+    const subjects = [...visibleSubjects];
+
+    if (subjectSort === "alphabetical") {
+      return subjects.sort(([a], [b]) => a.localeCompare(b));
+    }
+
+    return subjects.sort(([, levelA], [, levelB]) => {
+      const a = levelOrder[String(levelA).toLowerCase()] || 0;
+      const b = levelOrder[String(levelB).toLowerCase()] || 0;
+      return b - a;
+    });
+  }, [visibleSubjects, subjectSort]);
 
   if (!selectedStudent) {
     return (
@@ -121,7 +163,7 @@ export function StudentDetailsFeacture({
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto p-4">
+      <div className="flex-1 min-h-0 scroll-auto overflow-y-auto p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-2xl font-bold text-slate-800">Materias</h3>
 
@@ -157,13 +199,119 @@ export function StudentDetailsFeacture({
           ))}
         </div>
 
-        <div className="mt-8">
-          <h3 className="text-2xl font-bold text-slate-800 mb-4">
-            Evolución por Periodos
-          </h3>
+        <div className="mt-6 rounded-xl border border-border p-5">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold text-primary">
+              Comparativa entre periodos
+            </h2>
+            <p className="text-sm text-slate-500">
+              Comparación por niveles entre el periodo actual y el anterior
+            </p>
+          </div>
 
-          <div className="h-56 rounded-2xl border border-slate-200 flex items-center justify-center text-slate-400">
-            Próximo: comparativa P1 · P2 · P3
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={comparisonChartData}
+                barGap={8}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+
+                <XAxis
+                  dataKey="level"
+                  tick={{ fill: "#475569", fontSize: 14 }}
+                />
+
+                <YAxis
+                  allowDecimals={false}
+                  tick={{ fill: "#64748b", fontSize: 13 }}
+                  domain={[0, (dataMax: number) => Math.max(16, dataMax + 2)]}
+                />
+
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "12px",
+                    border: "1px solid #e2e8f0",
+                  }}
+                />
+
+                {"P1" in (comparisonChartData?.[0] ?? {}) && (
+                  <Bar dataKey="P1" radius={[8, 8, 0, 0]}>
+                    {comparisonChartData.map((entry, index) => {
+                      const darkPalette: Record<string, string> = {
+                        Superior: "#047857",
+                        Alto: "#1d4ed8",
+                        Básico: "#d97706",
+                        Bajo: "#dc2626",
+                      };
+
+                      return (
+                        <Cell
+                          key={`p1-${index}`}
+                          fill={darkPalette[entry.level] || "#64748b"}
+                        />
+                      );
+                    })}
+                    <LabelList
+                      dataKey="P1"
+                      position="top"
+                      formatter={() => "P1"}
+                    />
+                  </Bar>
+                )}
+
+                {"P2" in (comparisonChartData?.[0] ?? {}) && (
+                  <Bar dataKey="P2" radius={[8, 8, 0, 0]}>
+                    {comparisonChartData.map((entry, index) => {
+                      const midPalette: Record<string, string> = {
+                        Superior: "#10b981",
+                        Alto: "#3b82f6",
+                        Básico: "#fbbf24",
+                        Bajo: "#ef4444",
+                      };
+
+                      return (
+                        <Cell
+                          key={`p2-${index}`}
+                          fill={midPalette[entry.level] || "#94a3b8"}
+                        />
+                      );
+                    })}
+                    <LabelList
+                      dataKey="P2"
+                      position="top"
+                      formatter={() => "P2"}
+                    />
+                  </Bar>
+                )}
+
+                {"P3" in (comparisonChartData?.[0] ?? {}) && (
+                  <Bar dataKey="P3" radius={[8, 8, 0, 0]}>
+                    {comparisonChartData.map((entry, index) => {
+                      const lightPalette: Record<string, string> = {
+                        Superior: "#6ee7b7",
+                        Alto: "#93c5fd",
+                        Básico: "#fde68a",
+                        Bajo: "#fca5a5",
+                      };
+
+                      return (
+                        <Cell
+                          key={`p3-${index}`}
+                          fill={lightPalette[entry.level] || "#cbd5e1"}
+                        />
+                      );
+                    })}
+                    <LabelList
+                      dataKey="P3"
+                      position="top"
+                      formatter={() => "P3"}
+                    />
+                  </Bar>
+                )}
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>

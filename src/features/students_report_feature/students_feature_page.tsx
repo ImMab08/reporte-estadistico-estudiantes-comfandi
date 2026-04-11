@@ -36,7 +36,6 @@ export function StudentsFeaturePage() {
     clearFilters,
   } = useStudentFilters(snapshots);
 
-  const [subjectSort] = useState<"alphabetical" | "grade">("grade");
   const [localSearch, setLocalSearch] = useState(search);
 
   useEffect(() => {
@@ -102,40 +101,69 @@ export function StudentsFeaturePage() {
       })
       .sort((a, b) => a.name.localeCompare(b.name, "es"));
   }, [activeSnapshot, selectedGrade, selectedGroup, normalizedSearch]);
+
   const selectedStudent =
     filteredStudents.find((s) => s.id === selectedStudentId) ?? null;
 
-  console.log("estudiantes: ", filteredStudents);
+  function getPerformanceChartData(student: any) {
+    if (!student) return [];
 
-  const visibleSubjects = useMemo(() => {
-    if (!selectedStudent) return [];
-
-    return Object.entries(selectedStudent.grades).filter(([subject, level]) =>
-      isVisibleSubject(subject, level),
-    );
-  }, [selectedStudent]);
-
-  const sortedSubjects = useMemo(() => {
-    const levelOrder: Record<string, number> = {
-      superior: 4,
-      alto: 3,
-      basico: 2,
-      básico: 2,
-      bajo: 1,
+    const counts = {
+      superior: 0,
+      alto: 0,
+      basico: 0,
+      bajo: 0,
     };
 
-    const subjects = [...visibleSubjects];
+    Object.entries(student.grades).forEach(([, level]) => {
+      const normalizedLevel = String(level).toLowerCase();
 
-    if (subjectSort === "alphabetical") {
-      return subjects.sort(([a], [b]) => a.localeCompare(b));
-    }
-
-    return subjects.sort(([, levelA], [, levelB]) => {
-      const a = levelOrder[String(levelA).toLowerCase()] || 0;
-      const b = levelOrder[String(levelB).toLowerCase()] || 0;
-      return b - a;
+      if (normalizedLevel === "superior") counts.superior++;
+      else if (normalizedLevel === "alto") counts.alto++;
+      else if (normalizedLevel === "basico" || normalizedLevel === "básico")
+        counts.basico++;
+      else if (normalizedLevel === "bajo") counts.bajo++;
     });
-  }, [visibleSubjects, subjectSort]);
+
+    return [
+      { level: "Superior", total: counts.superior },
+      { level: "Alto", total: counts.alto },
+      { level: "Básico", total: counts.basico },
+      { level: "Bajo", total: counts.bajo },
+    ];
+  }
+
+  const comparisonData = useMemo(() => {
+    if (!selectedStudentId) return { currentChart: [] };
+
+    const baseLevels = {
+      Superior: { level: "Superior" },
+      Alto: { level: "Alto" },
+      Básico: { level: "Básico" },
+      Bajo: { level: "Bajo" },
+    };
+
+    snapshots
+      .sort((a, b) => a.period - b.period)
+      .forEach((snapshot) => {
+        const student = snapshot.students.find(
+          (s) => s.id === selectedStudentId,
+        );
+
+        if (!student) return;
+
+        const chart = getPerformanceChartData(student);
+        const periodKey = `P${snapshot.period}`;
+
+        chart.forEach((item) => {
+          baseLevels[item.level][periodKey] = item.total;
+        });
+      });
+
+    return {
+      currentChart: Object.values(baseLevels),
+    };
+  }, [snapshots, selectedStudentId]);
 
   if (isLoading) {
     return (
@@ -200,7 +228,7 @@ export function StudentsFeaturePage() {
         <StudentDetailsFeacture
           selectedStudent={selectedStudent}
           activeSnapshot={activeSnapshot}
-          sortedSubjects={sortedSubjects}
+          comparisonChartData={comparisonData.currentChart}
         />
 
         <aside className="max-w-100 w-145 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col space-y-2">
