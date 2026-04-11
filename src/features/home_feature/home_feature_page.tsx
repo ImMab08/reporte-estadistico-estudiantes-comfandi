@@ -22,6 +22,7 @@ import type { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
 export function HomeFeaturePage() {
   const { state, updateState } = useFilterUrlState();
   const [snapshots, setSnapshots] = useState<AcademicPeriodSnapshot[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const data = Object.values(getAcademicSnapshots()).sort(
@@ -29,6 +30,7 @@ export function HomeFeaturePage() {
     );
 
     setSnapshots(data);
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -70,7 +72,13 @@ export function HomeFeaturePage() {
       student: "",
     });
   };
-
+  if (isLoading) {
+    return (
+      <div className="size-full bg-slate-50 p-4 flex items-center justify-center">
+        <p className="text-slate-400 text-lg">Cargando estudiantes...</p>
+      </div>
+    );
+  }
   if (!activeSnapshot) {
     return (
       <div className="size-full bg-slate-50 p-4 flex flex-col overflow-hidden">
@@ -78,7 +86,7 @@ export function HomeFeaturePage() {
           <div>
             <h1 className="text-4xl font-bold text-primary">Inicio</h1>
             <p className="text-slate-500 mt-1 mb-1">
-              Reporte estadistico de estudiantes
+              Vista general del rendimiento academico
             </p>
           </div>
 
@@ -103,7 +111,7 @@ export function HomeFeaturePage() {
 
   return (
     <section className="size-full bg-slate-50 p-4 flex flex-col overflow-hidden">
-      <header className="mb-4 border-b border-border pb-3.25 shrink-0 flex items-center justify-between">
+      <header className="mb-4 border-b border-border py-3.25 shrink-0 flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold text-primary">Inicio</h1>
           <p className="text-slate-500 mt-1 mb-1">

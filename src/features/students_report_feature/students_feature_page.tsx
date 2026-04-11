@@ -18,6 +18,7 @@ export function StudentsFeaturePage() {
   //? Constantes
   // Intercepting routes + parallel routes
   const [snapshots, setSnapshots] = useState<AcademicPeriodSnapshot[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const {
     search,
@@ -58,6 +59,7 @@ export function StudentsFeaturePage() {
     );
 
     setSnapshots(data);
+    setIsLoading(false);
   }, []);
 
   const gradeOptions = useMemo(() => {
@@ -135,6 +137,14 @@ export function StudentsFeaturePage() {
     });
   }, [visibleSubjects, subjectSort]);
 
+  if (isLoading) {
+    return (
+      <div className="size-full bg-slate-50 p-4 flex items-center justify-center">
+        <p className="text-slate-400 text-lg">Cargando estudiantes...</p>
+      </div>
+    );
+  }
+
   if (!activeSnapshot) {
     return (
       <div className="size-full bg-slate-50 p-4 flex flex-col overflow-hidden">
@@ -167,7 +177,7 @@ export function StudentsFeaturePage() {
 
   return (
     <section className="size-full bg-slate-50 p-4 flex flex-col overflow-hidden">
-      <header className="mb-4 border-b border-border pb-3.25 shrink-0 flex items-center justify-between">
+      <header className="mb-4 border-b border-border py-3.25 shrink-0 flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold text-primary">Estudiantes</h1>
           <p className="text-slate-500 mt-1 mb-1">
