@@ -1,11 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import {
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export function useFilterUrlState() {
   const router = useRouter();
@@ -18,6 +14,7 @@ export function useFilterUrlState() {
     group: searchParams.get("group") ?? "all",
     student: searchParams.get("student") ?? "",
     search: searchParams.get("search") ?? "",
+    modal: searchParams.get("modal") ?? "",
   };
 
   const updateState = useCallback(

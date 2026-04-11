@@ -2,25 +2,25 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import type { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
 import { getAcademicSnapshots } from "@/src/utils/academicStorage";
 
 import { useDashboardFilters } from "./hooks/useDashboardFilters";
 import { usePeriodAnalytics } from "./hooks/usePeriodAnalytics";
 
-import { DashboardSidebar } from "./components/HomeDashboardSidebar";
-import { DashboardKpis } from "./components/HomeDashboardKpis";
-import { PerformancePie } from "./components/PerformancePie";
-import { CriticalSubjects } from "./components/CriticalSubjects";
-import { CriticalGrades } from "./components/CriticalGrades";
 import { TopStudents } from "./components/TopStudents";
 import { RiskStudents } from "./components/RiskStudents";
+import { CriticalGrades } from "./components/CriticalGrades";
+import { PerformancePie } from "./components/PerformancePie";
+import { DashboardKpis } from "./components/HomeDashboardKpis";
+import { CriticalSubjects } from "./components/CriticalSubjects";
+import { DashboardSidebar } from "./components/HomeDashboardSidebar";
+
 import { IconQuickReference } from "@/src/shared/icons";
-import { useFilterUrlState } from "@/src/shared/hooks/useFilterUrlState";
+import { useFilterUrlState } from "@/src/shared/hooks/use_filter_url_state";
+import type { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
 
 export function HomeFeaturePage() {
   const { state, updateState } = useFilterUrlState();
-  const [selectedPeriodId, setSelectedPeriodId] = useState(state.period);
   const [snapshots, setSnapshots] = useState<AcademicPeriodSnapshot[]>([]);
 
   useEffect(() => {
@@ -32,12 +32,17 @@ export function HomeFeaturePage() {
   }, []);
 
   useEffect(() => {
-    if (!selectedPeriodId && snapshots.length > 0) {
+    if (!state.period && snapshots.length > 0) {
       const defaultPeriod = snapshots[0].id;
-      setSelectedPeriodId(defaultPeriod);
-      updateState({ period: defaultPeriod });
+
+      updateState({
+        period: defaultPeriod,
+        grade: "all",
+        group: "all",
+        student: "",
+      });
     }
-  }, [snapshots, selectedPeriodId, updateState]);
+  }, [snapshots, state.period, updateState]);
 
   const { activeSnapshot, gradeOptions, groupOptions, filteredStudents } =
     useDashboardFilters({

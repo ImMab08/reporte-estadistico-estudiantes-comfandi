@@ -105,7 +105,7 @@ export function SideMenu() {
             </div>
             <p>Todos los derechos reservados.</p>
             <p className="">
-              © 2026 Edumetricks by FY <br />
+              © 2026 Edumetricks<br />
             </p>
           </div>
         </div>

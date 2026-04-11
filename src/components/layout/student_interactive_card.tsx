@@ -1,6 +1,9 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { createPortal } from "react-dom";
+import { ReactNode, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+
 import type { StudentRecord } from "@/src/shared/types/academic.types";
 import { StudentQuickPreview } from "./student_quick_preview";
 
@@ -16,11 +19,25 @@ export function StudentInteractiveCard({
   onClick,
 }: Props) {
   const [showPreview, setShowPreview] = useState(false);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+
+  const cardRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  const isStudents = pathname === "/students";
+
+  const handleMouseEnter = () => {
+    if (cardRef.current) {
+      setRect(cardRef.current.getBoundingClientRect());
+    }
+    setShowPreview(true);
+  };
 
   return (
     <div
+      ref={cardRef}
       className="relative w-full"
-      onMouseEnter={() => setShowPreview(true)}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setShowPreview(false)}
     >
       <div
@@ -30,15 +47,24 @@ export function StudentInteractiveCard({
         {children}
       </div>
 
-      <div
-        className={`absolute w-auto top-full left-0 z-100 mt-2 rounded-2xl border border-border bg-white shadow-xl transition-all duration-200 ease-out ${
-          showPreview
-            ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
-            : "pointer-events-none -translate-y-1 scale-95 opacity-0"
-        }`}
-      >
-        <StudentQuickPreview student={student} />
-      </div>
+      {showPreview &&
+        rect &&
+        createPortal(
+          <div
+            className={`fixed z-10 overflow-hidden border border-border bg-white shadow-xl ${
+              isStudents
+                ? "rounded-xl rounded-tr-none"
+                : "rounded-xl"
+            }`}
+            style={{
+              top: isStudents ? rect.top : rect.bottom + 11,
+              left: isStudents ? rect.left - 320 : rect.left,
+            }}
+          >
+            <StudentQuickPreview student={student} />
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
