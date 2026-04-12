@@ -229,6 +229,7 @@ export function StudentsFeaturePage() {
           selectedStudent={selectedStudent}
           activeSnapshot={activeSnapshot}
           comparisonChartData={comparisonData.currentChart}
+          allSnapshots={snapshots}
         />
 
         <aside className="max-w-100 w-145 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col space-y-2">

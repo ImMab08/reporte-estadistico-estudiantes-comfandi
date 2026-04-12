@@ -16,7 +16,6 @@ import {
   CartesianGrid,
   Cell,
   LabelList,
-  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -181,12 +180,9 @@ export function StudentDetailsFeacture({
           </div>
         </div>
 
-        <div className="space-y-2">
-          {sortedSubjects.map(([subject, level]) => (
-            <div
-              key={subject}
-              className="flex items-center justify-between border-b border-slate-300 pb-2"
-            >
+        {sortedSubjects.map(([subject, level]) => (
+          <div key={subject} className=" hover:bg-slate-200">
+            <div className="flex items-center justify-between border-b border-slate-300 py-2 px-2">
               <span className="text-slate-600">{subject}</span>
               <span
                 className={`px-3 py-1 rounded-lg text-white text-sm font-bold ${getLevelBadgeColor(
@@ -196,8 +192,8 @@ export function StudentDetailsFeacture({
                 {String(level)}
               </span>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
 
         <div className="mt-6 rounded-xl border border-border p-5">
           <div className="mb-4">

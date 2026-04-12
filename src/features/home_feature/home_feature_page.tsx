@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getAcademicSnapshots } from "@/src/utils/academicStorage";
 
 import { useDashboardFilters } from "./hooks/useDashboardFilters";
@@ -18,6 +18,7 @@ import { DashboardSidebar } from "./components/HomeDashboardSidebar";
 import { IconQuickReference } from "@/src/shared/icons";
 import { useFilterUrlState } from "@/src/shared/hooks/use_filter_url_state";
 import type { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
+import { SubjectHealthGrid } from "./components/SubjectHealthGrid";
 
 export function HomeFeaturePage() {
   const { state, updateState } = useFilterUrlState();
@@ -72,6 +73,62 @@ export function HomeFeaturePage() {
       student: "",
     });
   };
+
+  const subjectHealthMetrics = useMemo(() => {
+    const subjectMap: Record<
+      string,
+      {
+        total: number;
+        superior: number;
+        alto: number;
+        basico: number;
+        bajo: number;
+      }
+    > = {};
+
+    filteredStudents.forEach((student) => {
+      Object.entries(student.grades).forEach(([subject, level]) => {
+        if (!subjectMap[subject]) {
+          subjectMap[subject] = {
+            total: 0,
+            superior: 0,
+            alto: 0,
+            basico: 0,
+            bajo: 0,
+          };
+        }
+
+        subjectMap[subject].total++;
+
+        const normalized = String(level)
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase();
+
+        if (normalized === "superior") subjectMap[subject].superior++;
+        if (normalized === "alto") subjectMap[subject].alto++;
+        if (normalized === "basico") subjectMap[subject].basico++;
+        if (normalized === "bajo") subjectMap[subject].bajo++;
+      });
+    });
+
+    return Object.entries(subjectMap)
+      .map(([subject, stats]) => ({
+        subject,
+        superior: Math.round((stats.superior / stats.total) * 100),
+        alto: Math.round((stats.alto / stats.total) * 100),
+        basico: Math.round((stats.basico / stats.total) * 100),
+        bajo: Math.round((stats.bajo / stats.total) * 100),
+      }))
+      .filter(
+        (item) =>
+          item.superior > 0 ||
+          item.alto > 0 ||
+          item.basico > 0 ||
+          item.bajo > 0,
+      );
+  }, [filteredStudents]);
+
   if (isLoading) {
     return (
       <div className="size-full bg-slate-50 p-4 flex items-center justify-center">
@@ -141,6 +198,7 @@ export function HomeFeaturePage() {
             topStudents={analytics.kpis.topStudents}
             criticalSubjects={analytics.kpis.criticalSubjects}
           />
+          <SubjectHealthGrid data={subjectHealthMetrics} />
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
             <PerformancePie data={analytics.pieData} title={performanceTitle} />
