@@ -130,9 +130,9 @@ export function SubjectHealthGrid({ data, students }: Props) {
   );
 
   return (
-    <section className="mb-6">
+    <section className="bg-white rounded-xl border border-border p-4 shadow-sm">
       <div className="overflow-x-auto scrollbar-hide">
-        <div className="flex gap-4 snap-x snap-mandatory py-4 px-2">
+        <div className="flex gap-4 snap-x snap-mandatory mb-4 ">
           {pages.map((page, pageIndex) => (
             <div key={pageIndex} className="min-w-full shrink-0 snap-start">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">

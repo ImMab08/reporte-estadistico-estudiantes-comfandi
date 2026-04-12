@@ -7,9 +7,16 @@ import { processAcademicPeriod } from "@/src/utils/processAcademicPeriod";
 import {
   getAcademicSnapshots,
   saveAcademicSnapshot,
+  deleteAcademicSnapshot,
 } from "@/src/utils/academicStorage";
 
-import { IconQuickReference, IconUploadFile } from "@/src/shared/icons";
+import {
+  IconCollectionsBookmark,
+  IconDelete,
+  IconGroup,
+  IconQuickReference,
+  IconUploadFile,
+} from "@/src/shared/icons";
 
 import { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
 import { detectAcademicPeriod } from "@/src/utils/detectAcademicPeriod";
@@ -18,6 +25,23 @@ import Image from "next/image";
 export function SettingsFeacture() {
   const [snapshots, setSnapshots] = useState<AcademicPeriodSnapshot[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+
+  function handleDeleteSnapshot(snapshotId: string) {
+    const confirmed = window.confirm(
+      "¿Seguro que deseas eliminar este periodo cargado?",
+    );
+
+    if (!confirmed) return;
+
+    deleteAcademicSnapshot(snapshotId);
+
+    const updated = Object.values(getAcademicSnapshots()).sort(
+      (a, b) =>
+        new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime(),
+    );
+
+    setSnapshots(updated);
+  }
 
   // Temporal mientras conectamos selector real
   const currentYear = new Date().getFullYear();
@@ -161,17 +185,37 @@ export function SettingsFeacture() {
                     key={snapshot.id}
                     className="rounded-xl border border-border p-4 bg-gray-50"
                   >
-                    <p className="font-semibold text-gray-800">
-                      Periodo {snapshot.period} · Año {snapshot.year}
-                    </p>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-semibold text-gray-800">
+                          Periodo {snapshot.period} · Año {snapshot.year}
+                        </p>
 
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(snapshot.uploadedAt).toLocaleString()}
-                    </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(snapshot.uploadedAt).toLocaleString()}
+                        </p>
+                      </div>
 
-                    <div className="mt-3 flex items-center justify-between text-sm">
-                      <span>👥 {snapshot.stats.totalStudents} estudiantes</span>
-                      <span>📚 {snapshot.subjects.length} materias</span>
+                      <button
+                        onClick={() => handleDeleteSnapshot(snapshot.id)}
+                        className="rounded-lg p-2 cursor-pointer text-red-500 hover:bg-red-50 transition"
+                        title="Eliminar periodo"
+                      >
+                        <IconDelete className="size-5" />
+                      </button>
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between text-sm text-primary">
+                      <p className="flex items-center space-x-2">
+
+                        <IconGroup />
+                        <span className="font-semibold"> {snapshot.stats.totalStudents} estudiantes</span>
+                      </p>
+                      <p className="flex items-center space-x-2">
+
+                        <IconCollectionsBookmark  />
+                        <span className="font-semibold"> {snapshot.subjects.length} materias</span>
+                      </p>
                     </div>
                   </div>
                 ))}

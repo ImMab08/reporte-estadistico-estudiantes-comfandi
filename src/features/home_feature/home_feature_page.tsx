@@ -207,10 +207,6 @@ export function HomeFeaturePage() {
             topStudents={analytics.kpis.topStudents}
             criticalSubjects={analytics.kpis.criticalSubjects}
           />
-          <SubjectHealthGrid
-            data={subjectHealthMetrics}
-            students={filteredStudents}
-          />
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
             <PerformancePie data={analytics.pieData} title={performanceTitle} />
@@ -222,8 +218,15 @@ export function HomeFeaturePage() {
             <RiskStudents data={analytics.strugglingStudents} />
           </div>
 
-          <div className="grid grid-cols-1 gap-6">
+          <div className=" mb-6">
             <CriticalGrades data={analytics.criticalCourses} />
+          </div>
+
+          <div>
+            <SubjectHealthGrid
+              data={subjectHealthMetrics}
+              students={filteredStudents}
+            />
           </div>
         </section>
 
