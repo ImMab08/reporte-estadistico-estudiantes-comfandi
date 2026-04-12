@@ -43,6 +43,10 @@ export function classifyStudent(student: StudentRecord) {
     superior: 0,
   };
 
+  if (!student?.grades || typeof student.grades !== "object") {
+    return levels;
+  }
+
   Object.entries(student.grades).forEach(([subject, value]) => {
     if (!isVisibleSubject(subject, value)) return;
 

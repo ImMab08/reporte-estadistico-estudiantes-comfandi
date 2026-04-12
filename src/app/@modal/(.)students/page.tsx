@@ -81,7 +81,7 @@ export default function StudentModal() {
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-[4px] z-50 flex items-center justify-center p-4"
       onClick={() => router.back()}
     >
       <div

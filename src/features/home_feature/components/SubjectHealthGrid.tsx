@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   PolarAngleAxis,
   RadialBar,
@@ -7,6 +8,8 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { SubjectStudentsModal } from "./SubjectStudentsModal";
+import type { StudentRecord } from "@/src/shared/types/academic.types";
 
 type SubjectMetric = {
   subject: string;
@@ -18,6 +21,11 @@ type SubjectMetric = {
 
 interface Props {
   data: SubjectMetric[];
+  students: StudentRecord[];
+}
+
+interface GaugeProps extends SubjectMetric {
+  onClick?: () => void;
 }
 
 function SubjectGauge({
@@ -26,7 +34,8 @@ function SubjectGauge({
   alto,
   basico,
   bajo,
-}: SubjectMetric) {
+  onClick,
+}: GaugeProps) {
   const chartData = [
     {
       superior,
@@ -39,12 +48,15 @@ function SubjectGauge({
   const totalHealth = superior + alto;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-      <h3 className="text-sm font-bold text-slate-700 mb-3 truncate">
+    <button
+      onClick={onClick}
+      className="w-full cursor-pointer rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all duration-300 hover:scale-105"
+    >
+      <h3 className="mb-3 truncate text-sm font-bold text-slate-700">
         {subject}
       </h3>
 
-      <div className="h-44 relative">
+      <div className="relative h-44">
         <ResponsiveContainer width="100%" height="100%">
           <RadialBarChart
             data={chartData}
@@ -68,33 +80,10 @@ function SubjectGauge({
               }}
             />
 
-            <RadialBar
-              dataKey="superior"
-              fill="#10b981"
-              cornerRadius={10}
-              background
-            />
-
-            <RadialBar
-              dataKey="alto"
-              fill="#3b82f6"
-              cornerRadius={10}
-              background
-            />
-
-            <RadialBar
-              dataKey="basico"
-              fill="#fbbf24"
-              cornerRadius={10}
-              background
-            />
-
-            <RadialBar
-              dataKey="bajo"
-              fill="#ef4444"
-              cornerRadius={10}
-              background
-            />
+            <RadialBar dataKey="superior" fill="#10b981" cornerRadius={10} background />
+            <RadialBar dataKey="alto" fill="#3b82f6" cornerRadius={10} background />
+            <RadialBar dataKey="basico" fill="#fbbf24" cornerRadius={10} background />
+            <RadialBar dataKey="bajo" fill="#ef4444" cornerRadius={10} background />
           </RadialBarChart>
         </ResponsiveContainer>
 
@@ -123,18 +112,52 @@ function SubjectGauge({
           Bajo {bajo}%
         </div>
       </div>
-    </div>
+    </button>
   );
 }
 
-export function SubjectHealthGrid({ data }: Props) {
+export function SubjectHealthGrid({ data, students }: Props) {
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   if (!data.length) return null;
 
+  const chunkSize = 8;
+
+  const pages = Array.from(
+    { length: Math.ceil(data.length / chunkSize) },
+    (_, index) => data.slice(index * chunkSize, index * chunkSize + chunkSize)
+  );
+
   return (
-    <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
-      {data.map((item) => (
-        <SubjectGauge key={item.subject} {...item} />
-      ))}
+    <section className="mb-6">
+      <div className="overflow-x-auto scrollbar-hide">
+        <div className="flex gap-4 snap-x snap-mandatory py-4 px-2">
+          {pages.map((page, pageIndex) => (
+            <div key={pageIndex} className="min-w-full shrink-0 snap-start">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                {page.map((item) => (
+                  <SubjectGauge
+                    key={item.subject}
+                    {...item}
+                    onClick={() => {
+                      setSelectedSubject(item.subject);
+                      setIsModalOpen(true);
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <SubjectStudentsModal
+        open={isModalOpen}
+        subject={selectedSubject}
+        students={students}
+        onClose={() => setIsModalOpen(false)}
+      />
     </section>
   );
 }

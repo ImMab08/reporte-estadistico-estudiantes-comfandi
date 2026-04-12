@@ -9,7 +9,7 @@ type Props = {
 
 export function CriticalGrades({ data }: Props) {
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+    <div className="bg-white rounded-xl border border-border p-4 shadow-sm">
       <h3 className="text-2xl font-bold mb-4 text-slate-800">
         Cursos con más bajos
       </h3>
@@ -23,7 +23,7 @@ export function CriticalGrades({ data }: Props) {
           data.map((item, index) => (
             <div
               key={item.label}
-              className="flex justify-between rounded-2xl border p-3 bg-slate-50"
+              className="flex justify-between rounded-xl border border-border p-3"
             >
               <span className="font-medium text-slate-700">
                 {index + 1}. {item.label}

@@ -88,6 +88,20 @@ export function HomeFeaturePage() {
 
     filteredStudents.forEach((student) => {
       Object.entries(student.grades).forEach(([subject, level]) => {
+        const normalizedLevel = String(level)
+          .trim()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase();
+
+        if (
+          !normalizedLevel ||
+          normalizedLevel === "n/a" ||
+          normalizedLevel === "na"
+        ) {
+          return;
+        }
+
         if (!subjectMap[subject]) {
           subjectMap[subject] = {
             total: 0,
@@ -100,15 +114,10 @@ export function HomeFeaturePage() {
 
         subjectMap[subject].total++;
 
-        const normalized = String(level)
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .toLowerCase();
-
-        if (normalized === "superior") subjectMap[subject].superior++;
-        if (normalized === "alto") subjectMap[subject].alto++;
-        if (normalized === "basico") subjectMap[subject].basico++;
-        if (normalized === "bajo") subjectMap[subject].bajo++;
+        if (normalizedLevel === "superior") subjectMap[subject].superior++;
+        if (normalizedLevel === "alto") subjectMap[subject].alto++;
+        if (normalizedLevel === "basico") subjectMap[subject].basico++;
+        if (normalizedLevel === "bajo") subjectMap[subject].bajo++;
       });
     });
 
@@ -198,7 +207,10 @@ export function HomeFeaturePage() {
             topStudents={analytics.kpis.topStudents}
             criticalSubjects={analytics.kpis.criticalSubjects}
           />
-          <SubjectHealthGrid data={subjectHealthMetrics} />
+          <SubjectHealthGrid
+            data={subjectHealthMetrics}
+            students={filteredStudents}
+          />
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
             <PerformancePie data={analytics.pieData} title={performanceTitle} />
@@ -206,12 +218,12 @@ export function HomeFeaturePage() {
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
-            <CriticalGrades data={analytics.criticalCourses} />
             <TopStudents data={analytics.topStudents} />
+            <RiskStudents data={analytics.strugglingStudents} />
           </div>
 
           <div className="grid grid-cols-1 gap-6">
-            <RiskStudents data={analytics.strugglingStudents} />
+            <CriticalGrades data={analytics.criticalCourses} />
           </div>
         </section>
 

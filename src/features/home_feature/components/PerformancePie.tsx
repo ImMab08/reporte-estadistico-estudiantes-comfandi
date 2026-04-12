@@ -23,7 +23,7 @@ type Props = {
 
 export function PerformancePie({ data, title }: Props) {
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+    <div className="bg-white rounded-xl border border-border p-6 shadow-sm">
       <h3 className="text-2xl font-bold mb-4 text-slate-800">Reporte general</h3>
 
       <ResponsiveContainer width="100%" height={320}>

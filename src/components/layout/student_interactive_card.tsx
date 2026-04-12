@@ -2,7 +2,6 @@
 
 import { createPortal } from "react-dom";
 import { ReactNode, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
 
 import type { StudentRecord } from "@/src/shared/types/academic.types";
 import { StudentQuickPreview } from "./student_quick_preview";
@@ -22,9 +21,6 @@ export function StudentInteractiveCard({
   const [rect, setRect] = useState<DOMRect | null>(null);
 
   const cardRef = useRef<HTMLDivElement>(null);
-  const pathname = usePathname();
-
-  const isStudents = pathname === "/students";
 
   const handleMouseEnter = () => {
     if (cardRef.current) {
@@ -50,19 +46,51 @@ export function StudentInteractiveCard({
       {showPreview &&
         rect &&
         createPortal(
-          <div
-            className={`fixed z-10 overflow-hidden border border-border bg-white shadow-xl ${
-              isStudents
-                ? "rounded-xl rounded-tr-none"
-                : "rounded-xl"
-            }`}
-            style={{
-              top: isStudents ? rect.top : rect.bottom + 11,
-              left: isStudents ? rect.left - 320 : rect.left,
-            }}
-          >
-            <StudentQuickPreview student={student} />
-          </div>,
+          (() => {
+            const PREVIEW_WIDTH = 320;
+            const PREVIEW_HEIGHT = 240;
+            const GAP = 12;
+            const VIEWPORT_PADDING = 16;
+
+            // Izquierda
+            let left = rect.left - PREVIEW_WIDTH - GAP;
+
+            // Alineado verticalmente con el estudiante
+            let top = rect.top;
+
+            // Solo ajustar si se sale abajo
+            const maxTop =
+              window.innerHeight -
+              PREVIEW_HEIGHT -
+              VIEWPORT_PADDING;
+
+            if (top > maxTop) {
+              top = maxTop;
+            }
+
+            // Si se sale arriba
+            if (top < VIEWPORT_PADDING) {
+              top = VIEWPORT_PADDING;
+            }
+
+            // Fallback si no cabe izquierda
+            if (left < VIEWPORT_PADDING) {
+              left = VIEWPORT_PADDING;
+            }
+
+            return (
+              <div
+                className="fixed z-100 overflow-hidden rounded-xl border border-border bg-white shadow-xl"
+                style={{
+                  top,
+                  left,
+                  width: PREVIEW_WIDTH,
+                }}
+              >
+                <StudentQuickPreview student={student} />
+              </div>
+            );
+          })(),
           document.body
         )}
     </div>
