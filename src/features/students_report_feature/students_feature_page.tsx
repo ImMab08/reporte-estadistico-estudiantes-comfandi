@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 import { getAcademicSnapshots } from "@/src/utils/academicStorage";
-import { isVisibleSubject } from "@/src/utils/studentPhotoPreview";
+import type { StudentRecord } from "@/src/shared/types/academic.types";
 
 import { useStudentFilters } from "@/src/shared/hooks/use_student_filters";
 import type { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
@@ -13,6 +13,12 @@ import { StudentInteractiveCard } from "@/src/components/layout/student_interact
 import { StudentDetailsFeacture } from "./student_details_feature";
 
 import { IconQuickReference, IconRefresh } from "@/src/shared/icons";
+
+type LevelKey = "Superior" | "Alto" | "Básico" | "Bajo";
+type ComparisonChartItem = {
+  level: LevelKey;
+  [key: string]: string | number;
+};
 
 export function StudentsFeaturePage() {
   //? Constantes
@@ -105,7 +111,9 @@ export function StudentsFeaturePage() {
   const selectedStudent =
     filteredStudents.find((s) => s.id === selectedStudentId) ?? null;
 
-  function getPerformanceChartData(student: any) {
+  function getPerformanceChartData(
+    student: StudentRecord | null,
+  ): { level: LevelKey; total: number }[] {
     if (!student) return [];
 
     const counts = {
@@ -136,7 +144,7 @@ export function StudentsFeaturePage() {
   const comparisonData = useMemo(() => {
     if (!selectedStudentId) return { currentChart: [] };
 
-    const baseLevels = {
+    const baseLevels: Record<LevelKey, ComparisonChartItem> = {
       Superior: { level: "Superior" },
       Alto: { level: "Alto" },
       Básico: { level: "Básico" },
@@ -156,8 +164,9 @@ export function StudentsFeaturePage() {
         const periodKey = `P${snapshot.period}`;
 
         chart.forEach((item) => {
-          baseLevels[item.level][periodKey] = item.total;
-        });
+          const levelKey = item.level as LevelKey;
+          baseLevels[levelKey][periodKey] = item.total;
+        }); 
       });
 
     return {
@@ -229,7 +238,7 @@ export function StudentsFeaturePage() {
           selectedStudent={selectedStudent}
           activeSnapshot={activeSnapshot}
           comparisonChartData={comparisonData.currentChart}
-          allSnapshots={snapshots}
+          // allSnapshots={snapshots}
         />
 
         <aside className="max-w-100 w-145 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col space-y-2">

@@ -1,5 +1,14 @@
+import { Suspense } from "react";
 import { HomeFeaturePage } from "@/src/features/home_feature/home_feature_page";
 
-export default function Home() {
+function HomeContent() {
   return <HomeFeaturePage />;
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
+    </Suspense>
+  );
 }

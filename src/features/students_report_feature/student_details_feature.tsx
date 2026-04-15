@@ -8,6 +8,7 @@ import {
   getStudentPhotoPath,
   isVisibleSubject,
 } from "@/src/utils/studentPhotoPreview";
+import { AcademicPeriodSnapshot, StudentRecord } from "@/src/shared/types/academic.types";
 
 import { IconWebTraffic } from "@/src/shared/icons";
 import {
@@ -23,15 +24,25 @@ import {
 } from "recharts";
 
 interface Props {
-  selectedStudent: any;
-  activeSnapshot: any;
-  comparisonChartData: any;
+  selectedStudent: StudentRecord | null;
+  activeSnapshot: AcademicPeriodSnapshot;
+  // allSnapshots: AcademicPeriodSnapshot[];
+  comparisonChartData: ComparisonChartItem[];
 }
+
+type ComparisonChartItem = {
+  level: "Superior" | "Alto" | "Básico" | "Bajo";
+  P1?: number;
+  P2?: number;
+  P3?: number;
+  P4?: number;
+};
 
 export function StudentDetailsFeacture({
   selectedStudent,
   activeSnapshot,
   comparisonChartData,
+  // allSnapshots
 }: Props) {
   const [subjectSort, setSubjectSort] = useState<"alphabetical" | "grade">(
     "grade",

@@ -69,9 +69,9 @@ function SubjectGauge({
             <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
 
             <Tooltip
-              formatter={(value: number, name: string) => [
-                `${value}%`,
-                name.charAt(0).toUpperCase() + name.slice(1),
+              formatter={(value, name) => [
+                `${Number(value ?? 0)}%`,
+                String(name).charAt(0).toUpperCase() + String(name).slice(1),
               ]}
               contentStyle={{
                 borderRadius: "12px",
@@ -80,10 +80,30 @@ function SubjectGauge({
               }}
             />
 
-            <RadialBar dataKey="superior" fill="#10b981" cornerRadius={10} background />
-            <RadialBar dataKey="alto" fill="#3b82f6" cornerRadius={10} background />
-            <RadialBar dataKey="basico" fill="#fbbf24" cornerRadius={10} background />
-            <RadialBar dataKey="bajo" fill="#ef4444" cornerRadius={10} background />
+            <RadialBar
+              dataKey="superior"
+              fill="#10b981"
+              cornerRadius={10}
+              background
+            />
+            <RadialBar
+              dataKey="alto"
+              fill="#3b82f6"
+              cornerRadius={10}
+              background
+            />
+            <RadialBar
+              dataKey="basico"
+              fill="#fbbf24"
+              cornerRadius={10}
+              background
+            />
+            <RadialBar
+              dataKey="bajo"
+              fill="#ef4444"
+              cornerRadius={10}
+              background
+            />
           </RadialBarChart>
         </ResponsiveContainer>
 
@@ -126,7 +146,7 @@ export function SubjectHealthGrid({ data, students }: Props) {
 
   const pages = Array.from(
     { length: Math.ceil(data.length / chunkSize) },
-    (_, index) => data.slice(index * chunkSize, index * chunkSize + chunkSize)
+    (_, index) => data.slice(index * chunkSize, index * chunkSize + chunkSize),
   );
 
   return (
