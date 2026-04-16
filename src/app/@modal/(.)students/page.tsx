@@ -1,3 +1,4 @@
+"use client"
 import { Suspense } from "react";
 import StudentModalContent from "@/src/shared/modals/student_modal_content"; 
 

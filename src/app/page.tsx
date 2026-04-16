@@ -1,3 +1,4 @@
+"use client"
 import { Suspense } from "react";
 import { HomeFeaturePage } from "@/src/features/home_feature/home_feature_page";
 

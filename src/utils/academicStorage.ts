@@ -4,17 +4,21 @@ const KEY = "academic_period_snapshots";
 
 type AcademicStorageMap = Record<string, AcademicPeriodSnapshot>;
 
-export function saveAcademicSnapshot(snapshot: AcademicPeriodSnapshot) {
-  const existing = getAcademicSnapshots();
+function canUseStorage() {
+  return typeof window !== "undefined";
+}
 
-  // reemplaza si ya existe el mismo periodo
+export function saveAcademicSnapshot(snapshot: AcademicPeriodSnapshot) {
+  if (!canUseStorage()) return;
+
+  const existing = getAcademicSnapshots();
   existing[snapshot.id] = snapshot;
 
   localStorage.setItem(KEY, JSON.stringify(existing));
 }
 
 export function getAcademicSnapshots(): AcademicStorageMap {
-  if (typeof window === "undefined") return {};
+  if (!canUseStorage()) return {};
 
   return JSON.parse(localStorage.getItem(KEY) || "{}");
 }
@@ -25,10 +29,14 @@ export function getAcademicSnapshotById(id: string) {
 }
 
 export function clearAcademicSnapshots() {
+  if (!canUseStorage()) return;
+
   localStorage.removeItem(KEY);
 }
 
 export function deleteAcademicSnapshot(snapshotId: string) {
+  if (!canUseStorage()) return;
+
   const snapshots = getAcademicSnapshots();
 
   delete snapshots[snapshotId];
