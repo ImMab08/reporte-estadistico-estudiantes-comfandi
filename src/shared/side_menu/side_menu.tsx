@@ -9,6 +9,10 @@ import { navItems } from "./data";
 export function SideMenu() {
   const pathname = usePathname();
 
+  if (pathname?.startsWith("/auth")) {
+    return null;
+  }
+
   const renderMenuItem = (item: (typeof navItems)[number]) => {
     const Icon = item.icon;
     const isActive = pathname === item.href;
@@ -16,19 +20,17 @@ export function SideMenu() {
     const content = (
       <>
         <div
-          className={`w-1 bg-primary rounded-full origin-left transition-transform duration-300 ${
-            isActive
+          className={`w-1 bg-primary rounded-full origin-left transition-transform duration-300 ${isActive
               ? "scale-y-100"
               : "scale-y-0 group-hover:scale-y-100"
-          }`}
+            }`}
         ></div>
 
         <div
-          className={`flex relative items-center space-x-2 w-full py-1 px-2 rounded-lg transition-all duration-300 ${
-            isActive
+          className={`flex relative items-center space-x-2 w-full py-1 px-2 rounded-lg transition-all duration-300 ${isActive
               ? "bg-primary text-white"
               : "text-primary bg-white group-hover:bg-primary group-hover:text-white -left-3 group-hover:left-0"
-          }`}
+            }`}
         >
           <Icon width={20} hanging={20} />
 
@@ -101,7 +103,7 @@ export function SideMenu() {
               <p className="font-semibold">Campus E Yumbo</p>
             </div>
             <p>Todos los derechos reservados.</p>
-            <p>© 2026 Edumetricks</p>
+            <p>© 2026 Edumetrics</p>
           </div>
         </div>
       </div>
