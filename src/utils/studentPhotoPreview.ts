@@ -4,11 +4,22 @@ export function normalizePhotoName(value: string) {
   return value.replace(/\s+/g, " ").trim();
 }
 
-export function getStudentPhotoPath(student: StudentRecord) {
-  const folder = `Yumbo ${student.grade}-${student.group}`;
-  const fileName = `${normalizePhotoName(student.name)}.jpg`;
+const CLOUD_NAME = "dhwcij51c";
 
-  return `/img/fotos_estudiantes_yumbo_2026/${folder}/${fileName}`;
+export function getStudentPhotoPath(student: StudentRecord) {
+  const baseUrl = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload`;
+
+  const normalizedName = student.name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
+
+  const folder = `Yumbo ${student.grade}-${student.group}`;
+  const fileName = `${normalizedName}.jpg`;
+
+  return `${baseUrl}/f_auto,q_auto,w_300/fotos_estudiantes_yumbo_2026/${encodeURIComponent(folder)}/${encodeURIComponent(fileName)}`;
 }
 
 function normalizeText(value: string) {

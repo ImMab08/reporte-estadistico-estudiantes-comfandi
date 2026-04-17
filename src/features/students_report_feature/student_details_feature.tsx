@@ -1,14 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   classifyStudent,
   getStudentPhotoPath,
   isVisibleSubject,
 } from "@/src/utils/studentPhotoPreview";
-import { AcademicPeriodSnapshot, StudentRecord } from "@/src/shared/types/academic.types";
+import {
+  AcademicPeriodSnapshot,
+  StudentRecord,
+} from "@/src/shared/types/academic.types";
 
 import { IconWebTraffic } from "@/src/shared/icons";
 import {
@@ -44,6 +47,7 @@ export function StudentDetailsFeacture({
   comparisonChartData,
   // allSnapshots
 }: Props) {
+  const [isLoading, setIsLoading] = useState(true);
   const [subjectSort, setSubjectSort] = useState<"alphabetical" | "grade">(
     "grade",
   );
@@ -76,6 +80,17 @@ export function StudentDetailsFeacture({
       return b - a;
     });
   }, [visibleSubjects, subjectSort]);
+
+  useEffect(() => {
+    setIsLoading(true);
+  }, [selectedStudent?.id]);
+  
+  useEffect(() => {
+    if (!selectedStudent) return;
+
+    const img = new window.Image();
+    img.src = getStudentPhotoPath(selectedStudent);
+  }, [selectedStudent]);
 
   if (!selectedStudent) {
     return (
@@ -121,12 +136,19 @@ export function StudentDetailsFeacture({
       <div className="p-4 flex gap-4 shrink-0">
         <div className="relative w-52 h-64 rounded-2xl bg-slate-200 overflow-hidden shrink-0">
           <Image
+            key={selectedStudent.id}
             src={getStudentPhotoPath(selectedStudent)}
             alt={selectedStudent.name}
             fill
-            className="object-cover object-center"
-            sizes="230px"
+            onLoad={() => setIsLoading(false)}
+            className={`object-cover transition-opacity duration-300 ${
+              isLoading ? "opacity-0" : "opacity-100"
+            }`}
           />
+
+          {isLoading && (
+            <div className="absolute inset-0 animate-pulse bg-slate-200 rounded-xl" />
+          )}
         </div>
 
         <div className="flex-1">
