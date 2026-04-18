@@ -215,11 +215,11 @@ export function HomeFeaturePage() {
 
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
             <TopStudents data={analytics.topStudents} />
-            <RiskStudents data={analytics.strugglingStudents} />
+            <CriticalGrades data={analytics.criticalCourses} />
+            {/* <RiskStudents data={analytics.strugglingStudents} /> */}
           </div>
 
           <div className=" mb-6">
-            <CriticalGrades data={analytics.criticalCourses} />
           </div>
 
           <div>
