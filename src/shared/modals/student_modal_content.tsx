@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { StudentDetailsFeacture } from "@/src/features/students_report_feature/student_details_feature";
+import { StudentDetailsFeacture } from "@/src/features/students_feature/student_details_feature";
 import { getAcademicSnapshots } from "@/src/utils/academicStorage";
 
 import type { StudentRecord } from "@/src/shared/types/academic.types";

@@ -30,7 +30,7 @@ export function TopStudents({ data }: Props) {
   return (
     <div className="bg-white rounded-xl border border-border p-4 shadow-sm">
       <h3 className="text-2xl font-bold mb-4 text-slate-800">
-        Estudiantes Destacados
+        Estudiantes destacados
       </h3>
 
       <div className="space-y-3">
