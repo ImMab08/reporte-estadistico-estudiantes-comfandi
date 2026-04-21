@@ -31,24 +31,18 @@ export function useStudentFilters(snapshots: AcademicPeriodSnapshot[]) {
   const handlePeriodChange = (value: string) => {
     updateState({
       period: value,
-      grade: "all",
-      group: "all",
-      student: "",
     });
   };
 
   const handleGradeChange = (value: string) => {
     updateState({
       grade: value,
-      group: "all",
-      student: "",
     });
   };
 
   const handleGroupChange = (value: string) => {
     updateState({
       group: value,
-      student: "",
     });
   };
 
