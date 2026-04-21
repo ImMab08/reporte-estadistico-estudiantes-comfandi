@@ -1,9 +1,9 @@
 "use client";
 
-import { useStudentsController } from "./hooks/use_students_controller";
-
 import { StudentsSidebar } from "./components/students_sidebar";
 import { StudentDetails } from "./components/student_details";
+
+import { useStudentsController } from "./hooks/use_students_controller";
 
 export function StudentsFeaturePage() {
   const controller = useStudentsController();
@@ -26,7 +26,6 @@ export function StudentsFeaturePage() {
       <section className="gap-4 flex flex-1 min-h-0 overflow-hidden rounded-xl">
 
         <StudentDetails controller={controller} />
-
         <StudentsSidebar controller={controller} />
 
       </section>

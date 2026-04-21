@@ -45,7 +45,7 @@ function SubjectGauge({
     },
   ];
 
-  const totalHealth = superior + alto;
+  const totalHealth = Math.min(superior + alto, 100);
 
   return (
     <button
@@ -155,7 +155,7 @@ export function SubjectHealthGrid({ data, students }: Props) {
         <div className="flex gap-4 snap-x snap-mandatory mb-4 ">
           {pages.map((page, pageIndex) => (
             <div key={pageIndex} className="min-w-full shrink-0 snap-start">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <div className="grid grid-cols-4 grid-rows-2 gap-4 place-items-stretch">
                 {page.map((item) => (
                   <SubjectGauge
                     key={item.subject}

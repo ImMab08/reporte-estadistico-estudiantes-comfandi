@@ -58,10 +58,7 @@ export function DashboardSidebar({
       <select
         className="rounded-xl w-full border border-slate-200 p-2 cursor-pointer"
         value={selectedGrade}
-        onChange={(e) => {
-          setSelectedGrade(e.target.value);
-          setSelectedGroup("all");
-        }}
+        onChange={(e) => setSelectedGrade(e.target.value)}
       >
         <option value="all">Todos los grados</option>
         {gradeOptions.map((grade) => (

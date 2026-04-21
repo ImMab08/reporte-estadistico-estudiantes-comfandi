@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-
-import { useFilterUrlState } from "@/src/shared/hooks/use_filter_url_state";
+import { useFilterUrlState } from "./use_filter_url_state";
 import type { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
 
-export function useStudentFilters(snapshots: AcademicPeriodSnapshot[]) {
+export function useAcademicFilters(snapshots: AcademicPeriodSnapshot[]) {
   const { state, updateState } = useFilterUrlState();
 
   useEffect(() => {
@@ -17,64 +16,41 @@ export function useStudentFilters(snapshots: AcademicPeriodSnapshot[]) {
   }, [snapshots, state.period, updateState]);
 
   const activeSnapshot = useMemo(() => {
-    return (
-      snapshots.find((snapshot) => snapshot.id === state.period) ??
-      snapshots[0] ??
-      null
-    );
+    return snapshots.find((s) => s.id === state.period) ?? snapshots[0] ?? null;
   }, [snapshots, state.period]);
 
-  const handleSearch = (value: string) => {
-    updateState({ search: value });
-  };
-
   const handlePeriodChange = (value: string) => {
-    updateState({
-      period: value,
-    });
+    updateState({ period: value });
   };
 
   const handleGradeChange = (value: string) => {
     updateState({
       grade: value,
+      group: "all",
     });
   };
 
   const handleGroupChange = (value: string) => {
-    updateState({
-      group: value,
-    });
-  };
-
-  const handleStudentSelect = (studentId: string) => {
-    updateState({
-      student: studentId,
-      modal: "",
-    });
+    updateState({ group: value });
   };
 
   const clearFilters = () => {
     updateState({
-      search: "",
       grade: "all",
       group: "all",
-      student: "",
     });
   };
 
   return {
-    search: state.search,
+    selectedPeriodId: state.period,
     selectedGrade: state.grade,
     selectedGroup: state.group,
-    selectedStudentId: state.student,
-    selectedPeriodId: state.period,
     activeSnapshot,
     isGroupDisabled: state.grade === "all",
-    handleSearch,
+
     handlePeriodChange,
     handleGradeChange,
     handleGroupChange,
-    handleStudentSelect,
     clearFilters,
   };
 }
