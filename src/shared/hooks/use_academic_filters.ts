@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "react";
 import { useFilterUrlState } from "./use_filter_url_state";
 import type { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
 
-export function useStudentFilters(snapshots: AcademicPeriodSnapshot[]) {
+export function useAcademicFilters(snapshots: AcademicPeriodSnapshot[]) {
   const { state, updateState } = useFilterUrlState();
 
   useEffect(() => {
@@ -16,11 +16,7 @@ export function useStudentFilters(snapshots: AcademicPeriodSnapshot[]) {
   }, [snapshots, state.period, updateState]);
 
   const activeSnapshot = useMemo(() => {
-    return (
-      snapshots.find((snapshot) => snapshot.id === state.period) ??
-      snapshots[0] ??
-      null
-    );
+    return snapshots.find((s) => s.id === state.period) ?? snapshots[0] ?? null;
   }, [snapshots, state.period]);
 
   const handlePeriodChange = (value: string) => {
@@ -33,7 +29,7 @@ export function useStudentFilters(snapshots: AcademicPeriodSnapshot[]) {
       group: "all",
     });
   };
-  
+
   const handleGroupChange = (value: string) => {
     updateState({ group: value });
   };

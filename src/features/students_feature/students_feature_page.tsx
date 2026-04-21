@@ -1,9 +1,9 @@
 "use client";
 
-import { useStudentsController } from "./hooks/use_students_controller";
-
 import { StudentsSidebar } from "./components/students_sidebar";
 import { StudentDetails } from "./components/student_details";
+
+import { useStudentsController } from "./hooks/use_students_controller";
 
 export function StudentsFeaturePage() {
   const controller = useStudentsController();
