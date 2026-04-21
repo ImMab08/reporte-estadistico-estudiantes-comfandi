@@ -29,7 +29,7 @@ export function DashboardSidebar({
   setSelectedGroup,
   gradeOptions,
   groupOptions,
-  clearFilters
+  clearFilters,
 }: Props) {
   return (
     <aside className="max-w-100 w-120 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col space-y-2">
@@ -72,7 +72,14 @@ export function DashboardSidebar({
       </select>
 
       <select
-        className="rounded-xl w-full border border-slate-200 p-2 cursor-pointer"
+        disabled={selectedGrade === "all"}
+        className="
+          rounded-xl w-full border border-slate-200 p-2
+          cursor-pointer
+          disabled:bg-slate-100
+          disabled:text-slate-400
+          disabled:cursor-not-allowed
+        "
         value={selectedGroup}
         onChange={(e) => setSelectedGroup(e.target.value)}
       >

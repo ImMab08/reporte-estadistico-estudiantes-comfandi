@@ -45,7 +45,12 @@ export function StudentsFeaturePage() {
   const [localSearch, setLocalSearch] = useState(search);
 
   useEffect(() => {
-    setLocalSearch(search);
+    const normalizedUrl = search.trim();
+    const normalizedLocal = localSearch.trim();
+
+    if (normalizedUrl !== normalizedLocal) {
+      setLocalSearch(search);
+    }
   }, [search]);
 
   const normalizedSearch = localSearch.trim().toLowerCase();
@@ -109,7 +114,7 @@ export function StudentsFeaturePage() {
   }, [activeSnapshot, selectedGrade, selectedGroup, normalizedSearch]);
 
   const selectedStudent =
-    filteredStudents.find((s) => s.id === selectedStudentId) ?? null;
+    activeSnapshot?.students.find((s) => s.id === selectedStudentId) ?? null;
 
   function getPerformanceChartData(
     student: StudentRecord | null,
@@ -166,7 +171,7 @@ export function StudentsFeaturePage() {
         chart.forEach((item) => {
           const levelKey = item.level as LevelKey;
           baseLevels[levelKey][periodKey] = item.total;
-        }); 
+        });
       });
 
     return {
