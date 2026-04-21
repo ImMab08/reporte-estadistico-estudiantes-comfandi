@@ -9,20 +9,12 @@ import type { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
 import { ComparisonChartItem, LevelKey } from "../types/students.types";
 
 export function useStudentsController() {
-  const [snapshots, setSnapshots] = useState<AcademicPeriodSnapshot[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [localSearch, setLocalSearch] = useState("");
+  const [selectedStudentId, setSelectedStudentId] = useState("");
 
-  const filters = useStudentFilters(snapshots);
+  const [snapshots, setSnapshots] = useState<AcademicPeriodSnapshot[]>([]);
 
-  const {
-    search,
-    selectedGrade,
-    selectedGroup,
-    selectedStudentId,
-    activeSnapshot,
-    // handleSearch,
-  } = filters;
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const data = Object.values(getAcademicSnapshots()).sort(
@@ -33,17 +25,13 @@ export function useStudentsController() {
     setIsLoading(false);
   }, []);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      filters.handleSearch(localSearch);
-    }, 400);
+  const filters = useStudentFilters(snapshots);
 
-    return () => clearTimeout(timer);
-  }, [localSearch, filters]);
+  const { selectedGrade, selectedGroup, activeSnapshot } = filters;
 
-  useEffect(() => {
-    setLocalSearch(search);
-  }, [search]);
+  const handleStudentSelect = (id: string) => {
+    setSelectedStudentId(id);
+  };
 
   const normalizedSearch = localSearch.trim().toLowerCase();
 
@@ -142,12 +130,14 @@ export function useStudentsController() {
     snapshots,
     isLoading,
     localSearch,
-    setLocalSearch,
     gradeOptions,
     groupOptions,
-    filteredStudents,
-    selectedStudent,
+    setLocalSearch,
     comparisonData,
+    selectedStudent,
+    filteredStudents,
+    selectedStudentId,
+    handleStudentSelect,
     ...filters,
   };
 }

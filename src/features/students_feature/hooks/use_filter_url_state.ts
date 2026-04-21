@@ -12,9 +12,6 @@ export function useFilterUrlState() {
     period: searchParams.get("period") ?? "",
     grade: searchParams.get("grade") ?? "all",
     group: searchParams.get("group") ?? "all",
-    student: searchParams.get("student") ?? "",
-    search: searchParams.get("search") ?? "",
-    modal: searchParams.get("modal") ?? "",
   };
 
   const updateState = useCallback(
@@ -33,7 +30,7 @@ export function useFilterUrlState() {
       const currentUrl = `${pathname}?${searchParams.toString()}`;
 
       if (newUrl !== currentUrl) {
-        router.replace(newUrl);
+        router.replace(newUrl, { scroll: false });
       }
     },
     [pathname, router, searchParams],

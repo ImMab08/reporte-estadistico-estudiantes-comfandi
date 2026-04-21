@@ -26,7 +26,6 @@ export function StudentsFeaturePage() {
       <section className="gap-4 flex flex-1 min-h-0 overflow-hidden rounded-xl">
 
         <StudentDetails controller={controller} />
-
         <StudentsSidebar controller={controller} />
 
       </section>

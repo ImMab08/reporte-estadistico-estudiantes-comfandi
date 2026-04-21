@@ -16,7 +16,7 @@ import { CriticalSubjects } from "./components/CriticalSubjects";
 import { DashboardSidebar } from "./components/HomeDashboardSidebar";
 
 import { IconQuickReference } from "@/src/shared/icons";
-import { useFilterUrlState } from "@/src/shared/hooks/use_filter_url_state";
+import { useFilterUrlState } from "@/src/features/students_feature/hooks/use_filter_url_state";
 import type { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
 import { SubjectHealthGrid } from "./components/SubjectHealthGrid";
 
