@@ -10,18 +10,15 @@ import type { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
 
 export function useStudentsController() {
   const [localSearch, setLocalSearch] = useState("");
-  const [selectedStudentId, setSelectedStudentId] = useState("");
 
-  const [snapshots, setSnapshots] = useState<
-    AcademicPeriodSnapshot[]
-  >([]);
+  const [snapshots, setSnapshots] = useState<AcademicPeriodSnapshot[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const data = Object.values(
-      getAcademicSnapshots()
-    ).sort((a, b) => b.period - a.period);
+    const data = Object.values(getAcademicSnapshots()).sort(
+      (a, b) => b.period - a.period,
+    );
 
     setSnapshots(data);
     setIsLoading(false);
@@ -32,22 +29,23 @@ export function useStudentsController() {
   const {
     selectedGrade,
     selectedGroup,
+    selectedStudentId,
     activeSnapshot,
+    handleStudentChange,
   } = filters;
 
   const handleStudentSelect = (id: string) => {
-    setSelectedStudentId(id);
+    handleStudentChange(id);
   };
 
-  const normalizedSearch =
-    localSearch.trim().toLowerCase();
+  const normalizedSearch = localSearch.trim().toLowerCase();
 
   const gradeOptions = useMemo(() => {
     if (!activeSnapshot) return [];
 
-    return [...new Set(
-      activeSnapshot.students.map((s) => s.grade)
-    )].sort((a, b) => Number(a) - Number(b));
+    return [...new Set(activeSnapshot.students.map((s) => s.grade))].sort(
+      (a, b) => Number(a) - Number(b),
+    );
   }, [activeSnapshot]);
 
   const groupOptions = useMemo(() => {
@@ -55,15 +53,10 @@ export function useStudentsController() {
 
     return activeSnapshot.students
       .filter((s) =>
-        selectedGrade === "all"
-          ? true
-          : s.grade === selectedGrade
+        selectedGrade === "all" ? true : s.grade === selectedGrade,
       )
       .map((s) => s.group)
-      .filter(
-        (value, index, array) =>
-          array.indexOf(value) === index
-      )
+      .filter((value, index, array) => array.indexOf(value) === index)
       .sort((a, b) => Number(a) - Number(b));
   }, [activeSnapshot, selectedGrade]);
 
@@ -73,50 +66,28 @@ export function useStudentsController() {
     return activeSnapshot.students
       .filter((student) => {
         const gradeMatch =
-          selectedGrade === "all" ||
-          student.grade === selectedGrade;
+          selectedGrade === "all" || student.grade === selectedGrade;
 
         const groupMatch =
-          selectedGroup === "all" ||
-          student.group === selectedGroup;
+          selectedGroup === "all" || student.group === selectedGroup;
 
         const searchMatch =
           !normalizedSearch ||
-          student.name
-            .toLowerCase()
-            .includes(normalizedSearch) ||
-          student.id
-            .toLowerCase()
-            .includes(normalizedSearch);
+          student.name.toLowerCase().includes(normalizedSearch) ||
+          student.id.toLowerCase().includes(normalizedSearch);
 
-        return (
-          gradeMatch &&
-          groupMatch &&
-          searchMatch
-        );
+        return gradeMatch && groupMatch && searchMatch;
       })
-      .sort((a, b) =>
-        a.name.localeCompare(b.name, "es")
-      );
-  }, [
-    activeSnapshot,
-    selectedGrade,
-    selectedGroup,
-    normalizedSearch,
-  ]);
+      .sort((a, b) => a.name.localeCompare(b.name, "es"));
+  }, [activeSnapshot, selectedGrade, selectedGroup, normalizedSearch]);
 
   const selectedStudent =
-    activeSnapshot?.students.find(
-      (s) => s.id === selectedStudentId
-    ) ?? null;
+    activeSnapshot?.students.find((s) => s.id === selectedStudentId) ?? null;
 
   const comparisonData = useMemo(() => {
     if (!selectedStudentId) return [];
 
-    const baseLevels: Record<
-      LevelKey,
-      ComparisonChartItem
-    > = {
+    const baseLevels: Record<LevelKey, ComparisonChartItem> = {
       Superior: { level: "Superior" },
       Alto: { level: "Alto" },
       Básico: { level: "Básico" },
@@ -127,11 +98,9 @@ export function useStudentsController() {
       .slice()
       .sort((a, b) => a.period - b.period)
       .forEach((snapshot) => {
-        const student =
-          snapshot.students.find(
-            (s) =>
-              s.id === selectedStudentId
-          );
+        const student = snapshot.students.find(
+          (s) => s.id === selectedStudentId,
+        );
 
         if (!student) return;
 
@@ -142,38 +111,24 @@ export function useStudentsController() {
           bajo: 0,
         };
 
-        Object.values(
-          student.grades
-        ).forEach((level) => {
-          const value = String(
-            level
-          ).toLowerCase();
+        Object.values(student.grades).forEach((level) => {
+          const value = String(level).toLowerCase();
 
-          if (value === "superior")
-            counts.superior++;
-          else if (value === "alto")
-            counts.alto++;
-          else if (
-            value.includes("basico")
-          )
-            counts.basico++;
-          else if (value === "bajo")
-            counts.bajo++;
+          if (value === "superior") counts.superior++;
+          else if (value === "alto") counts.alto++;
+          else if (value.includes("basico")) counts.basico++;
+          else if (value === "bajo") counts.bajo++;
         });
 
         const key = `P${snapshot.period}`;
 
-        baseLevels.Superior[key] =
-          counts.superior;
+        baseLevels.Superior[key] = counts.superior;
 
-        baseLevels.Alto[key] =
-          counts.alto;
+        baseLevels.Alto[key] = counts.alto;
 
-        baseLevels["Básico"][key] =
-          counts.basico;
+        baseLevels["Básico"][key] = counts.basico;
 
-        baseLevels.Bajo[key] =
-          counts.bajo;
+        baseLevels.Bajo[key] = counts.bajo;
       });
 
     return Object.values(baseLevels);
@@ -182,9 +137,10 @@ export function useStudentsController() {
   return {
     snapshots,
     isLoading,
+
     localSearch,
     setLocalSearch,
-    selectedStudentId,
+
     selectedStudent,
 
     gradeOptions,

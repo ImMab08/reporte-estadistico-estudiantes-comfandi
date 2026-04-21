@@ -16,30 +16,52 @@ export function useFilterUrlState() {
     period: searchParams.get("period") ?? "",
     grade: searchParams.get("grade") ?? "all",
     group: searchParams.get("group") ?? "all",
+    student: searchParams.get("student") ?? "",
   };
 
   const updateState = useCallback(
-    (updates: Partial<typeof state>) => {
-      const params = new URLSearchParams(
-        searchParams.toString()
-      );
+    (
+      updates: Partial<typeof state>
+    ) => {
+      const params =
+        new URLSearchParams(
+          searchParams.toString()
+        );
 
       Object.entries(updates).forEach(
         ([key, value]) => {
-          if (!value || value === "all") {
+          if (
+            !value ||
+            value === "all"
+          ) {
             params.delete(key);
           } else {
-            params.set(key, String(value));
+            params.set(
+              key,
+              String(value)
+            );
           }
         }
       );
 
-      router.replace(
-        `${pathname}?${params.toString()}`,
-        { scroll: false }
-      );
+      const nextUrl =
+        `${pathname}?${params.toString()}`;
+
+      const currentUrl =
+        `${pathname}?${searchParams.toString()}`;
+
+      if (nextUrl === currentUrl)
+        return;
+
+      router.replace(nextUrl, {
+        scroll: false,
+      });
     },
-    [pathname, router, searchParams]
+    [
+      pathname,
+      router,
+      searchParams,
+    ]
   );
 
   return {

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { useFilterUrlState } from "./use_filter_url_state";
+
 import type { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
 
 export function useAcademicFilters(snapshots: AcademicPeriodSnapshot[]) {
@@ -16,11 +17,17 @@ export function useAcademicFilters(snapshots: AcademicPeriodSnapshot[]) {
   }, [snapshots, state.period, updateState]);
 
   const activeSnapshot = useMemo(() => {
-    return snapshots.find((s) => s.id === state.period) ?? snapshots[0] ?? null;
+    return (
+      snapshots.find((snapshot) => snapshot.id === state.period) ??
+      snapshots[0] ??
+      null
+    );
   }, [snapshots, state.period]);
 
   const handlePeriodChange = (value: string) => {
-    updateState({ period: value });
+    updateState({
+      period: value,
+    });
   };
 
   const handleGradeChange = (value: string) => {
@@ -31,13 +38,22 @@ export function useAcademicFilters(snapshots: AcademicPeriodSnapshot[]) {
   };
 
   const handleGroupChange = (value: string) => {
-    updateState({ group: value });
+    updateState({
+      group: value,
+    });
+  };
+
+  const handleStudentChange = (value: string) => {
+    updateState({
+      student: value,
+    });
   };
 
   const clearFilters = () => {
     updateState({
       grade: "all",
       group: "all",
+      student: "",
     });
   };
 
@@ -45,12 +61,16 @@ export function useAcademicFilters(snapshots: AcademicPeriodSnapshot[]) {
     selectedPeriodId: state.period,
     selectedGrade: state.grade,
     selectedGroup: state.group,
+    selectedStudentId: state.student,
+
     activeSnapshot,
+
     isGroupDisabled: state.grade === "all",
 
     handlePeriodChange,
     handleGradeChange,
     handleGroupChange,
+    handleStudentChange,
     clearFilters,
   };
 }
