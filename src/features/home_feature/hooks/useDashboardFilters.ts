@@ -2,8 +2,17 @@
 
 import { useMemo } from "react";
 
+type Student = {
+  grade: string;
+  group: string;
+};
+
+type Snapshot = {
+  students: Student[];
+};
+
 type Props = {
-  activeSnapshot: any;
+  activeSnapshot: Snapshot | null;
   selectedGrade: string;
   selectedGroup: string;
 };
@@ -13,49 +22,45 @@ export function useDashboardFilters({
   selectedGrade,
   selectedGroup,
 }: Props) {
-  const gradeOptions = useMemo(() => {
+  const gradeOptions = useMemo<string[]>(() => {
     if (!activeSnapshot) return [];
 
     return [...new Set(
-      activeSnapshot.students.map(
-        (s: any) => s.grade
-      )
+      activeSnapshot.students.map((student) => student.grade)
     )].sort((a, b) => Number(a) - Number(b));
   }, [activeSnapshot]);
 
-  const groupOptions = useMemo(() => {
+  const groupOptions = useMemo<string[]>(() => {
     if (!activeSnapshot) return [];
 
     return activeSnapshot.students
-      .filter((s: any) =>
+      .filter((student) =>
         selectedGrade === "all"
           ? true
-          : s.grade === selectedGrade
+          : student.grade === selectedGrade
       )
-      .map((s: any) => s.group)
+      .map((student) => student.group)
       .filter(
-        (v: string, i: number, arr: string[]) =>
-          arr.indexOf(v) === i
+        (value, index, array) =>
+          array.indexOf(value) === index
       )
       .sort((a, b) => Number(a) - Number(b));
   }, [activeSnapshot, selectedGrade]);
 
-  const filteredStudents = useMemo(() => {
+  const filteredStudents = useMemo<Student[]>(() => {
     if (!activeSnapshot) return [];
 
-    return activeSnapshot.students.filter(
-      (student: any) => {
-        const gradeMatch =
-          selectedGrade === "all" ||
-          student.grade === selectedGrade;
+    return activeSnapshot.students.filter((student) => {
+      const gradeMatch =
+        selectedGrade === "all" ||
+        student.grade === selectedGrade;
 
-        const groupMatch =
-          selectedGroup === "all" ||
-          student.group === selectedGroup;
+      const groupMatch =
+        selectedGroup === "all" ||
+        student.group === selectedGroup;
 
-        return gradeMatch && groupMatch;
-      }
-    );
+      return gradeMatch && groupMatch;
+    });
   }, [
     activeSnapshot,
     selectedGrade,
