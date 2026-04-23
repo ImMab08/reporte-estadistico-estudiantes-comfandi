@@ -13,14 +13,31 @@ export function useHomeController() {
   const [snapshots, setSnapshots] = useState<AcademicPeriodSnapshot[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 90) return prev;
+        return prev + 10;
+      });
+    }, 150);
+
     const data = Object.values(getAcademicSnapshots()).sort(
       (a, b) => b.period - a.period,
     );
 
-    setSnapshots(data);
-    setIsLoading(false);
+    setTimeout(() => {
+      setSnapshots(data);
+
+      setProgress(100);
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
+    }, 1200);
+
+    return () => clearInterval(interval);
   }, []);
 
   const filters = useAcademicFilters(snapshots);
@@ -154,6 +171,7 @@ export function useHomeController() {
   return {
     snapshots,
     isLoading,
+    progress,
 
     gradeOptions,
     groupOptions,

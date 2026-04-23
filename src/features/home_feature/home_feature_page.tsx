@@ -13,12 +13,14 @@ import { CriticalGrades } from "./components/CriticalGrades";
 import { SubjectHealthGrid } from "./components/SubjectHealthGrid";
 
 import { IconQuickReference } from "@/src/shared/icons";
+import { GlobalLoader } from "@/src/shared/global_loader";
 
 export function HomeFeaturePage() {
   const controller = useHomeController();
 
   const {
     isLoading,
+    progress,
     activeSnapshot,
 
     snapshots,
@@ -43,15 +45,11 @@ export function HomeFeaturePage() {
     selectedGrade === "all"
       ? "Rendimiento general"
       : selectedGroup === "all"
-      ? `Rendimiento general grado ${selectedGrade}°`
-      : `Rendimiento general ${selectedGrade}-${selectedGroup}`;
+        ? `Rendimiento general grado ${selectedGrade}°`
+        : `Rendimiento general ${selectedGrade}-${selectedGroup}`;
 
   if (isLoading) {
-    return (
-      <div className="size-full flex items-center justify-center">
-        Cargando...
-      </div>
-    );
+    return <GlobalLoader progress={progress} />;
   }
 
   if (!activeSnapshot) {
@@ -69,9 +67,7 @@ export function HomeFeaturePage() {
     <section className="size-full bg-slate-50 p-4 flex flex-col overflow-hidden">
       <header className="mb-4 border-b border-border py-3 flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-primary">
-            Inicio
-          </h1>
+          <h1 className="text-4xl font-bold text-primary">Inicio</h1>
 
           <p className="text-slate-500">
             Vista general del rendimiento académico
@@ -100,22 +96,15 @@ export function HomeFeaturePage() {
           />
 
           <div className="grid xl:grid-cols-2 gap-6 my-6">
-            <PerformancePie
-              data={analytics.pieData}
-              title={performanceTitle}
-            />
+            <PerformancePie data={analytics.pieData} title={performanceTitle} />
 
-            <CriticalSubjects
-              data={analytics.criticalSubjects}
-            />
+            <CriticalSubjects data={analytics.criticalSubjects} />
           </div>
 
           <div className="grid xl:grid-cols-2 gap-6 mb-6">
             <TopStudents data={analytics.topStudents} />
 
-            <CriticalGrades
-              data={analytics.criticalCourses}
-            />
+            <CriticalGrades data={analytics.criticalCourses} />
           </div>
 
           <SubjectHealthGrid
