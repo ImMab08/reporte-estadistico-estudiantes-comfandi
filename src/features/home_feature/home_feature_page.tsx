@@ -43,10 +43,10 @@ export function HomeFeaturePage() {
 
   const performanceTitle =
     selectedGrade === "all"
-      ? "Rendimiento general"
+      ? "Reporte general"
       : selectedGroup === "all"
-        ? `Rendimiento general grado ${selectedGrade}°`
-        : `Rendimiento general ${selectedGrade}-${selectedGroup}`;
+        ? `Reporte: grado ${selectedGrade}°`
+        : `Reporte: grado ${selectedGrade}-${selectedGroup}`;
 
   if (isLoading) {
     return <GlobalLoader progress={progress} />;
@@ -87,7 +87,7 @@ export function HomeFeaturePage() {
         </div>
       </header>
 
-      <section className="gap-4 flex flex-1 min-h-0 overflow-hidden mb-28 md:mb-0">
+      <section className="gap-4 flex flex-1 min-h-0 overflow-hidden md:mb-0">
         <section className="p-3 md:p-4 w-full overflow-auto bg-white border border-border rounded-xl">
           <h2 className="text-3xl mb-4 text-primary font-bold">
             {performanceTitle}
@@ -105,7 +105,7 @@ export function HomeFeaturePage() {
             <TopStudents data={analytics.topStudents} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4 md:gap-6 mb-6">
+          <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-6">
             <CriticalSubjects data={analytics.criticalSubjects} />
             <CriticalGrades data={analytics.criticalCourses} />
           </div>

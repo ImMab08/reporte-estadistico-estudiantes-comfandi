@@ -26,7 +26,7 @@ export function CriticalSubjects({ data }: Props) {
               className="flex justify-between rounded-xl border border-border p-3"
             >
               <span className="text-sm md:text-base font-medium text-slate-700">
-                {index + 1}. <br className="block md:hidden" /> {item.subject}
+                {index + 1}. {item.subject}
               </span>
               <span className="text-sm md:text-base font-bold text-red-500">{item.count}</span>
             </div>

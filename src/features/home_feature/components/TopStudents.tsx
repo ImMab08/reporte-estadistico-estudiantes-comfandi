@@ -42,10 +42,10 @@ export function TopStudents({ data }: Props) {
           >
             <div className="flex justify-between rounded-2xl border border-border p-4">
               <div>
-                <p className="font-semibold text-slate-700">
+                <p className="text-sm md:text-base font-semibold text-slate-700">
                   {index + 1}. {student.name}
                 </p>
-                <p className="text-sm text-slate-400">
+                <p className="text-sm md:text-base text-slate-400">
                   {student.grade}°-{student.group}
                 </p>
               </div>

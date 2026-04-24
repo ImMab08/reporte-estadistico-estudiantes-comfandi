@@ -4,6 +4,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { SideMenu } from "../shared/side_menu/side_menu";
 
 import "./globals.css";
+import { MobileMenu } from "../shared/side_menu/mobile_menu";
+import { DesktopMenu } from "../shared/side_menu/desktop_menu";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,9 +35,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="w-full min-h-full h-full flex flex-col bg-background">
-        <div className="flex h-full">
-          <SideMenu />
+        <div className="flex flex-col md:flex-row h-full">
+          <DesktopMenu />
           {children}
+          <MobileMenu />
           {modal}
         </div>
       </body>
