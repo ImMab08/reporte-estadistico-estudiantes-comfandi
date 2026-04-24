@@ -19,20 +19,26 @@ export function MobileMenu() {
             const isActive = pathname === item.href;
 
             return (
-              <a
-                key={item.text}
-                href={item.href}
-                className={`flex flex-col items-center ${isActive ? "bg-primary rounded-full -translate-y-4 p-2" : ""} text-white text-sm relative`}
-              >
-                {/* Botón activo */}
-                <div
-                  className={`flex ${isActive ? "bg-alto text-white p-4 rounded-full" : ""} flex-col items-center justify-center rounded-full transition-all duration-300`}
+              <div key={item.text} className="relative mx-2">
+                <a
+                  href={item.href}
+                  className={`flex flex-col items-center ${isActive ? "bg-primary rounded-full -translate-y-4 p-2" : ""} text-white text-sm relative`}
                 >
-                  <Icon width={28} height={28} />
-                </div>
-                  {isActive ? <span className=" mt-1">{item.text}</span> : ""}
-
-              </a>
+                  {/* Botón activo */}
+                  <div
+                    className={`flex ${isActive ? "bg-secondary text-white p-3 rounded-full" : ""} flex-col items-center justify-center rounded-full transition-all duration-300`}
+                  >
+                    <Icon width={26} height={26} />
+                  </div>
+                </a>
+                {isActive ? (
+                  <p className="text-sm absolute bottom-0 left-1/2 -translate-x-1/2 text-white whitespace-nowrap">
+                    {item.text}
+                  </p>
+                ) : (
+                  ""
+                )}{" "}
+              </div>
             );
           })}
         </div>

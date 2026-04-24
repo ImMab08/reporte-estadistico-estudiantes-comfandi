@@ -64,26 +64,31 @@ export function HomeFeaturePage() {
   }
 
   return (
-    <section className="size-full bg-slate-50 p-4 flex flex-col overflow-hidden">
-      <header className="mb-4 border-b border-border py-3 flex items-center justify-between">
+    <section className="size-full bg-slate-50 p-3 md:p-4 flex flex-col overflow-hidden  ">
+      <header className="mb-4 border-b border-border py-2 md:py-3 flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-primary">Inicio</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-primary">
+            Inicio
+          </h1>
 
-          <p className="text-slate-500">
+          <p className="text-xs md:text-base text-slate-500">
             Vista general del rendimiento académico
           </p>
         </div>
 
-        <Image
-          alt=""
-          width={150}
-          height={150}
-          src="/img/logo/logo_comfandi_blue.svg"
-        />
+        <div className="w-24 h-12 relative">
+          <Image
+            src="/img/logo/logo_comfandi_blue.svg"
+            alt="Comfandi"
+            fill
+            className="object-contain"
+            priority
+          />
+        </div>
       </header>
 
-      <section className="gap-4 flex flex-1 min-h-0 overflow-hidden">
-        <section className="p-4 w-full overflow-auto bg-white border border-border rounded-xl">
+      <section className="gap-4 flex flex-1 min-h-0 overflow-hidden mb-28 md:mb-0">
+        <section className="p-3 md:p-4 w-full overflow-auto bg-white border border-border rounded-xl">
           <h2 className="text-3xl mb-4 text-primary font-bold">
             {performanceTitle}
           </h2>
@@ -97,13 +102,11 @@ export function HomeFeaturePage() {
 
           <div className="grid xl:grid-cols-2 gap-6 my-6">
             <PerformancePie data={analytics.pieData} title={performanceTitle} />
-
-            <CriticalSubjects data={analytics.criticalSubjects} />
+            <TopStudents data={analytics.topStudents} />
           </div>
 
-          <div className="grid xl:grid-cols-2 gap-6 mb-6">
-            <TopStudents data={analytics.topStudents} />
-
+          <div className="grid grid-cols-2 gap-4 md:gap-6 mb-6">
+            <CriticalSubjects data={analytics.criticalSubjects} />
             <CriticalGrades data={analytics.criticalCourses} />
           </div>
 

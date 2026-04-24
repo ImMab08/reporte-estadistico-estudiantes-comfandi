@@ -9,9 +9,9 @@ type Props = {
 
 export function CriticalGrades({ data }: Props) {
   return (
-    <div className="bg-white rounded-xl border border-border p-4 shadow-sm">
-      <h3 className="text-2xl font-bold mb-4 text-slate-800">
-        Cursos con más bajos
+    <div className="bg-white rounded-xl border border-border p-2 md:p-4 shadow-sm">
+      <h3 className="text-xl md:text-2xl font-bold mb-4 text-slate-800">
+        Cursos con dificultades
       </h3>
 
       <div className="space-y-3">
@@ -25,10 +25,10 @@ export function CriticalGrades({ data }: Props) {
               key={item.label}
               className="flex justify-between rounded-xl border border-border p-3"
             >
-              <span className="font-medium text-slate-700">
-                {index + 1}. {item.label}
+              <span className="text-sm md:text-base text-slate-700">
+                {index + 1}.  {item.label}
               </span>
-              <span className="font-bold text-amber-500">{item.count}</span>
+              <span className="text-sm md:text-base font-bold text-amber-500">{item.count}</span>
             </div>
           ))
         )}
