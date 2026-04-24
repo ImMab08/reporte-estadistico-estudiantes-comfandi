@@ -26,6 +26,7 @@ export function StudentInteractiveCard({
     if (cardRef.current) {
       setRect(cardRef.current.getBoundingClientRect());
     }
+
     setShowPreview(true);
   };
 
@@ -47,35 +48,57 @@ export function StudentInteractiveCard({
         rect &&
         createPortal(
           (() => {
-            const PREVIEW_WIDTH = 320;
+            const PREVIEW_WIDTH = 324;
             const PREVIEW_HEIGHT = 240;
-            const GAP = 12;
-            const VIEWPORT_PADDING = 16;
+            const GAP = 8;
+            const VIEWPORT_PADDING = 12;
 
-            // Izquierda
-            let left = rect.left - PREVIEW_WIDTH - GAP;
+            const isMobile = window.innerWidth < 768;
 
-            // Alineado verticalmente con el estudiante
-            let top = rect.top;
+            let left = 0;
+            let top = 0;
 
-            // Solo ajustar si se sale abajo
-            const maxTop =
-              window.innerHeight -
-              PREVIEW_HEIGHT -
-              VIEWPORT_PADDING;
+            if (isMobile) {
+              /**
+               * MOBILE:
+               * centrado horizontalmente
+               */
+              left = (window.innerWidth - PREVIEW_WIDTH) / 2;
 
-            if (top > maxTop) {
-              top = maxTop;
-            }
+              // debajo inicialmente
+              top = rect.bottom + GAP;
 
-            // Si se sale arriba
-            if (top < VIEWPORT_PADDING) {
-              top = VIEWPORT_PADDING;
-            }
+              // si no cabe abajo, subirlo pegado al item
+              if (
+                top + PREVIEW_HEIGHT >
+                window.innerHeight - VIEWPORT_PADDING
+              ) {
+                top = rect.top - PREVIEW_HEIGHT;
+              }
 
-            // Fallback si no cabe izquierda
-            if (left < VIEWPORT_PADDING) {
-              left = VIEWPORT_PADDING;
+              // límites
+              if (top < VIEWPORT_PADDING) {
+                top = VIEWPORT_PADDING;
+              }
+            } else {
+              /**
+               * DESKTOP:
+               * izquierda
+               */
+              left = rect.left - PREVIEW_WIDTH - GAP;
+              top = rect.top;
+
+              const maxTop =
+                window.innerHeight -
+                PREVIEW_HEIGHT -
+                VIEWPORT_PADDING;
+
+              if (top > maxTop) top = maxTop;
+              if (top < VIEWPORT_PADDING) top = VIEWPORT_PADDING;
+
+              if (left < VIEWPORT_PADDING) {
+                left = VIEWPORT_PADDING;
+              }
             }
 
             return (
@@ -85,6 +108,7 @@ export function StudentInteractiveCard({
                   top,
                   left,
                   width: PREVIEW_WIDTH,
+                  maxWidth: "calc(100vw - 24px)",
                 }}
               >
                 <StudentQuickPreview student={student} />
