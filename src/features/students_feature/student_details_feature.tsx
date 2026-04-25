@@ -13,7 +13,16 @@ import {
   StudentRecord,
 } from "@/src/shared/types/academic.types";
 
-import { IconWebTraffic } from "@/src/shared/icons";
+import {
+  IconAutoStories,
+  IconBarChart,
+  IconCalendarMonth,
+  IconClose,
+  IconGroup,
+  IconIdCard,
+  IconSchool,
+  IconWebTraffic,
+} from "@/src/shared/icons";
 import {
   Bar,
   BarChart,
@@ -26,6 +35,7 @@ import {
   YAxis,
 } from "recharts";
 import { displayStudentName } from "@/src/utils/displayStudentName";
+import { useRouter } from "next/navigation";
 
 interface Props {
   selectedStudent: StudentRecord | null;
@@ -39,7 +49,6 @@ type ComparisonChartItem = {
   P1?: number;
   P2?: number;
   P3?: number;
-  P4?: number;
 };
 
 export function StudentDetailsFeacture({
@@ -48,6 +57,8 @@ export function StudentDetailsFeacture({
   comparisonChartData,
   // allSnapshots
 }: Props) {
+  const router = useRouter();
+
   const [isLoading, setIsLoading] = useState(true);
   const [subjectSort, setSubjectSort] = useState<"alphabetical" | "grade">(
     "grade",
@@ -135,70 +146,94 @@ export function StudentDetailsFeacture({
   return (
     <section className="w-full min-h-0 overflow-hidden bg-white border border-border rounded-xl flex flex-col">
       <div className="hidden md:flex p-4 gap-4 shrink-0">
-        <div className="relative w-52 h-64 rounded-2xl bg-slate-200 overflow-hidden shrink-0">
-          <Image
-            key={selectedStudent.id}
-            src={getStudentPhotoPath(selectedStudent)}
-            alt={selectedStudent.name}
-            fill
-            onLoad={() => setIsLoading(false)}
-            className={`object-cover transition-opacity duration-300 ${
-              isLoading ? "opacity-0" : "opacity-100"
-            }`}
-          />
+        <div className="w-full">
+          <div className="flex items-start gap-4">
+            <div className="relative w-56 h-64 rounded-2xl bg-slate-200 overflow-hidden shrink-0">
+              <Image
+                key={selectedStudent.id}
+                src={getStudentPhotoPath(selectedStudent)}
+                alt={selectedStudent.name}
+                fill
+                onLoad={() => setIsLoading(false)}
+                className={`object-cover transition-opacity duration-300 ${
+                  isLoading ? "opacity-0" : "opacity-100"
+                }`}
+              />
 
-          {isLoading && (
-            <div className="absolute inset-0 animate-pulse bg-slate-200 rounded-xl" />
-          )}
-        </div>
+              {isLoading && (
+                <div className="absolute inset-0 animate-pulse bg-slate-200 rounded-2xl" />
+              )}
+            </div>
+            <div className=" w-full">
+              <div className="flex-1 space-y-4">
+                <h2 className="text-4xl leading-7 font-bold text-slate-800">
+                  {displayStudentName(selectedStudent.name)}
+                </h2>
 
-        <div className="flex-1">
-          <h2 className="text-4xl font-bold text-slate-800">
-            {displayStudentName(selectedStudent.name)}
-          </h2>
-
-          <p className="text-slate-400">Código: {selectedStudent.id}</p>
-
-          <div className="inline-block mt-2">
-            <p>
-              <span className="font-semibold">Grado:</span>{" "}
-              {selectedStudent.grade}
-            </p>
-            <p>
-              <span className="font-semibold">Curso:</span>{" "}
-              {selectedStudent.grade}-{selectedStudent.group}
-            </p>
-          </div>
-
-          <div className="mt-4">
-            <p className="mb-2 text-lg">
-              <span className="font-semibold">Periodo:</span>{" "}
-              {activeSnapshot.period} · {activeSnapshot.year}
-            </p>
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                ["Superior", metrics.superior, "bg-emerald-500"],
-                ["Alto", metrics.alto, "bg-blue-500"],
-                ["Básico", metrics.basico, "bg-amber-400"],
-                ["Bajo", metrics.bajo, "bg-red-500"],
-              ].map(([label, value, color]) => (
-                <div key={String(label)} className="text-center">
-                  <div
-                    className={`${color} text-white rounded-xl py-3 text-2xl font-bold`}
-                  >
-                    {value}
+                <div>
+                  <div className=" mt-2 space-y-2 w-36">
+                    <div className="flex text-black/60 items-center gap-2 px-2 py-1 border border-border rounded-md">
+                      <IconIdCard width={20} height={20} />
+                      <p className="text-sm">Código: {selectedStudent.id}</p>
+                    </div>
                   </div>
-                  <p className="mt-2 text-slate-500">{label}</p>
+
+                  <div className=" mt-2 space-y-2 w-36">
+                    <div className="flex text-black/60 items-center gap-2 px-2 py-1 border border-border rounded-md">
+                      <IconSchool width={20} height={20} />
+                      <p className="text-sm">
+                        <span className="font-semibold">Curso:</span>{" "}
+                        {selectedStudent.grade}-{selectedStudent.group}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              ))}
+              </div>
+
+              <div className="mt-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex-1 h-px bg-slate-300" />
+
+                  <IconCalendarMonth width={18} height={18} />
+
+                  <p className="text-base text-center whitespace-nowrap text-slate-800 font-semibold">
+                    Periodo: {activeSnapshot.period} · {activeSnapshot.year}
+                  </p>
+
+                  <div className="flex-1 h-px bg-slate-300" />
+                </div>
+
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    ["Superior", metrics.superior, "bg-emerald-500"],
+                    ["Alto", metrics.alto, "bg-blue-500"],
+                    ["Básico", metrics.basico, "bg-amber-400"],
+                    ["Bajo", metrics.bajo, "bg-red-500"],
+                  ].map(([label, value, color]) => (
+                    <div key={String(label)} className="text-center">
+                      <div
+                        className={`${color} text-white rounded-xl py-2 text-xl font-bold`}
+                      >
+                        {value}
+                      </div>
+
+                      <p className="mt-2 text-sm text-slate-500">{label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex md:hidden p-4 gap-4 shrink-0">
+      <div className="relative flex md:hidden p-4 gap-4 shrink-0">
+        <IconClose
+          className="top-4 right-4 absolute z-100 cursor-pointer"
+          onClick={() => router.back()}
+        />
         <div>
-          <div className="flex gap-4">
+          <div className="flex items-center gap-4">
             <div className="relative w-40 h-50 rounded-2xl bg-slate-200 overflow-hidden shrink-0">
               <Image
                 key={selectedStudent.id}
@@ -212,33 +247,45 @@ export function StudentDetailsFeacture({
               />
             </div>
 
-            <div className="flex-1">
+            <div className="flex-1 space-y-4">
               <h2 className="text-2xl leading-7 font-bold text-slate-800">
                 {displayStudentName(selectedStudent.name)}
               </h2>
 
-              <p className="text-sm text-slate-400">
-                Código: {selectedStudent.id}
-              </p>
+              <div>
+                <div className=" mt-2 space-y-2 w-36">
+                  <div className="flex text-black/60 items-center gap-2 px-2 py-1 border border-border rounded-md">
+                    <IconIdCard width={20} height={20} />
+                    <p className="text-sm">Código: {selectedStudent.id}</p>
+                  </div>
+                </div>
 
-              <div className="inline-block mt-2">
-                <p>
-                  <span className="font-semibold">Grado:</span>{" "}
-                  {selectedStudent.grade}
-                </p>
-                <p>
-                  <span className="font-semibold">Curso:</span>{" "}
-                  {selectedStudent.grade}-{selectedStudent.group}
-                </p>
+                <div className=" mt-2 space-y-2 w-36">
+                  <div className="flex text-black/60 items-center gap-2 px-2 py-1 border border-border rounded-md">
+                    <IconSchool width={20} height={20} />
+                    <p className="text-sm">
+                      <span className="font-semibold">Curso:</span>{" "}
+                      {selectedStudent.grade}-{selectedStudent.group}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           <div className="mt-4">
-            <p className="mb-2 text-lg text-center">
-              <span className="font-semibold">Periodo:</span>{" "}
-              {activeSnapshot.period} · {activeSnapshot.year}
-            </p>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex-1 h-px bg-slate-300" />
+
+              <IconCalendarMonth width={20} height={20} />
+              <p className="text-lg text-center whitespace-nowrap text-slate-700 font-semibold">
+                <span className="">Periodo:</span> {activeSnapshot.period}° ·{" "}
+                {activeSnapshot.year}
+              </p>
+
+              <div className="flex-1 h-px bg-slate-300" />
+            </div>
+
             <div className="grid grid-cols-4 gap-2">
               {[
                 ["Superior", metrics.superior, "bg-emerald-500"],
@@ -252,6 +299,7 @@ export function StudentDetailsFeacture({
                   >
                     {value}
                   </div>
+
                   <p className="mt-2 text-slate-500">{label}</p>
                 </div>
               ))}
@@ -262,7 +310,10 @@ export function StudentDetailsFeacture({
 
       <div className="flex-1 min-h-0 scroll-auto overflow-y-auto p-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-2xl font-bold text-slate-800">Materias</h3>
+          <div className="flex space-x-2 text-slate-800 items-center">
+            <IconAutoStories className="mt-1" width={24} height={24} />
+            <h3 className="text-xl font-bold text-slate-800">Materias</h3>
+          </div>
 
           <div className="flex gap-3">
             <select
@@ -295,12 +346,15 @@ export function StudentDetailsFeacture({
 
         <div className="mt-4 md:mt-6 rounded-xl border border-border p-2 md:p-4">
           <div className="mb-3 md:mb-4">
-            <h2 className="text-xl md:text-2xl font-bold text-primary leading-6 md:leading-normal">
-              Comparativa entre periodos
-            </h2>
+            <div className="flex items-center space-x-1">
+              <IconBarChart className="text-primary" />
+              <h2 className="text-xl md:text-2xl font-bold text-primary leading-6 md:leading-normal">
+                Comparativa entre periodos
+              </h2>
+            </div>
 
             <p className="text-xs md:text-sm text-slate-500 leading-4 md:leading-normal">
-              Comparación por niveles entre el periodo actual y el anterior
+              Comparación por notas entre el periodos
             </p>
           </div>
 
@@ -331,6 +385,7 @@ export function StudentDetailsFeacture({
                 <YAxis
                   width={24}
                   allowDecimals={false}
+                  axisLine={true}
                   tick={{
                     fill: "#64748b",
                     fontSize: 10,

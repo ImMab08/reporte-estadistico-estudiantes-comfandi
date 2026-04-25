@@ -12,7 +12,7 @@ import { TopStudents } from "./components/TopStudents";
 import { CriticalGrades } from "./components/CriticalGrades";
 import { SubjectHealthGrid } from "./components/SubjectHealthGrid";
 
-import { IconQuickReference } from "@/src/shared/icons";
+import { IconFilterAlt, IconQuickReference } from "@/src/shared/icons";
 import { GlobalLoader } from "@/src/shared/global_loader";
 
 export function HomeFeaturePage() {
@@ -39,6 +39,10 @@ export function HomeFeaturePage() {
 
     analytics,
     subjectHealthMetrics,
+
+    isMobileFilterOpen,
+    openMobileFilter,
+    closeMobileFilter,
   } = controller;
 
   const performanceTitle =
@@ -89,9 +93,17 @@ export function HomeFeaturePage() {
 
       <section className="gap-4 flex flex-1 min-h-0 overflow-hidden md:mb-0">
         <section className="p-3 md:p-4 w-full overflow-auto bg-white border border-border rounded-xl">
-          <h2 className="text-3xl mb-4 text-primary font-bold">
-            {performanceTitle}
-          </h2>
+          <div className="flex justify-between w-full mb-4 cursor-pointer">
+            <h2 className="text-3xl text-primary font-bold">
+              {performanceTitle}
+            </h2>
+            <div
+              onClick={openMobileFilter}
+              className="p-2 border border-border rounded-lg bg-slate-10 block md:hidden"
+            >
+              <IconFilterAlt className="text-primary" />
+            </div>
+          </div>
 
           <DashboardKpis
             totalStudents={analytics.kpis.totalStudents}
@@ -117,6 +129,9 @@ export function HomeFeaturePage() {
         </section>
 
         <DashboardSidebar
+          isMobile={true}
+          isOpen={isMobileFilterOpen}
+          onClose={closeMobileFilter}
           snapshots={snapshots}
           selectedId={selectedPeriodId}
           selectedGrade={selectedGrade}
