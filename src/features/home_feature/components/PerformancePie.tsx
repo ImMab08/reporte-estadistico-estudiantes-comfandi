@@ -23,27 +23,53 @@ type Props = {
 
 export function PerformancePie({ data, title }: Props) {
   return (
-    <div className="bg-white rounded-xl border border-border p-6 shadow-sm">
-      <h3 className="text-2xl font-bold mb-4 text-slate-800">Reporte general</h3>
+    <div className="bg-white rounded-2xl border border-border p-4 shadow-sm h-full flex flex-col">
+      {/* Título fijo arriba */}
+      <h3 className="text-2xl font-bold text-slate-800 mb-4">{title}</h3>
 
-      <ResponsiveContainer width="100%" height={320}>
-        <PieChart>
-          <Pie
-            data={data}
-            dataKey="value"
-            innerRadius={70}
-            outerRadius={120}
-            paddingAngle={2}
-          >
-            {data.map((_, index) => (
-              <Cell key={index} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
+      {/* Contenedor que centra el gráfico */}
+      <div className="flex-1 flex items-center justify-center">
+        <ResponsiveContainer
+          width="100%"
+          height={340}
+          className="outline-none focus:outline-none"
+        >
+          <PieChart>
+            <Pie
+              data={data}
+              dataKey="value"
+              cx="50%"
+              cy="45%"
+              innerRadius={70}
+              outerRadius={120}
+              paddingAngle={2}
+              stroke="none"
+              isAnimationActive={true}
+              activeShape={false}
+            >
+              {data.map((_, index) => (
+                <Cell
+                  key={index}
+                  fill={COLORS[index % COLORS.length]}
+                  stroke="none"
+                />
+              ))}
+            </Pie>
 
-          <Tooltip />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
+            <Tooltip />
+
+            <Legend
+              verticalAlign="bottom"
+              align="center"
+              iconType="square"
+              wrapperStyle={{
+                paddingTop: "20px",
+                fontSize: "14px",
+              }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { StudentInteractiveCard } from "@/src/components/layout/student_interact
 import type { useStudentsController } from "../hooks/use_students_controller";
 
 import { IconRefresh } from "@/src/shared/icons";
+import { displayStudentName } from "@/src/utils/displayStudentName";
 
 type StudentsController = ReturnType<
   typeof useStudentsController
@@ -137,7 +138,7 @@ export function StudentsSidebar({ controller }: Props) {
                   {student.group}
                 </p>
 
-                {student.name}
+                {displayStudentName(student.name)}
               </div>
             </div>
           </StudentInteractiveCard>

@@ -32,7 +32,7 @@ export function DashboardSidebar({
   clearFilters,
 }: Props) {
   return (
-    <aside className="max-w-100 w-120 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col space-y-2">
+    <aside className="hidden  max-w-100 w-120 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 md:flex flex-col space-y-2">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold text-primary">Filtros</h1>
         <button

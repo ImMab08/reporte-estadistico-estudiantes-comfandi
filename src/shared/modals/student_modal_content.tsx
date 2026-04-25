@@ -97,7 +97,7 @@ export default function StudentModalContent() {
       onClick={() => router.back()}
     >
       <div
-        className="w-[80vw] h-[90vh] rounded-2xl overflow-hidden flex flex-col"
+        className="w-full md:w-[80vw] h-full md:h-[90vh] rounded-2xl overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <StudentDetailsFeacture

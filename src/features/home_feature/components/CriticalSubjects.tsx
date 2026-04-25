@@ -9,8 +9,8 @@ type Props = {
 
 export function CriticalSubjects({ data }: Props) {
   return (
-    <div className="bg-white rounded-xl border border-border p-4 shadow-sm">
-      <h3 className="text-2xl font-bold mb-4 text-slate-800">
+    <div className="bg-white rounded-xl border border-border p-2 md:p-4 shadow-sm">
+      <h3 className="text-xl md:text-2xl font-bold mb-4 text-slate-800">
         Materias en bajo rendimiento
       </h3>
 
@@ -25,10 +25,10 @@ export function CriticalSubjects({ data }: Props) {
               key={item.subject}
               className="flex justify-between rounded-xl border border-border p-3"
             >
-              <span className="font-medium text-slate-700">
+              <span className="text-sm md:text-base font-medium text-slate-700">
                 {index + 1}. {item.subject}
               </span>
-              <span className="font-bold text-red-500">{item.count}</span>
+              <span className="text-sm md:text-base font-bold text-red-500">{item.count}</span>
             </div>
           ))
         )}

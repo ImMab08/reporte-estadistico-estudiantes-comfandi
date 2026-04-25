@@ -4,6 +4,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { StudentInteractiveCard } from "@/src/components/layout/student_interactive_card";
 import { StudentRecord } from "@/src/shared/types/academic.types";
+import { IconVisibility } from "@/src/shared/icons";
+import { displayStudentName } from "@/src/utils/displayStudentName";
 
 type TopStudent = {
   student: StudentRecord;
@@ -28,12 +30,12 @@ export function TopStudents({ data }: Props) {
   }
 
   return (
-    <div className="bg-white rounded-xl border border-border p-4 shadow-sm">
+    <div className="bg-white rounded-xl border border-border p-2 md:p-4 shadow-sm">
       <h3 className="text-2xl font-bold mb-4 text-slate-800">
         Estudiantes destacados
       </h3>
 
-      <div className="space-y-3">
+      <div className="relative space-y-3">
         {data.map(({ student, highCount }, index) => (
           <StudentInteractiveCard
             key={student.id}
@@ -42,15 +44,18 @@ export function TopStudents({ data }: Props) {
           >
             <div className="flex justify-between rounded-2xl border border-border p-4">
               <div>
-                <p className="font-semibold text-slate-700">
-                  {index + 1}. {student.name}
+                <p className="text-sm md:text-base font-semibold text-slate-700">
+                  {index + 1}. {displayStudentName(student.name)}
                 </p>
-                <p className="text-sm text-slate-400">
+                <p className="text-sm md:text-base text-slate-400">
                   {student.grade}°-{student.group}
                 </p>
               </div>
 
               <span className="font-bold text-emerald-500">{highCount}</span>
+              <div className="absolute bottom-1 right-3 block md:hidden">
+                <IconVisibility width={20} hanging={20} className="text-slate-300" />
+              </div>
             </div>
           </StudentInteractiveCard>
         ))}
