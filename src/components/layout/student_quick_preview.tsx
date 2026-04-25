@@ -4,6 +4,7 @@ import {
   getStudentPhotoPath,
 } from "@/src/utils/studentPhotoPreview";
 import { StudentRecord } from "@/src/shared/types/academic.types";
+import { displayStudentName } from "@/src/utils/displayStudentName";
 
 type Props = {
   student: StudentRecord;
@@ -63,7 +64,7 @@ export function StudentQuickPreview({ student }: Props) {
 
       <div className="flex-1 mt-2">
         <h4 className="line-clamp-2 text-sm font-bold text-slate-800">
-          {student.name}
+          {displayStudentName(student.name)}
         </h4>
 
         <p className="text-xs text-slate-500">Código: {student.id}</p>

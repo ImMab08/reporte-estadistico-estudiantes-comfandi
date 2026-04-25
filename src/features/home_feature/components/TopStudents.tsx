@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { StudentInteractiveCard } from "@/src/components/layout/student_interactive_card";
 import { StudentRecord } from "@/src/shared/types/academic.types";
 import { IconVisibility } from "@/src/shared/icons";
+import { displayStudentName } from "@/src/utils/displayStudentName";
 
 type TopStudent = {
   student: StudentRecord;
@@ -44,7 +45,7 @@ export function TopStudents({ data }: Props) {
             <div className="flex justify-between rounded-2xl border border-border p-4">
               <div>
                 <p className="text-sm md:text-base font-semibold text-slate-700">
-                  {index + 1}. {student.name}
+                  {index + 1}. {displayStudentName(student.name)}
                 </p>
                 <p className="text-sm md:text-base text-slate-400">
                   {student.grade}°-{student.group}

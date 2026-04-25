@@ -25,6 +25,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { displayStudentName } from "@/src/utils/displayStudentName";
 
 interface Props {
   selectedStudent: StudentRecord | null;
@@ -84,7 +85,7 @@ export function StudentDetailsFeacture({
   useEffect(() => {
     setIsLoading(true);
   }, [selectedStudent?.id]);
-  
+
   useEffect(() => {
     if (!selectedStudent) return;
 
@@ -133,7 +134,7 @@ export function StudentDetailsFeacture({
 
   return (
     <section className="w-full min-h-0 overflow-hidden bg-white border border-border rounded-xl flex flex-col">
-      <div className="p-4 flex gap-4 shrink-0">
+      <div className="hidden md:flex p-4 gap-4 shrink-0">
         <div className="relative w-52 h-64 rounded-2xl bg-slate-200 overflow-hidden shrink-0">
           <Image
             key={selectedStudent.id}
@@ -153,7 +154,7 @@ export function StudentDetailsFeacture({
 
         <div className="flex-1">
           <h2 className="text-4xl font-bold text-slate-800">
-            {selectedStudent.name}
+            {displayStudentName(selectedStudent.name)}
           </h2>
 
           <p className="text-slate-400">Código: {selectedStudent.id}</p>
@@ -184,6 +185,70 @@ export function StudentDetailsFeacture({
                 <div key={String(label)} className="text-center">
                   <div
                     className={`${color} text-white rounded-xl py-3 text-2xl font-bold`}
+                  >
+                    {value}
+                  </div>
+                  <p className="mt-2 text-slate-500">{label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex md:hidden p-4 gap-4 shrink-0">
+        <div>
+          <div className="flex gap-4">
+            <div className="relative w-40 h-50 rounded-2xl bg-slate-200 overflow-hidden shrink-0">
+              <Image
+                key={selectedStudent.id}
+                src={getStudentPhotoPath(selectedStudent)}
+                alt={selectedStudent.name}
+                fill
+                onLoad={() => setIsLoading(false)}
+                className={`object-cover transition-opacity duration-300 ${
+                  isLoading ? "opacity-0" : "opacity-100"
+                }`}
+              />
+            </div>
+
+            <div className="flex-1">
+              <h2 className="text-2xl leading-7 font-bold text-slate-800">
+                {displayStudentName(selectedStudent.name)}
+              </h2>
+
+              <p className="text-sm text-slate-400">
+                Código: {selectedStudent.id}
+              </p>
+
+              <div className="inline-block mt-2">
+                <p>
+                  <span className="font-semibold">Grado:</span>{" "}
+                  {selectedStudent.grade}
+                </p>
+                <p>
+                  <span className="font-semibold">Curso:</span>{" "}
+                  {selectedStudent.grade}-{selectedStudent.group}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <p className="mb-2 text-lg text-center">
+              <span className="font-semibold">Periodo:</span>{" "}
+              {activeSnapshot.period} · {activeSnapshot.year}
+            </p>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                ["Superior", metrics.superior, "bg-emerald-500"],
+                ["Alto", metrics.alto, "bg-blue-500"],
+                ["Básico", metrics.basico, "bg-amber-400"],
+                ["Bajo", metrics.bajo, "bg-red-500"],
+              ].map(([label, value, color]) => (
+                <div key={String(label)} className="text-center">
+                  <div
+                    className={`${color} text-white rounded-xl py-2 md:py-3 text-2xl font-bold`}
                   >
                     {value}
                   </div>
@@ -228,33 +293,48 @@ export function StudentDetailsFeacture({
           </div>
         ))}
 
-        <div className="mt-6 rounded-xl border border-border p-5">
-          <div className="mb-4">
-            <h2 className="text-2xl font-bold text-primary">
+        <div className="mt-4 md:mt-6 rounded-xl border border-border p-2 md:p-4">
+          <div className="mb-3 md:mb-4">
+            <h2 className="text-xl md:text-2xl font-bold text-primary leading-6 md:leading-normal">
               Comparativa entre periodos
             </h2>
-            <p className="text-sm text-slate-500">
+
+            <p className="text-xs md:text-sm text-slate-500 leading-4 md:leading-normal">
               Comparación por niveles entre el periodo actual y el anterior
             </p>
           </div>
 
-          <div className="h-64">
+          <div className="h-52 md:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={comparisonChartData}
-                barGap={8}
-                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                barGap={2}
+                barCategoryGap="12%"
+                margin={{
+                  top: 5,
+                  right: 0,
+                  left: -18,
+                  bottom: -5,
+                }}
               >
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
 
                 <XAxis
                   dataKey="level"
-                  tick={{ fill: "#475569", fontSize: 14 }}
+                  interval={0}
+                  tick={{
+                    fill: "#475569",
+                    fontSize: 11,
+                  }}
                 />
 
                 <YAxis
+                  width={24}
                   allowDecimals={false}
-                  tick={{ fill: "#64748b", fontSize: 13 }}
+                  tick={{
+                    fill: "#64748b",
+                    fontSize: 10,
+                  }}
                   domain={[0, (dataMax: number) => Math.max(16, dataMax + 2)]}
                 />
 
@@ -262,6 +342,7 @@ export function StudentDetailsFeacture({
                   contentStyle={{
                     borderRadius: "12px",
                     border: "1px solid #e2e8f0",
+                    fontSize: "12px",
                   }}
                 />
 
@@ -282,9 +363,11 @@ export function StudentDetailsFeacture({
                         />
                       );
                     })}
+
                     <LabelList
                       dataKey="P1"
                       position="top"
+                      fontSize={10}
                       formatter={() => "P1"}
                     />
                   </Bar>
@@ -307,9 +390,11 @@ export function StudentDetailsFeacture({
                         />
                       );
                     })}
+
                     <LabelList
                       dataKey="P2"
                       position="top"
+                      fontSize={10}
                       formatter={() => "P2"}
                     />
                   </Bar>
@@ -332,9 +417,11 @@ export function StudentDetailsFeacture({
                         />
                       );
                     })}
+
                     <LabelList
                       dataKey="P3"
                       position="top"
+                      fontSize={10}
                       formatter={() => "P3"}
                     />
                   </Bar>
