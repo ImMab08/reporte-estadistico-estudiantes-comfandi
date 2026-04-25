@@ -11,6 +11,7 @@ import { usePeriodAnalytics } from "./usePeriodAnalytics";
 
 export function useHomeController() {
   const [snapshots, setSnapshots] = useState<AcademicPeriodSnapshot[]>([]);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -168,6 +169,11 @@ export function useHomeController() {
     });
   }, [filteredStudents]);
 
+  // Desplegar vista de filtros.
+  const openMobileFilter = () => setIsMobileFilterOpen(true);
+  const closeMobileFilter = () => setIsMobileFilterOpen(false);
+  const toggleMobileFilter = () => setIsMobileFilterOpen((prev) => !prev);
+
   return {
     snapshots,
     isLoading,
@@ -179,6 +185,11 @@ export function useHomeController() {
 
     analytics,
     subjectHealthMetrics,
+
+    isMobileFilterOpen,
+    openMobileFilter,
+    closeMobileFilter,
+    toggleMobileFilter,
 
     ...filters,
   };

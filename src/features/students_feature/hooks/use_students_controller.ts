@@ -129,7 +129,10 @@ export function useStudentsController() {
         };
 
         Object.values(student.grades).forEach((level) => {
-          const value = String(level).toLowerCase();
+          const value = String(level)
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase();
 
           if (value === "superior") counts.superior++;
           else if (value === "alto") counts.alto++;
