@@ -33,7 +33,7 @@ export function StudentsSidebar({ controller }: Props) {
   } = controller;
 
   return (
-    <aside className="max-w-100 w-145 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col space-y-2">
+    <aside className="hidden md:flex max-w-100 w-145 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4  flex-col space-y-2">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold text-primary">
           Filtros

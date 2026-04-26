@@ -253,17 +253,17 @@ export function StudentDetailsFeacture({
               </h2>
 
               <div>
-                <div className=" mt-2 space-y-2 w-36">
+                <div className=" mt-2 space-y-2 w-32">
                   <div className="flex text-black/60 items-center gap-2 px-2 py-1 border border-border rounded-md">
-                    <IconIdCard width={20} height={20} />
-                    <p className="text-sm">Código: {selectedStudent.id}</p>
+                    <IconIdCard width={18} height={18} />
+                    <p className="text-xs">Código: {selectedStudent.id}</p>
                   </div>
                 </div>
 
-                <div className=" mt-2 space-y-2 w-36">
+                <div className=" mt-2 space-y-2 w-32">
                   <div className="flex text-black/60 items-center gap-2 px-2 py-1 border border-border rounded-md">
-                    <IconSchool width={20} height={20} />
-                    <p className="text-sm">
+                    <IconSchool width={18} height={18} />
+                    <p className="text-xs">
                       <span className="font-semibold">Curso:</span>{" "}
                       {selectedStudent.grade}-{selectedStudent.group}
                     </p>
