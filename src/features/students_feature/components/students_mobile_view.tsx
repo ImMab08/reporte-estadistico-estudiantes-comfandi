@@ -1,11 +1,10 @@
-import { StudentInteractiveCard } from "@/src/components/layout/student_interactive_card";
 import type { useStudentsController } from "../hooks/use_students_controller";
 
 import { IconChevronRight, IconRefresh, IconSearch } from "@/src/shared/icons";
 import { displayStudentName } from "@/src/utils/displayStudentName";
-import Image from "next/image";
 import { getStudentPhotoPath } from "@/src/utils/studentPhotoPreview";
 import { StudentAvatar } from "./student_avatar";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type StudentsController = ReturnType<typeof useStudentsController>;
 
@@ -14,6 +13,18 @@ type Props = {
 };
 
 export function StudentsMobileView({ controller }: Props) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  function handleOpenStudent(studentId: string) {
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set("student", studentId);
+    params.set("modal", "true");
+
+    router.push(`/students?${params.toString()}`);
+  }
+
   const {
     localSearch,
     setLocalSearch,
@@ -34,7 +45,7 @@ export function StudentsMobileView({ controller }: Props) {
 
   return (
     <section className="space-y-2">
-      <div className="max-w-100 w-145 bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col space-y-2">
+      <div className=" bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex flex-col space-y-2">
         <div className="flex space-x-2">
           <div className="flex items-center space-x-2 w-full rounded-xl border border-slate-200 px-4 py-2">
             <IconSearch className="text-slate-400" />
@@ -102,6 +113,7 @@ export function StudentsMobileView({ controller }: Props) {
       <div className="realtive rounded-xloverflow-hidden max-h-175 overflow-y-auto space-y-2">
         {filteredStudents.map((student) => (
           <div
+            onClick={() => handleOpenStudent(student.id)}
             key={student.id}
             className={`relative w-full px-4 py-3 bg-white rounded-2xl border border-border cursor-pointer transition-all duration-300 ${
               selectedStudent?.id === student.id
