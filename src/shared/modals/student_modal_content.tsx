@@ -13,18 +13,18 @@ export default function StudentModalContent() {
 
   const isModal = searchParams.get("modal") === "true";
   const studentId = searchParams.get("student");
-  const period = searchParams.get("period");
+  const periodId = searchParams.get("period");
 
   if (!isModal || !studentId) {
     return null;
   }
 
-  const snapshots = Object.values(getAcademicSnapshots());
+  const snapshots = Object.values(getAcademicSnapshots()).sort(
+    (a, b) => b.period - a.period,
+  );
 
   const activeSnapshot =
-    snapshots.find(
-      (snapshot) => `${snapshot.year}-${snapshot.period}` === period,
-    ) ?? snapshots[0];
+    snapshots.find((snapshot) => snapshot.id === periodId) ?? snapshots[0];
 
   const selectedStudent =
     activeSnapshot.students.find((student) => student.id === studentId) ?? null;
