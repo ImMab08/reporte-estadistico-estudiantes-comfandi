@@ -37,21 +37,69 @@ export function AuthScreen() {
   const handleSubmit = () => {
     if (!validate()) return;
 
-    const DEMO_EMAIL = process.env.NEXT_PUBLIC_DEMO_EMAIL;
-    const DEMO_PASSWORD = process.env.NEXT_PUBLIC_DEMO_PASSWORD;
+    const credentials = {
+      "antonyreyes@comfandi.edu.co": "A9k#2LmPq1",
+      "brandonmunoz@comfandi.edu.co": "X7t!4BnZr8",
+      "carolinaortiz@comfandi.edu.co": "Q2w#9LpAs6",
+      "catalinaquijano@comfandi.edu.co": "M8n!3KxTz5",
+      "dahianlibhertiz@comfandi.edu.co": "R4v#7YsPq2",
+      "yuliethpulgarin@comfandi.edu.co": "T6m!1WxLo9",
+      "dianacarabali@comfandi.edu.co": "Z3p#8QrNs4",
+      "clorenaburbano@comfandi.edu.co": "B9x!5VtKj7",
+      "fabertenorio@comfandi.edu.co": "H2k#6LmQw8",
+      "gustavomontana@comfandi.edu.co": "P7s!3DzXc1",
+      "jennysalas@comfandi.edu.co": "L4a#9TrYu6",
+      "joanrojas@comfandi.edu.co": "W8e!2FgHb5",
+      "johnnyospina@comfandi.edu.co": "C1v#7NmLp9",
+      "lauramarcelaospina@comfandi.edu.co": "Y5t!8QwEr2",
+      "leonelamariles@comfandi.edu.co": "N3b#6XsZa7",
+      "maritzamunoz@comfandi.edu.co": "K9m!4JpLo1",
+      "nataliafreyre@comfandi.edu.co": "D2q#7RwTy8",
+      "oscargomez@comfandi.edu.co": "F6z!3XcVa9",
+      "patriciacaicedo@comfandi.edu.co": "U1y#5GhJk4",
+      "yulifigueroa@comfandi.edu.co": "S8r!2LpMn6",
+      "zandrarodriguez@comfandi.edu.co": "E4t#9VkBj3",
+      "ricardopalacio@comfandi.edu.co": "I7o!1AsDf5",
+      "stephanieespada@comfandi.edu.co": "O3p#6YuGh8",
+      "cristiangaon@comfandi.edu.co": "G5h#8TkLm1",
+      "wilmarandrade@comfandi.edu.co": "J2n!4PoQs9",
+      "yoselinclavijo@comfandi.edu.co": "X6z#1WaEr3",
+      "vivianapalomino@comfandi.edu.co": "Q8s!5DfGh2",
+      "cvanessagarcia@comfandi.edu.co": "R3v#7TyUi6",
+      "juandavidcelisruiz@comfandi.edu.co": "M1k!9LpZo4",
+      "luisalejandrolondono@comfandi.edu.co": "T7b#2NxCv8",
+      "geraldinelopez@comfandi.edu.co": "P4q!6AsWd1",
+      "alejandramendez@comfandi.edu.co": "K9t#2LmQw7",
+      "carlosmendez@comfandi.edu.co": "R4p!8XsZa1",
+      "sofiavargas@comfandi.edu.co": "M6n#3QwEr9",
+      "anamariadarema@comfandi.edu.co": "T1v!7LpZo5",
+      "hernandosamboni@comfandi.edu.co": "B8x#4DfGh2",
+      "valerydejesus@comfandi.edu.co": "Y3k!9AsWd6",
+      "alexandrarodriguez@comfandi.edu.co": "P7s#2TyUi8",
+      "leislymejia@comfandi.edu.co": "H5q!1NmLp4",
+      "juandavidariasmunoz@comfandi.edu.co": "Z2m#6ReWx9",
+      "victorperilla@comfandi.edu.co": "D8t!3YuGh1",
+      "mairaserrato@comfandi.edu.co": "F4b#7PoQs5",
+      "jeanordonez@comfandi.edu.co": "L9r!2TkLm8",
+      "frankyvargas@comfandi.edu.co": "S1p#6WaEr3",
+      "angelaagudelo@comfandi.edu.co": "C7n!4VbXy9",
+      "koraynzapata@comfandi.edu.co": "Q3z#8JkLo2",
 
-    if (email !== DEMO_EMAIL || password !== DEMO_PASSWORD) {
-      setErrors({
-        general: "Correo o contraseña incorrectos",
-      });
-      return;
     }
 
-    // Guardar la cookie
-    document.cookie = "isAuthenticated=true; path=/";
+    for (const [key, value] of Object.entries(credentials)) {
+      if (email === key && password === value) {
+        document.cookie = "isAuthenticated=true; path=/";
+        window.location.href = "/";
+        return;
+      }
+    }
 
-    // Redirección
-    window.location.href = "/";
+    // Si ninguna credencial coincidió, mostrar error
+    setErrors({
+      general: "Correo o contraseña incorrectos. Verifica tus credenciales.",
+    });
+
   };
 
   return (
