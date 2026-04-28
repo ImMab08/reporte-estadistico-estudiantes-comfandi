@@ -32,17 +32,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full flex items-center justify-center antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="size-full flex items-center justify-center">Sitio en matnenimiento</body>
-      {/* <body className="w-full min-h-full h-full flex flex-col bg-background">
+      <body className="w-full min-h-full h-full flex flex-col bg-background">
         <div className="flex flex-col md:flex-row h-full">
           <DesktopMenu />
           {children}
           <MobileMenu />
           {modal}
         </div>
-      </body> */}
+      </body>
     </html>
   );
 }
