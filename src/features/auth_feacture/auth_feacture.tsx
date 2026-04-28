@@ -55,10 +55,10 @@ export function AuthScreen() {
   };
 
   return (
-    <section className="relative w-full flex items-center justify-center h-screen overflow-hidden bg-[#EEF3F8] py-6 px-16">
+    <section className="relative w-full flex items-center justify-center h-screen overflow-hidden bg-[#EEF3F8] py-6 px-8 md:px-16">
       <div className="absolute z-0 -bottom-45 -right-45 w-400 -rotate-8 h-130 bg-[#C8D4FF] blur-[250px] rounded-full pointer-events-none" />
 
-      <div className="w-full max-w-7xl relative z-10 h-full grid grid-cols-2 ">
+      <div className="w-full max-w-7xl relative z-10 h-full flex flex-col md:grid md:grid-cols-2 ">
         {/* Lado izquierdo */}
         <div className="h-full flex flex-col justify-between py-10">
           <div>
@@ -169,7 +169,7 @@ export function AuthScreen() {
               </span>
             </p>
 
-            <div className="text-[13px] leading-5 text-gray-400">
+            <div className="hidden md:block text-sm leading-5 text-gray-400">
               <p>© 2026 Comfandi - Campus E Yumbo</p>
               <p>Todos los derechos reservados.</p>
             </div>
@@ -181,7 +181,7 @@ export function AuthScreen() {
         <div className="absolute -bottom-100 -right-28 w-160 h-160 border border-dashed border-[#10B8F5] rounded-full" />
 
         {/* Lado derecho (SIN TOCAR) */}
-        <div className="relative h-full overflow-hidden flex flex-col justify-center items-end ">
+        <div className="relative h-full overflow-hidden flex md:flex-col justify-center items-end ">
           <div className="absolute z-10 bottom-38 left-4 grid grid-cols-3 gap-3">
             {Array.from({ length: 12 }).map((_, i) => (
               <span key={i} className="w-2 h-2 bg-[#00B8F0] rounded-full" />
@@ -189,7 +189,7 @@ export function AuthScreen() {
           </div>
 
           <div className="relative flex flex-col text-right">
-            <h2 className="text-primary leading-11 text-4xl lg:text-5xl font-bold mb-24">
+            <h2 className="hidden md:block text-primary leading-11 text-4xl lg:text-5xl font-bold mb-24">
               Educación <br />
               impulsada por datos
             </h2>
