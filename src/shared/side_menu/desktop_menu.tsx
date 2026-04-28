@@ -9,6 +9,10 @@ import { navItems } from "./data";
 export function DesktopMenu() {
   const pathname = usePathname();
 
+  if (pathname?.startsWith("/auth")) {
+    return null;
+  }
+
   const renderMenuItem = (item: (typeof navItems)[number]) => {
     const Icon = item.icon;
     const isActive = pathname === item.href;
@@ -37,7 +41,7 @@ export function DesktopMenu() {
       </>
     );
 
-    // 🔥 SOLO estudiantes con hard navigation
+    // SOLO estudiantes con hard navigation
     if (item.href === "/students") {
       return (
         <a
