@@ -2,31 +2,37 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function proxy(request: NextRequest) {
-  // Obtenemos si existe la cookie de autenticación que indicamos en el login
-  const isAuthenticated = request.cookies.has("isAuthenticated");
+  const userCookie = request.cookies.get("user");
+
+  let isAuthenticated = false;
+
+  if (userCookie) {
+    try {
+      JSON.parse(decodeURIComponent(userCookie.value));
+      isAuthenticated = true;
+    } catch {
+      isAuthenticated = false;
+    }
+  }
 
   const { pathname } = request.nextUrl;
 
-  // Se considera ruta pública todas las que comiencen con /auth
   const isPublicRoute = pathname.startsWith("/auth");
 
-  // 1. Si está en login/auth pero YA inició sesión, regresarlo adentro de la aplicación.
+  // Si ya está logueado y entra a /auth → lo sacamos
   if (isPublicRoute && isAuthenticated) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // 2. Si NO está en login/auth y NO está autenticado, mandarlo al login a identificarse.
+  // Si NO está logueado y entra a rutas privadas → lo mandamos a login
   if (!isPublicRoute && !isAuthenticated) {
     return NextResponse.redirect(new URL("/auth", request.url));
   }
 
-  // 3. En caso contrario, dejarlo pasar normalmente.
   return NextResponse.next();
 }
 
 export const config = {
-  // El matcher define en qué rutas se va a disparar este código.
-  // Ignoramos la ruta de API, archivos estáticos del build (_next), imágenes y el icono.
   matcher: [
     "/((?!api|_next/static|_next/image|favicon.ico|img|.*\\.svg|.*\\.png|.*\\.jpg).*)",
   ],

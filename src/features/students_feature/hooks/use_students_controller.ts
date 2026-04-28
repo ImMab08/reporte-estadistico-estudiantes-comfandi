@@ -8,6 +8,9 @@ import { getAcademicSnapshots } from "@/src/utils/academicStorage";
 import { useAcademicFilters } from "@/src/shared/hooks/use_academic_filters";
 import type { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
 
+import { getUserFromCookie } from "@/src/lib/auth";
+import { canAccessGrade } from "@/src/lib/permissions";
+
 export function useStudentsController() {
   const [localSearch, setLocalSearch] = useState("");
 
@@ -15,6 +18,7 @@ export function useStudentsController() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+  const user = getUserFromCookie();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -60,27 +64,31 @@ export function useStudentsController() {
   const gradeOptions = useMemo(() => {
     if (!activeSnapshot) return [];
 
-    return [...new Set(activeSnapshot.students.map((s) => s.grade))].sort(
-      (a, b) => Number(a) - Number(b),
-    );
-  }, [activeSnapshot]);
+    const grades = [
+      ...new Set(activeSnapshot.students.map((s) => s.grade)),
+    ].sort((a, b) => Number(a) - Number(b));
+
+    return grades.filter((grade) => canAccessGrade(user, Number(grade)));
+  }, [activeSnapshot, user]);
 
   const groupOptions = useMemo(() => {
     if (!activeSnapshot) return [];
 
     return activeSnapshot.students
+      .filter((s) => canAccessGrade(user, Number(s.grade)))
       .filter((s) =>
         selectedGrade === "all" ? true : s.grade === selectedGrade,
       )
       .map((s) => s.group)
       .filter((value, index, array) => array.indexOf(value) === index)
       .sort((a, b) => Number(a) - Number(b));
-  }, [activeSnapshot, selectedGrade]);
+  }, [activeSnapshot, selectedGrade, user]);
 
   const filteredStudents = useMemo(() => {
     if (!activeSnapshot) return [];
 
     return activeSnapshot.students
+      .filter((student) => canAccessGrade(user, Number(student.grade)))
       .filter((student) => {
         const gradeMatch =
           selectedGrade === "all" || student.grade === selectedGrade;
@@ -96,7 +104,7 @@ export function useStudentsController() {
         return gradeMatch && groupMatch && searchMatch;
       })
       .sort((a, b) => a.name.localeCompare(b.name, "es"));
-  }, [activeSnapshot, selectedGrade, selectedGroup, normalizedSearch]);
+  }, [activeSnapshot, selectedGrade, selectedGroup, normalizedSearch, user]);
 
   const selectedStudent =
     activeSnapshot?.students.find((s) => s.id === selectedStudentId) ?? null;
@@ -153,6 +161,15 @@ export function useStudentsController() {
 
     return Object.values(baseLevels);
   }, [snapshots, selectedStudentId]);
+
+  useEffect(() => {
+    if (
+      selectedGrade !== "all" &&
+      !canAccessGrade(user, Number(selectedGrade))
+    ) {
+      filters.handleGradeChange("all");
+    }
+  }, [user, selectedGrade, filters]);
 
   return {
     snapshots,
