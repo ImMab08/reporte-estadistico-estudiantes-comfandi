@@ -1,0 +1,284 @@
+[
+  {
+    "email": "antonyreyes@comfandi.edu.co",
+    "password": "CYAntony123",
+    "role": "docente",
+    "niveles": ["primaria"]
+  },
+  {
+    "email": "brandonmunoz@comfandi.edu.co",
+    "password": "CYBrandon123",
+    "role": "docente",
+    "niveles": ["primaria"]
+  },
+  {
+    "email": "carolinaortiz@comfandi.edu.co",
+    "password": "CYCarolina123",
+    "role": "docente",
+    "niveles": ["primaria"]
+  },
+  {
+    "email": "dahianlibhertiz@comfandi.edu.co",
+    "password": "CYDahian123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "yuliethpulgarin@comfandi.edu.co",
+    "password": "CYYulieth123",
+    "role": "docente",
+    "niveles": ["primaria"]
+  },
+  {
+    "email": "dianacarabali@comfandi.edu.co",
+    "password": "CYDiana123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "clorenaburbano@comfandi.edu.co",
+    "password": "CYClorena123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "fabertenorio@comfandi.edu.co",
+    "password": "CYFaber123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "gustavomontana@comfandi.edu.co",
+    "password": "CYGustavo123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "jennysalas@comfandi.edu.co",
+    "password": "CYJenny123",
+    "role": "docente",
+    "niveles": ["todos"]
+  },
+  {
+    "email": "joanrojas@comfandi.edu.co",
+    "password": "CYJoan123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "johnnyospina@comfandi.edu.co",
+    "password": "CYJohnny123",
+    "role": "docente",
+    "niveles": ["todos"]
+  },
+  {
+    "email": "lauramarcelaospina@comfandi.edu.co",
+    "password": "CYLaura123",
+    "role": "docente",
+    "niveles": ["primaria"]
+  },
+  {
+    "email": "leonelamariles@comfandi.edu.co",
+    "password": "CYLeonela123",
+    "role": "docente",
+    "niveles": ["primaria"]
+  },
+  {
+    "email": "maritzamunoz@comfandi.edu.co",
+    "password": "CYMaritza123",
+    "role": "docente",
+    "niveles": ["primaria"]
+  },
+  {
+    "email": "nataliafreyre@comfandi.edu.co",
+    "password": "CYNatalia123",
+    "role": "docente",
+    "niveles": ["primaria"]
+  },
+  {
+    "email": "oscargomez@comfandi.edu.co",
+    "password": "CYOscar123",
+    "role": "docente",
+    "niveles": ["primaria", "secundaria"]
+  },
+  {
+    "email": "patriciacaicedo@comfandi.edu.co",
+    "password": "CYPatricia123",
+    "role": "docente",
+    "niveles": ["primaria"]
+  },
+  {
+    "email": "yulifigueroa@comfandi.edu.co",
+    "password": "CYYuli123",
+    "role": "docente",
+    "niveles": ["todos"]
+  },
+  {
+    "email": "ricardopalacio@comfandi.edu.co",
+    "password": "CYRicardo123",
+    "role": "docente",
+    "niveles": ["primaria"]
+  },
+  {
+    "email": "cristiangaon@comfandi.edu.co",
+    "password": "CYCristian123",
+    "role": "docente",
+    "niveles": ["primaria", "secundaria"]
+  },
+  {
+    "email": "wilmarandrade@comfandi.edu.co",
+    "password": "CYWilmar123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "yoselinclavijo@comfandi.edu.co",
+    "password": "CYYoselin123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "vivianapalomino@comfandi.edu.co",
+    "password": "CYViviana123",
+    "role": "docente",
+    "niveles": ["primaria"]
+  },
+  {
+    "email": "vanessagarcia@comfandi.edu.co",
+    "password": "CYVanessa123",
+    "role": "docente",
+    "niveles": ["primaria"]
+  },
+  {
+    "email": "juandavidcelisruiz@comfandi.edu.co",
+    "password": "CYJuan123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "luisalejandrolondono@comfandi.edu.co",
+    "password": "CYLuis123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "geraldinelopez@comfandi.edu.co",
+    "password": "CYGeraldine123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "alejandramendez@comfandi.edu.co",
+    "password": "CYAlejandra123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "carlosmendez@comfandi.edu.co",
+    "password": "CYCarlos123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "sofiavargas@comfandi.edu.co",
+    "password": "CYSofia123",
+    "role": "docente",
+    "niveles": ["primaria"]
+  },
+  {
+    "email": "anamariadarema@comfandi.edu.co",
+    "password": "CYAnaMaria123",
+    "role": "docente",
+    "niveles": ["primaria", "secundaria"]
+  },
+  {
+    "email": "hernandosamboni@comfandi.edu.co",
+    "password": "CYHernando123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "valerydejesus@comfandi.edu.co",
+    "password": "CYValery123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "alexandrarodriguez@comfandi.edu.co",
+    "password": "CYAlejandra123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "leislymejia@comfandi.edu.co",
+    "password": "CYLeisly123",
+    "role": "docente",
+    "niveles": ["secundaria"]
+  },
+  {
+    "email": "juandavidariasmunoz@comfandi.edu.co",
+    "password": "CYJuanDavid123",
+    "role": "docente",
+    "niveles": ["todos"]
+  },
+  {
+    "email": "mairaserrato@comfandi.edu.co",
+    "password": "CYMaira123",
+    "role": "docente",
+    "niveles": ["todos"]
+  },
+  {
+    "email": "jeanordonez@comfandi.edu.co",
+    "password": "CYJean123",
+    "role": "docente",
+    "niveles": ["todos"]
+  },
+  {
+    "email": "frankyvargas@comfandi.edu.co",
+    "password": "frankyelpro",
+    "role": "docente",
+    "niveles": ["primaria"]
+  },
+  {
+    "email": "koraynzapata@comfandi.edu.co",
+    "password": "CYKorayn123",
+    "role": "docente",
+    "niveles": ["primaria"]
+  },
+  {
+    "email": "isabellarosero@comfandi.edu.co",
+    "password": "CYIsabella123",
+    "role": "psicologa",
+    "niveles": ["todos"]
+  },
+  {
+    "email": "dianaparra@comfandi.edu.co",
+    "password": "CYDiana123",
+    "role": "psicologa",
+    "niveles": ["todos"]
+  },
+  {
+    "email": "brendagranados@comfandi.edu.co",
+    "password": "CYBrenda123",
+    "role": "psicologa",
+    "niveles": ["todos"]
+  },
+  {
+    "email": "rectorcolegioyumbo@comfandi.com.co",
+    "password": "CYRectorsito123",
+    "role": "rector",
+    "niveles": ["todos"]
+  },
+  {
+    "email": "falinepepicano@comfandi.edu.co",
+    "password": "CYFaline123",
+    "role": "coordinadora",
+    "niveles": ["todos"]
+  },
+  {
+    "email": "alexandracortes@comfandi.edu.co",
+    "password": "CYAlexandracortes123",
+    "role": "coordinadora",
+    "niveles": ["todos"]
+  }
+]
