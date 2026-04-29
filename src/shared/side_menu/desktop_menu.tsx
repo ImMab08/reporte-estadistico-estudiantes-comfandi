@@ -13,35 +13,58 @@ export function DesktopMenu() {
     return null;
   }
 
+  const handleLogout = () => {
+    // eliminar cookie
+    document.cookie = "user=; path=/; max-age=0";
+
+    // redirigir
+    window.location.href = "/auth";
+  };
+
   const renderMenuItem = (item: (typeof navItems)[number]) => {
     const Icon = item.icon;
     const isActive = pathname === item.href;
+    const isLogout = item.text === "Cerrar sesión";
 
     const content = (
       <>
         <div
-          className={`w-1 bg-primary rounded-full origin-left transition-transform duration-300 ${
+          className={`w-1 ${isLogout ? "bg-red-500" : "bg-primary"} rounded-full origin-left transition-transform duration-300 ${
             isActive ? "scale-y-100" : "scale-y-0 group-hover:scale-y-100"
           }`}
-        ></div>
+        />
 
         <div
           className={`flex relative items-center space-x-2 w-full py-1 px-2 rounded-lg transition-all duration-300 ${
             isActive
-              ? "bg-primary text-white"
-              : "text-primary bg-white group-hover:bg-primary group-hover:text-white -left-3 group-hover:left-0"
+              ? isLogout
+                ? "bg-red-500 text-white"
+                : "bg-primary text-white"
+              : isLogout
+                ? "text-red-500 bg-white group-hover:bg-red-500 group-hover:text-white -left-3 group-hover:left-0"
+                : "text-primary bg-white group-hover:bg-primary group-hover:text-white -left-3 group-hover:left-0"
           }`}
         >
-          <Icon width={20} hanging={20} />
-
-          <p className="font-semibold transition-colors duration-300">
-            {item.text}
-          </p>
+          <Icon width={20} height={20} />
+          <p className="font-semibold">{item.text}</p>
         </div>
       </>
     );
 
-    // SOLO estudiantes con hard navigation
+    // cerrar sesión
+    if (isLogout) {
+      return (
+        <button
+          key={item.text}
+          onClick={handleLogout}
+          className="flex space-x-2 items-stretch group w-full text-left cursor-pointer"
+        >
+          {content}
+        </button>
+      );
+    }
+
+    // links normales
     if (item.href === "/students") {
       return (
         <a
@@ -90,7 +113,10 @@ export function DesktopMenu() {
           {/* Parte inferior */}
           <div className="mt-auto space-y-2">
             {navItems
-              .filter((item) => item.position === "bottom")
+              .filter(
+                (item) =>
+                  item.position === "bottom" || item.text === "Cerrar sesión",
+              )
               .map(renderMenuItem)}
           </div>
         </div>

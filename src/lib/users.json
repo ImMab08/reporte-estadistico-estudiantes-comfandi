@@ -205,7 +205,7 @@
   },
   {
     "email": "alexandrarodriguez@comfandi.edu.co",
-    "password": "CYAlejandra123",
+    "password": "CYAlexandra123",
     "role": "docente",
     "niveles": ["secundaria"]
   },
@@ -229,7 +229,7 @@
   },
   {
     "email": "jeanordonez@comfandi.edu.co",
-    "password": "CYJean123",
+    "password": "yupielcuriosomakiavelico",
     "role": "docente",
     "niveles": ["todos"]
   },
@@ -237,7 +237,7 @@
     "email": "frankyvargas@comfandi.edu.co",
     "password": "frankyelpro",
     "role": "docente",
-    "niveles": ["primaria"]
+    "niveles": ["todos"]
   },
   {
     "email": "koraynzapata@comfandi.edu.co",
@@ -265,7 +265,7 @@
   },
   {
     "email": "rectorcolegioyumbo@comfandi.com.co",
-    "password": "CYRectorsito123",
+    "password": "CYRectorsitoserrano123",
     "role": "rector",
     "niveles": ["todos"]
   },
