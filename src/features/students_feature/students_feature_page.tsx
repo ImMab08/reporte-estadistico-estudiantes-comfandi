@@ -1,21 +1,15 @@
 "use client";
 
+import Image from "next/image";
+
 import { StudentsSidebar } from "./components/students_sidebar";
 import { StudentDetails } from "./components/student_details";
+import { StudentsMobileView } from "./components/students_mobile_view";
 
 import { useStudentsController } from "./hooks/use_students_controller";
-import { GlobalLoader } from "@/src/shared/global_loader";
-import Image from "next/image";
-import { StudentsMobileView } from "./components/students_mobile_view";
 
 export function StudentsFeaturePage() {
   const controller = useStudentsController();
-
-  const { isLoading, progress } = controller;
-
-  if (isLoading) {
-    return <GlobalLoader progress={progress} />;
-  }
 
   return (
     <section className="size-full bg-slate-50 p-4 flex flex-col overflow-hidden">

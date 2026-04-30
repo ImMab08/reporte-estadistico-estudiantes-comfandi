@@ -20,6 +20,10 @@ export function MobileMenu() {
 
   const handleLogout = () => {
     document.cookie = "user=; path=/; max-age=0";
+
+    sessionStorage.removeItem("app_initialized");
+    sessionStorage.removeItem("just_logged_in");
+
     window.location.href = "/auth";
   };
 

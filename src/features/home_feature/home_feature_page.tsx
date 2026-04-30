@@ -13,14 +13,11 @@ import { CriticalGrades } from "./components/CriticalGrades";
 import { SubjectHealthGrid } from "./components/SubjectHealthGrid";
 
 import { IconFilterAlt, IconQuickReference } from "@/src/shared/icons";
-import { GlobalLoader } from "@/src/shared/global_loader";
 
 export function HomeFeaturePage() {
   const controller = useHomeController();
 
   const {
-    isLoading,
-    progress,
     activeSnapshot,
 
     snapshots,
@@ -52,8 +49,8 @@ export function HomeFeaturePage() {
         ? `Reporte: grado ${selectedGrade}°`
         : `Reporte: grado ${selectedGrade}-${selectedGroup}`;
 
-  if (isLoading) {
-    return <GlobalLoader progress={progress} />;
+  if (snapshots.length === 0) {
+    return null;
   }
 
   if (!activeSnapshot) {

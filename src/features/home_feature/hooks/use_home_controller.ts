@@ -13,38 +13,21 @@ export function useHomeController() {
   const [snapshots, setSnapshots] = useState<AcademicPeriodSnapshot[]>([]);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
-
+  // Carga inmediata (SIN loaders artificiales)
   useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) return prev;
-        return prev + 10;
-      });
-    }, 150);
-
     const data = Object.values(getAcademicSnapshots()).sort(
       (a, b) => b.period - a.period,
     );
 
-    setTimeout(() => {
-      setSnapshots(data);
-
-      setProgress(100);
-
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 300);
-    }, 1200);
-
-    return () => clearInterval(interval);
+    setSnapshots(data);
   }, []);
 
+  // Filtros
   const filters = useAcademicFilters(snapshots);
 
   const { activeSnapshot, selectedGrade, selectedGroup } = filters;
 
+  // Opciones de grado
   const gradeOptions = useMemo(() => {
     if (!activeSnapshot) return [];
 
@@ -53,6 +36,7 @@ export function useHomeController() {
     ].sort((a, b) => Number(a) - Number(b));
   }, [activeSnapshot]);
 
+  // Opciones de grupo
   const groupOptions = useMemo(() => {
     if (!activeSnapshot) return [];
 
@@ -65,6 +49,7 @@ export function useHomeController() {
       .sort((a, b) => Number(a) - Number(b));
   }, [activeSnapshot, selectedGrade]);
 
+  // Estudiantes filtrados
   const filteredStudents = useMemo(() => {
     if (!activeSnapshot) return [];
 
@@ -79,8 +64,10 @@ export function useHomeController() {
     });
   }, [activeSnapshot, selectedGrade, selectedGroup]);
 
+  // Analytics
   const analytics = usePeriodAnalytics(filteredStudents);
 
+  // Salud por materia
   const subjectHealthMetrics = useMemo(() => {
     const subjectMap: Record<
       string,
@@ -129,31 +116,17 @@ export function useHomeController() {
 
         subjectMap[subject].total++;
 
-        if (value === "superior") {
-          subjectMap[subject].superior++;
-        }
-
-        if (value === "alto") {
-          subjectMap[subject].alto++;
-        }
-
-        if (value === "basico") {
-          subjectMap[subject].basico++;
-        }
-
-        if (value === "bajo") {
-          subjectMap[subject].bajo++;
-        }
+        if (value === "superior") subjectMap[subject].superior++;
+        if (value === "alto") subjectMap[subject].alto++;
+        if (value === "basico") subjectMap[subject].basico++;
+        if (value === "bajo") subjectMap[subject].bajo++;
       });
     });
 
     return Object.entries(subjectMap).map(([subject, stats]) => {
       const superior = Math.round((stats.superior / stats.total) * 100);
-
       const alto = Math.round((stats.alto / stats.total) * 100);
-
       const basico = Math.round((stats.basico / stats.total) * 100);
-
       const bajo = Math.round((stats.bajo / stats.total) * 100);
 
       const health = Math.min(superior + alto, 100);
@@ -169,15 +142,13 @@ export function useHomeController() {
     });
   }, [filteredStudents]);
 
-  // Desplegar vista de filtros.
+  // Mobile filters
   const openMobileFilter = () => setIsMobileFilterOpen(true);
   const closeMobileFilter = () => setIsMobileFilterOpen(false);
   const toggleMobileFilter = () => setIsMobileFilterOpen((prev) => !prev);
 
   return {
     snapshots,
-    isLoading,
-    progress,
 
     gradeOptions,
     groupOptions,
