@@ -18,7 +18,7 @@
     "niveles": ["primaria"]
   },
   {
-    "email": "dahianlibhertiz@comfandi.edu.co",
+    "email": "dahianlibhetortiz@comfandi.edu.co",
     "password": "CYDahian123",
     "role": "docente",
     "niveles": ["secundaria"]
@@ -36,7 +36,7 @@
     "niveles": ["secundaria"]
   },
   {
-    "email": "clorenaburbano@comfandi.edu.co",
+    "email": "lorenaburbano@comfandi.edu.co",
     "password": "CYClorena123",
     "role": "docente",
     "niveles": ["secundaria"]
@@ -66,7 +66,7 @@
     "niveles": ["secundaria"]
   },
   {
-    "email": "johnnyospina@comfandi.edu.co",
+    "email": "johnyospina@comfandi.edu.co",
     "password": "CYJohnny123",
     "role": "docente",
     "niveles": ["todos"]
@@ -186,7 +186,7 @@
     "niveles": ["primaria"]
   },
   {
-    "email": "anamariadarema@comfandi.edu.co",
+    "email": "anamariaadarme@comfandi.edu.co",
     "password": "CYAnaMaria123",
     "role": "docente",
     "niveles": ["primaria", "secundaria"]
@@ -271,7 +271,7 @@
   },
   {
     "email": "falinepepicano@comfandi.edu.co",
-    "password": "CYFaline123",
+    "password": "CYMamifaline123",
     "role": "coordinadora",
     "niveles": ["todos"]
   },

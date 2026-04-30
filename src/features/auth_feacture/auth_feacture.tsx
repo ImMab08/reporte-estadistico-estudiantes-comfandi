@@ -50,6 +50,10 @@ export function AuthScreen() {
         JSON.stringify(user),
       )}; path=/; max-age=86400`;
 
+      // 🔥 CLAVE (esto es lo que te faltaba)
+      sessionStorage.removeItem("app_initialized");
+      sessionStorage.setItem("just_logged_in", "true");
+
       window.location.href = "/";
       return;
     }

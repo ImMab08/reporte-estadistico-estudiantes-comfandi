@@ -14,10 +14,11 @@ export function DesktopMenu() {
   }
 
   const handleLogout = () => {
-    // eliminar cookie
     document.cookie = "user=; path=/; max-age=0";
 
-    // redirigir
+    sessionStorage.removeItem("app_initialized");
+    sessionStorage.removeItem("just_logged_in");
+
     window.location.href = "/auth";
   };
 

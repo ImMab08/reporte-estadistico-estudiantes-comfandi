@@ -13,36 +13,17 @@ import { canAccessGrade } from "@/src/lib/permissions";
 
 export function useStudentsController() {
   const [localSearch, setLocalSearch] = useState("");
-
   const [snapshots, setSnapshots] = useState<AcademicPeriodSnapshot[]>([]);
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
   const user = getUserFromCookie();
 
+  // Carga inmediata (SIN loading artificial)
   useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) return prev;
-        return prev + 10;
-      });
-    }, 150);
-
     const data = Object.values(getAcademicSnapshots()).sort(
       (a, b) => b.period - a.period,
     );
 
-    setTimeout(() => {
-      setSnapshots(data);
-
-      setProgress(100);
-
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 300);
-    }, 1200);
-
-    return () => clearInterval(interval);
+    setSnapshots(data);
   }, []);
 
   const filters = useAcademicFilters(snapshots);
@@ -61,6 +42,7 @@ export function useStudentsController() {
 
   const normalizedSearch = localSearch.trim().toLowerCase();
 
+  // Grades
   const gradeOptions = useMemo(() => {
     if (!activeSnapshot) return [];
 
@@ -71,6 +53,7 @@ export function useStudentsController() {
     return grades.filter((grade) => canAccessGrade(user, Number(grade)));
   }, [activeSnapshot, user]);
 
+  //  Groups
   const groupOptions = useMemo(() => {
     if (!activeSnapshot) return [];
 
@@ -84,6 +67,7 @@ export function useStudentsController() {
       .sort((a, b) => Number(a) - Number(b));
   }, [activeSnapshot, selectedGrade, user]);
 
+  // Students filtrados
   const filteredStudents = useMemo(() => {
     if (!activeSnapshot) return [];
 
@@ -106,9 +90,11 @@ export function useStudentsController() {
       .sort((a, b) => a.name.localeCompare(b.name, "es"));
   }, [activeSnapshot, selectedGrade, selectedGroup, normalizedSearch, user]);
 
+  // Estudiante seleccionado
   const selectedStudent =
     activeSnapshot?.students.find((s) => s.id === selectedStudentId) ?? null;
 
+  // Comparativa histórica
   const comparisonData = useMemo(() => {
     if (!selectedStudentId) return [];
 
@@ -151,17 +137,15 @@ export function useStudentsController() {
         const key = `P${snapshot.period}`;
 
         baseLevels.Superior[key] = counts.superior;
-
         baseLevels.Alto[key] = counts.alto;
-
         baseLevels["Básico"][key] = counts.basico;
-
         baseLevels.Bajo[key] = counts.bajo;
       });
 
     return Object.values(baseLevels);
   }, [snapshots, selectedStudentId]);
 
+  // Protección de permisos
   useEffect(() => {
     if (
       selectedGrade !== "all" &&
@@ -173,8 +157,6 @@ export function useStudentsController() {
 
   return {
     snapshots,
-    isLoading,
-    progress,
 
     localSearch,
     setLocalSearch,
