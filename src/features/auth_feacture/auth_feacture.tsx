@@ -2,17 +2,25 @@
 
 import Image from "next/image";
 import { useState } from "react";
+
 import users from "@/src/lib/users.json";
+import { ERROR_MESSAGES } from "@/src/shared/constants/errors";
 
 import {
+  IconLock,
+  IconLockOpen,
+  IconMail,
   IconMonitoring,
   IconSchool,
   IconShieldLocked,
+  IconVisibility,
+  IconVisibilityOff,
 } from "@/src/shared/icons";
 
 export function AuthScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
@@ -23,13 +31,13 @@ export function AuthScreen() {
     const newErrors: typeof errors = {};
 
     if (!email) {
-      newErrors.email = "El correo es obligatorio";
+      newErrors.email = ERROR_MESSAGES.REQUIRED_EMAIL;
     } else if (!/^\S+@\S+\.\S+$/.test(email)) {
-      newErrors.email = "Correo inválido";
+      newErrors.email = ERROR_MESSAGES.INVALID_EMAIL;
     }
 
     if (!password) {
-      newErrors.password = "La contraseña es obligatoria";
+      newErrors.password = ERROR_MESSAGES.REQUIRED_PASSWORD;
     }
 
     setErrors(newErrors);
@@ -50,7 +58,6 @@ export function AuthScreen() {
         JSON.stringify(user),
       )}; path=/; max-age=86400`;
 
-      // 🔥 CLAVE (esto es lo que te faltaba)
       sessionStorage.removeItem("app_initialized");
       sessionStorage.setItem("just_logged_in", "true");
 
@@ -59,7 +66,7 @@ export function AuthScreen() {
     }
 
     setErrors({
-      general: "Correo o contraseña incorrectos. Verifica tus credenciales.",
+      general: ERROR_MESSAGES.INVALID_CREDENTIALS,
     });
   };
 
@@ -99,42 +106,48 @@ export function AuthScreen() {
             </div>
 
             <div className="space-y-5">
-              {/* ERROR GENERAL */}
-              {errors.general && (
-                <p className="text-sm text-red-500 font-medium">
-                  {errors.general}
-                </p>
-              )}
+              {/* Error general */}
 
               {/* Correo */}
               <div className="space-y-1.5 md:space-y-2">
-                <label className="block text-xs md:text-sm font-semibold text-primary">
+                <label
+                  className={`block text-xs md:text-sm ${errors.general ? "text-red-500" : "text-primary"} font-semibold`}
+                >
                   Correo electrónico
                 </label>
 
-                <input
-                  type="text"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    setErrors((prev) => ({
-                      ...prev,
-                      email: undefined,
-                      general: undefined,
-                    }));
-                  }}
-                  className="w-full h-10 rounded-xl border border-primary/70 bg-transparent px-4 text-[16px] outline-none focus:ring-2 focus:ring-primary/15"
-                />
+                <div
+                  className={`w-full flex items-center h-10 rounded-xl border space-x-1.5 ${errors.general ? "border-red-500/70 focus:ring-red-500/15" : "border-primary/70 focus:ring-primary/15"} bg-transparent px-3 outline-none focus:ring-2 `}
+                >
+                  <IconMail
+                    className={`size-5.5 ${errors.general ? "text-red-500" : "text-primary"}`}
+                  />
+                  <input
+                    type="text"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setErrors((prev) => ({
+                        ...prev,
+                        email: undefined,
+                        general: undefined,
+                      }));
+                    }}
+                    className={`size-full bg-transparent outline-none `}
+                  />
+                </div>
 
                 {errors.email && (
-                  <p className="text-xs text-red-500">{errors.email}</p>
+                  <p className="text-sm text-left text-red-500 font-medium">{errors.email}</p>
                 )}
               </div>
 
               {/* Contraseña */}
               <div className="space-y-1.5 md:space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <label className="text-xs md:text-sm font-semibold text-primary">
+                  <label
+                    className={`text-xs md:text-sm ${errors.general ? "text-red-500" : "text-primary"} font-semibold`}
+                  >
                     Contraseña
                   </label>
 
@@ -146,24 +159,70 @@ export function AuthScreen() {
                   </button> */}
                 </div>
 
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setErrors((prev) => ({
-                      ...prev,
-                      password: undefined,
-                      general: undefined,
-                    }));
-                  }}
-                  className="w-full h-10 rounded-xl border border-primary/70 bg-transparent px-4 text-[16px] outline-none focus:ring-2 focus:ring-primary/15"
-                />
+                <div
+                  className={`w-full flex items-center h-10 rounded-xl border space-x-1.5 ${errors.general ? "border-red-500/70 focus:ring-red-500/15" : "border-primary/70 focus:ring-primary/15"} bg-transparent px-3 outline-none focus:ring-2 `}
+                >
+                  <div
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="cursor-pointer"
+                  >
+                    {showPassword ? (
+                      <IconLockOpen
+                        className={`size-5 ${
+                          errors.general ? "text-red-500" : "text-primary"
+                        }`}
+                      />
+                    ) : (
+                      <IconLock
+                        className={`size-5 ${
+                          errors.general ? "text-red-500" : "text-primary"
+                        }`}
+                      />
+                    )}
+                  </div>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setErrors((prev) => ({
+                        ...prev,
+                        password: undefined,
+                        general: undefined,
+                      }));
+                    }}
+                    className="size-full bg-transparent outline-none"
+                  />
+                  <div
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="cursor-pointer"
+                  >
+                    {showPassword ? (
+                      <IconVisibilityOff
+                        className={`size-5 ${
+                          errors.general ? "text-red-500" : "text-primary"
+                        }`}
+                      />
+                    ) : (
+                      <IconVisibility
+                        className={`size-5 ${
+                          errors.general ? "text-red-500" : "text-primary"
+                        }`}
+                      />
+                    )}
+                  </div>
+                </div>
 
                 {errors.password && (
-                  <p className="text-xs text-red-500">{errors.password}</p>
+                  <p className="text-sm text-left text-red-500 font-medium">{errors.password}</p>
                 )}
               </div>
+
+              {errors.general && (
+                <p className="text-sm text-center text-red-500 font-medium whitespace-pre-line">
+                  {errors.general}
+                </p>
+              )}
 
               {/* Botón */}
               <button
@@ -172,6 +231,7 @@ export function AuthScreen() {
               >
                 Ingresar
               </button>
+
               <p className="relative md:hidden -bottom-4 text-sm text-gray-500 text-center font-medium">
                 ¿Necesitas ayuda?{" "}
                 <span className="text-[#10B8F5] cursor-pointer hover:underline">
@@ -267,7 +327,7 @@ export function AuthScreen() {
         <div className="hidden md:block absolute -top-50 -right-20 w-80 h-80 border border-dashed border-[#10B8F5] rounded-full" />
         <div className="hidden md:block absolute -bottom-100 -right-28 w-160 h-160 border border-dashed border-[#10B8F5] rounded-full" />
 
-        {/* Lado derecho (SIN TOCAR) */}
+        {/* Lado derecho */}
         <div className="relative hidden h-full md:overflow-hidden md:flex md:flex-col justify-center items-end ">
           <div className="absolute z-20 bottom-38 left-4 md:grid grid-cols-3 gap-3">
             {Array.from({ length: 12 }).map((_, i) => (
