@@ -17,7 +17,6 @@
   --color-superior: oklch(0.72 0.12 190);
 }
 
-
 /* 1. Para Firefox */
 * {
   scrollbar-width: thin;
@@ -44,4 +43,9 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: #9ca3af;
+}
+
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #000 !important;
 }
