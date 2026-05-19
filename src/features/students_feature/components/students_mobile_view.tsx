@@ -1,7 +1,7 @@
 import type { useStudentsController } from "../hooks/use_students_controller";
 
 import { IconChevronRight, IconRefresh, IconSearch } from "@/src/shared/icons";
-import { displayStudentName } from "@/src/utils/displayStudentName";
+import { displayStudentName } from "@/src/utils/periodic/displayStudentName";
 import { getStudentPhotoPath } from "@/src/utils/studentPhotoPreview";
 import { StudentAvatar } from "./student_avatar";
 import { useRouter, useSearchParams } from "next/navigation";

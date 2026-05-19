@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { StudentInteractiveCard } from "@/src/components/layout/student_interactive_card";
 import { StudentRecord } from "@/src/shared/types/academic.types";
 import { IconVisibility } from "@/src/shared/icons";
-import { displayStudentName } from "@/src/utils/displayStudentName";
+import { displayStudentName } from "@/src/utils/periodic/displayStudentName";
 
 type TopStudent = {
   student: StudentRecord;

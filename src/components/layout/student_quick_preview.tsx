@@ -1,29 +1,40 @@
 import Image from "next/image";
+import { useState } from "react";
+
 import {
   classifyStudent,
   getStudentPhotoPath,
 } from "@/src/utils/studentPhotoPreview";
 import { StudentRecord } from "@/src/shared/types/academic.types";
-import { displayStudentName } from "@/src/utils/displayStudentName";
+import { displayStudentName } from "@/src/utils/periodic/displayStudentName";
+import { IconAccountCircle } from "@/src/shared/icons";
 
 type Props = {
   student: StudentRecord;
 };
 
 export function StudentQuickPreview({ student }: Props) {
+  const [photoError, setPhotoError] = useState(false);
   const metrics = classifyStudent(student);
 
   return (
     <div className="p-2 space-y-4 rounded-xl">
       <div className="flex space-x-4">
         <div className="relative h-32 w-24 overflow-hidden rounded-xl bg-slate-100">
-          <Image
-            src={getStudentPhotoPath(student)}
-            alt={student.name}
-            fill
-            className="object-cover object-center"
-            sizes="120px"
-          />
+          {!photoError ? (
+            <Image
+              src={getStudentPhotoPath(student)}
+              alt={student.name}
+              fill
+              className="object-cover object-center"
+              sizes="120px"
+              onError={() => setPhotoError(true)}
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-slate-200">
+              <IconAccountCircle className="text-primary/60 size-18" />
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-4 gap-2 text-center">

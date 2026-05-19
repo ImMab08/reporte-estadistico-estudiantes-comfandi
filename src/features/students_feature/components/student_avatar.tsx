@@ -1,6 +1,6 @@
 "use client";
 
-import { displayStudentName } from "@/src/utils/displayStudentName";
+import { displayStudentName } from "@/src/utils/periodic/displayStudentName";
 import Image from "next/image";
 import { useState } from "react";
 

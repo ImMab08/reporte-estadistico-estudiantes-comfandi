@@ -14,6 +14,7 @@ import {
 } from "@/src/shared/types/academic.types";
 
 import {
+  IconAccountCircle,
   IconAutoStories,
   IconBarChart,
   IconCalendarMonth,
@@ -34,7 +35,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { displayStudentName } from "@/src/utils/displayStudentName";
+import { displayStudentName } from "@/src/utils/periodic/displayStudentName";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -58,6 +59,7 @@ export function StudentDetailsFeacture({
   // allSnapshots
 }: Props) {
   const router = useRouter();
+  const [photoError, setPhotoError] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
   const [subjectSort, setSubjectSort] = useState<"alphabetical" | "grade">(
@@ -148,25 +150,25 @@ export function StudentDetailsFeacture({
       <div className="hidden md:flex p-4 gap-4 shrink-0">
         <div className="w-full">
           <div className="flex items-start gap-4">
-            <div className="relative w-56 h-64 rounded-2xl bg-slate-200 overflow-hidden shrink-0">
-              <Image
-                key={selectedStudent.id}
-                src={getStudentPhotoPath(selectedStudent)}
-                alt={selectedStudent.name}
-                fill
-                onLoad={() => setIsLoading(false)}
-                className={`object-cover transition-opacity duration-300 ${
-                  isLoading ? "opacity-0" : "opacity-100"
-                }`}
-              />
-
-              {isLoading && (
-                <div className="absolute inset-0 animate-pulse bg-slate-200 rounded-2xl" />
+            <div className="relative w-56 h-70 rounded-2xl bg-slate-200 overflow-hidden shrink-0">
+              {!photoError ? (
+                <Image
+                  key={selectedStudent.id}
+                  src={getStudentPhotoPath(selectedStudent)}
+                  alt={selectedStudent.name}
+                  fill
+                  onLoad={() => setIsLoading(false)}
+                  className={`object-cover transition-opacity duration-300 ${
+                    isLoading ? "opacity-0" : "opacity-100"
+                  }`}
+                />
+              ) : (
+                <IconAccountCircle className="text-primary/60 size-18" />
               )}
             </div>
             <div className=" w-full">
               <div className="flex-1 space-y-4">
-                <h2 className="text-4xl leading-7 font-bold text-slate-800">
+                <h2 className="text-4xl leading-tight font-bold text-slate-800">
                   {displayStudentName(selectedStudent.name)}
                 </h2>
 

@@ -237,7 +237,64 @@
     "email": "frankyvargas@comfandi.edu.co",
     "password": "frankyelpro",
     "role": "docente",
-    "niveles": ["todos"]
+    "niveles": ["todos"],
+
+    "academic": {
+      "subjects": ["Matemáticas", "Tecnología"],
+      "grades": ["7°-2", "7°-3", "8°-1", "8°-2"]
+    },
+
+    "schedule": {
+      "week": [
+        {
+          "day": "Lunes",
+          "classes": [
+            { "block": 2, "subject": "Matemáticas", "grade": "7°-3" },
+            { "block": 3, "subject": "Matemáticas", "grade": "7°-3" },
+            { "block": 5, "subject": "Matemáticas", "grade": "7°-2" },
+            { "block": 6, "subject": "Matemáticas", "grade": "7°-2" },
+            { "block": 8, "subject": "Matemáticas", "grade": "8°-1" },
+            { "block": 9, "subject": "Matemáticas", "grade": "8°-1" }
+          ]
+        },
+        {
+          "day": "Martes",
+          "classes": [
+            { "block": 2, "subject": "Homeroom", "grade": "8°-1" },
+            { "block": 9, "subject": "Tecnología", "grade": "7°-2" },
+            { "block": 10, "subject": "Tecnología", "grade": "7°-2" }
+          ]
+        },
+        {
+          "day": "Miércoles",
+          "classes": [
+            { "block": 2, "subject": "Matemáticas", "grade": "7°-3" },
+            { "block": 3, "subject": "Matemáticas", "grade": "7°-3" },
+            { "block": 5, "subject": "Matemáticas", "grade": "8°-2" },
+            { "block": 6, "subject": "Matemáticas", "grade": "8°-2" }
+          ]
+        },
+        {
+          "day": "Jueves",
+          "classes": [
+            { "block": 2, "subject": "Homeroom", "grade": "8°-1" },
+            { "block": 5, "subject": "Matemáticas", "grade": "8°-1" },
+            { "block": 6, "subject": "Matemáticas", "grade": "8°-1" },
+            { "block": 7, "subject": "Tecnología", "grade": "7°-2" },
+            { "block": 9, "subject": "Tecnología", "grade": "7°-2" }
+          ]
+        },
+        {
+          "day": "Viernes",
+          "classes": [
+            { "block": 2, "subject": "Matemáticas", "grade": "7°-2" },
+            { "block": 3, "subject": "Matemáticas", "grade": "7°-2" },
+            { "block": 5, "subject": "Matemáticas", "grade": "8°-2" },
+            { "block": 6, "subject": "Matemáticas", "grade": "8°-2" }
+          ]
+        }
+      ]
+    }
   },
   {
     "email": "koraynzapata@comfandi.edu.co",

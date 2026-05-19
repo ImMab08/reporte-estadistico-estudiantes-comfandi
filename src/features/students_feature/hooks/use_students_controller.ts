@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { ComparisonChartItem, LevelKey } from "../types/students.types";
 
-import { getAcademicSnapshots } from "@/src/utils/academicStorage";
+import { getAcademicSnapshots } from "@/src/utils/periodic/academicStorage";
 import { useAcademicFilters } from "@/src/shared/hooks/use_academic_filters";
 import type { AcademicPeriodSnapshot } from "@/src/shared/types/academic.types";
 

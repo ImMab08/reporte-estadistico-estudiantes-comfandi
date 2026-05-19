@@ -8,7 +8,7 @@ export type StudentRecord = {
 };
 
 export type AcademicPeriodSnapshot = {
-  id: string; // 2026-P2
+  id: string;
   year: number;
   period: number;
   uploadedAt: string;

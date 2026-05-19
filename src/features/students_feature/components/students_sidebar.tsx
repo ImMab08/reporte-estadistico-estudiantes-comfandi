@@ -2,7 +2,7 @@ import { StudentInteractiveCard } from "@/src/components/layout/student_interact
 import type { useStudentsController } from "../hooks/use_students_controller";
 
 import { IconRefresh } from "@/src/shared/icons";
-import { displayStudentName } from "@/src/utils/displayStudentName";
+import { displayStudentName } from "@/src/utils/periodic/displayStudentName";
 
 type StudentsController = ReturnType<
   typeof useStudentsController

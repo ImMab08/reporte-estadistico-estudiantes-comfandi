@@ -1,5 +1,7 @@
 import { NavItem } from "@/src/shared/types/type";
 import {
+  IconAccountCircle,
+  IconCognition,
   IconHome,
   IconLogout,
   IconSchool,
@@ -18,6 +20,18 @@ export const navItems: NavItem[] = [
     href: "/students",
     icon: IconSchool,
     position: "main",
+  },
+  {
+    text:  "ICFES",
+    href: "/resultados-icfes",
+    icon: IconCognition,
+    position: "main",
+  },
+  {
+    text: "Perfil",
+    href: "/account",
+    icon: IconAccountCircle,
+    position: "bottom",
   },
   {
     text: "Configuración",
