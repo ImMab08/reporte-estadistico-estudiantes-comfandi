@@ -71,12 +71,12 @@ export function AuthScreen() {
   };
 
   return (
-    <section className="relative w-full flex items-center justify-center h-screen overflow-hidden bg-[#EEF3F8] px-8 md:px-16">
+    <section className="relative w-full flex items-center justify-center h-screen overflow-hidden bg-[#EEF3F8] px-8 md:px-16 lg:px-32">
       <div className="absolute z-0 -bottom-45 -right-45 w-400 -rotate-8 h-130 bg-[#C8D4FF] blur-[250px] rounded-full pointer-events-none" />
 
-      <div className="w-full max-w-7xl relative z-10 h-auto md:h-full flex flex-col items-center justify-center md:grid md:grid-cols-2">
+      <div className="w-full max-w-7xl relative z-10 h-auto md:h-full flex flex-col items-center justify-center lg:grid lg:grid-cols-2">
         {/* Lado izquierdo */}
-        <div className="h-full flex flex-col items-center md:items-start justify-between py-5 md:py-10 gap-5 md:gap-0 relative z-40">
+        <div className="h-full flex flex-col items-center lg:items-start justify-between py-5 md:py-10 gap-5 md:gap-0 relative z-40">
           <Image
             width={150}
             height={64}
@@ -85,43 +85,37 @@ export function AuthScreen() {
             className="object-contain hidden md:block"
           />
           <Image
-            width={120}
+            width={100}
             height={64}
             alt="Logo Comfandi"
             src="/img/logo/logo_comfandi_blue.svg"
             className="object-contain block md:hidden"
           />
 
-          <div className="w-full max-w-sm space-y-5 md:space-y-10 rounded-xl bg-white py-10 px-5">
+          <div className="w-full lg:max-w-sm space-y-5 md:space-y-10 rounded-xl bg-white py-10 p-6 md:p-12 lg:p-8">
             <div className="space-y-2 text-primary">
-              <h2 className="text-lg font-medium leading-none">Bienvenido a</h2>
+              <h2 className="text-sm md:text-lg font-medium leading-none">
+                Bienvenido a
+              </h2>
 
-              <h1 className="text-4xl md::text-5xl font-bold leading-5 md:leading-9 tracking-tight">
+              <h1 className="text-3xl md:text-5xl font-bold leading-5 md:leading-8 tracking-tight">
                 Edumetricks
               </h1>
 
-              <p className="text:xs md:text-lg text-[#8EB2F3] font-medium">
+              <p className="text-xs md:text-lg text-[#8EB2F3] font-medium">
                 Accede a tu panel académico
               </p>
             </div>
 
             <div className="space-y-5">
-              {/* Error general */}
-
               {/* Correo */}
               <div className="space-y-1.5 md:space-y-2">
-                <label
-                  className={`block text-xs md:text-sm ${errors.general ? "text-red-500" : "text-primary"} font-semibold`}
-                >
+                <label className={`block text-[10px] md:text-base lg:text-sm ${errors.general ? "text-red-500" : "text-primary"} font-semibold`}>
                   Correo electrónico
                 </label>
 
-                <div
-                  className={`w-full flex items-center h-10 rounded-xl border space-x-1.5 ${errors.general ? "border-red-500/70 focus:ring-red-500/15" : "border-primary/70 focus:ring-primary/15"} bg-transparent px-3 outline-none focus:ring-2 `}
-                >
-                  <IconMail
-                    className={`size-5.5 ${errors.general ? "text-red-500" : "text-primary"}`}
-                  />
+                <div className={`w-full flex items-center h-8 md:h-12 lg:h-10 rounded-lg md:rounded-xl border space-x-1.5 ${errors.general ? "border-red-500/70 focus:ring-red-500/15" : "border-primary/70 focus:ring-primary/15"} bg-transparent px-2 md:px-3 outline-none focus:ring-2 `}>
+                  <IconMail className={`size-4.5 md:size-6 lg:size-5.5 ${errors.general ? "text-red-500" : "text-primary"}`}/>
                   <input
                     type="text"
                     value={email}
@@ -138,16 +132,16 @@ export function AuthScreen() {
                 </div>
 
                 {errors.email && (
-                  <p className="text-sm text-left text-red-500 font-medium">{errors.email}</p>
+                  <p className="text-sm text-left text-red-500 font-medium">
+                    {errors.email}
+                  </p>
                 )}
               </div>
 
               {/* Contraseña */}
               <div className="space-y-1.5 md:space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <label
-                    className={`text-xs md:text-sm ${errors.general ? "text-red-500" : "text-primary"} font-semibold`}
-                  >
+                  <label className={`text-[10px] md:text-base lg:text-sm  ${errors.general ? "text-red-500" : "text-primary"} font-semibold`}>
                     Contraseña
                   </label>
 
@@ -160,7 +154,7 @@ export function AuthScreen() {
                 </div>
 
                 <div
-                  className={`w-full flex items-center h-10 rounded-xl border space-x-1.5 ${errors.general ? "border-red-500/70 focus:ring-red-500/15" : "border-primary/70 focus:ring-primary/15"} bg-transparent px-3 outline-none focus:ring-2 `}
+                  className={`w-full flex items-center h-8 md:h-12 lg:h-10 rounded-lg md:rounded-xl border space-x-1.5 ${errors.general ? "border-red-500/70 focus:ring-red-500/15" : "border-primary/70 focus:ring-primary/15"} bg-transparent px-2 md:px-3 outline-none focus:ring-2 `}
                 >
                   <div
                     onClick={() => setShowPassword((prev) => !prev)}
@@ -168,13 +162,13 @@ export function AuthScreen() {
                   >
                     {showPassword ? (
                       <IconLockOpen
-                        className={`size-5 ${
+                        className={`size-4.5 md:size-6 lg:size-5.5 ${
                           errors.general ? "text-red-500" : "text-primary"
                         }`}
                       />
                     ) : (
                       <IconLock
-                        className={`size-5 ${
+                        className={`size-4.5 md:size-6 lg:size-5.5 ${
                           errors.general ? "text-red-500" : "text-primary"
                         }`}
                       />
@@ -199,13 +193,13 @@ export function AuthScreen() {
                   >
                     {showPassword ? (
                       <IconVisibilityOff
-                        className={`size-5 ${
+                        className={`size-4.5 md:size-6 lg:size-5.5 ${
                           errors.general ? "text-red-500" : "text-primary"
                         }`}
                       />
                     ) : (
                       <IconVisibility
-                        className={`size-5 ${
+                        className={`size-4.5 md:size-6 lg:size-5.5 ${
                           errors.general ? "text-red-500" : "text-primary"
                         }`}
                       />
@@ -214,7 +208,9 @@ export function AuthScreen() {
                 </div>
 
                 {errors.password && (
-                  <p className="text-sm text-left text-red-500 font-medium">{errors.password}</p>
+                  <p className="text-sm text-left text-red-500 font-medium">
+                    {errors.password}
+                  </p>
                 )}
               </div>
 
@@ -227,13 +223,13 @@ export function AuthScreen() {
               {/* Botón */}
               <button
                 onClick={handleSubmit}
-                className="w-full h-10 md:h-12 mt-4 md:mt-6 cursor-pointer rounded-full bg-primary text-white text-[22px] font-semibold hover:opacity-95 transition"
+                className="w-full h-9 md:h-12 mt-4 md:mt-6 cursor-pointer rounded-lg lg:rounded-full bg-primary text-white text-lg md:text-[22px] font-semibold hover:opacity-95 transition"
               >
                 Ingresar
               </button>
 
-              <p className="relative md:hidden -bottom-4 text-sm text-gray-500 text-center font-medium">
-                ¿Necesitas ayuda?{" "}
+              <p className="relative md:hidden -bottom-4 text-xs md:text-sm text-gray-500 text-center font-medium">
+                ¿Necesitas ayuda? <br />
                 <span className="text-[#10B8F5] cursor-pointer hover:underline">
                   Contáctanos
                 </span>
@@ -241,24 +237,15 @@ export function AuthScreen() {
             </div>
           </div>
 
-          <div className="md:hidden md:bottom-10 w-full ">
+          <div className="lg:hidden md:bottom-10 w-full ">
             <div className="w-full max-w-2xl bg-primary backdrop-blur rounded-xl shadow-md px-6 py-4">
               <div className="grid grid-cols-3 gap-4 md:gap-8 text-center">
                 {/* Item 1 */}
                 <div className="flex flex-col items-center gap-2 md:gap-3">
                   <div className="size-8 md:size-12 rounded-full bg-[#E8EEF7] flex items-center justify-center">
-                    <IconSchool
-                      width={28}
-                      height={28}
-                      className="text-primary hidden md:block"
-                    />
-                    <IconSchool
-                      width={22}
-                      height={22}
-                      className="text-primary block md:hidden"
-                    />
+                    <IconSchool className="size-5 md:size-7 text-primary" />
                   </div>
-                  <p className="text-[9px] md:block md:text-sm text-white font-medium leading-tight">
+                  <p className="text-[8px] md:block md:text-sm text-white font-medium leading-tight">
                     Información <br /> en tiempo real
                   </p>
                 </div>
@@ -266,22 +253,13 @@ export function AuthScreen() {
                 {/* Item 2 */}
                 <div className="flex flex-col items-center gap-2 md:gap-3">
                   <div className="size-8 md:size-12 rounded-full bg-[#E8EEF7] flex items-center justify-center">
-                    <IconMonitoring
-                      width={28}
-                      height={28}
-                      className="text-primary hidden md:block"
-                    />
-                    <IconMonitoring
-                      width={22}
-                      height={22}
-                      className="text-primary block md:hidden"
-                    />
+                    <IconMonitoring className="size-5 md:size-7 text-primary" />
                   </div>
                   <p className="text-[9px] hidden md:block md:text-sm text-white font-medium leading-tight">
                     Métricas y análisis <br /> estadístico académico
                   </p>
 
-                  <p className="text-[9px] md:hidden md:text-sm text-white font-medium leading-tight">
+                  <p className="text-[8px] md:hidden md:text-sm text-white font-medium leading-tight">
                     Análisis estadístico académico
                   </p>
                 </div>
@@ -289,18 +267,9 @@ export function AuthScreen() {
                 {/* Item 3 */}
                 <div className="flex flex-col items-center gap-2 md:gap-3">
                   <div className="size-8 md:size-12 rounded-full bg-[#E8EEF7] flex items-center justify-center">
-                    <IconShieldLocked
-                      width={28}
-                      height={28}
-                      className="text-primary hidden md:block"
-                    />
-                    <IconShieldLocked
-                      width={22}
-                      height={22}
-                      className="text-primary block md:hidden"
-                    />
+                    <IconShieldLocked className="size-5 md:size-7 text-primary" />
                   </div>
-                  <p className="text-[9px] md:block md:text-sm text-white font-medium leading-tight">
+                  <p className="text-[8px] md:block md:text-sm text-white font-medium leading-tight">
                     Seguridad <br /> y confianza
                   </p>
                 </div>
@@ -309,7 +278,7 @@ export function AuthScreen() {
           </div>
 
           <div className="hidden md:block w-full max-w-sm text-center space-y-5 px-5">
-            <p className="text-[15px] text-gray-500 font-medium">
+            <p className="text-base text-gray-500 font-medium">
               ¿Necesitas ayuda?{" "}
               <span className="text-[#10B8F5] cursor-pointer hover:underline">
                 Contáctanos
@@ -328,7 +297,7 @@ export function AuthScreen() {
         <div className="hidden md:block absolute -bottom-100 -right-28 w-160 h-160 border border-dashed border-[#10B8F5] rounded-full" />
 
         {/* Lado derecho */}
-        <div className="relative hidden h-full md:overflow-hidden md:flex md:flex-col justify-center items-end ">
+        <div className="relative hidden h-full md:overflow-hidden lg:flex md:flex-col justify-center items-end ">
           <div className="absolute z-20 bottom-38 left-4 md:grid grid-cols-3 gap-3">
             {Array.from({ length: 12 }).map((_, i) => (
               <span key={i} className="w-2 h-2 bg-[#00B8F0] rounded-full" />
@@ -367,18 +336,9 @@ export function AuthScreen() {
                 {/* Item 1 */}
                 <div className="flex flex-col items-center gap-2 md:gap-3">
                   <div className="size-8 md:size-12 rounded-full bg-[#E8EEF7] flex items-center justify-center">
-                    <IconSchool
-                      width={28}
-                      height={28}
-                      className="text-primary hidden md:block"
-                    />
-                    <IconSchool
-                      width={22}
-                      height={22}
-                      className="text-primary block md:hidden"
-                    />
+                    <IconSchool className="size-5 md:size-7 text-primary" />
                   </div>
-                  <p className="text-[9px] md:block md:text-sm text-white font-medium leading-tight">
+                  <p className="text-[8px] md:block md:text-sm text-white font-medium leading-tight">
                     Información <br /> en tiempo real
                   </p>
                 </div>
@@ -386,22 +346,13 @@ export function AuthScreen() {
                 {/* Item 2 */}
                 <div className="flex flex-col items-center gap-2 md:gap-3">
                   <div className="size-8 md:size-12 rounded-full bg-[#E8EEF7] flex items-center justify-center">
-                    <IconMonitoring
-                      width={28}
-                      height={28}
-                      className="text-primary hidden md:block"
-                    />
-                    <IconMonitoring
-                      width={22}
-                      height={22}
-                      className="text-primary block md:hidden"
-                    />
+                    <IconMonitoring className="size-5 md:size-7 text-primary" />
                   </div>
-                  <p className="text-[9px] hidden md:block md:text-sm text-white font-medium leading-tight">
+                  <p className="text-[8px] hidden md:block md:text-sm text-white font-medium leading-tight">
                     Métricas y análisis <br /> estadístico académico
                   </p>
 
-                  <p className="text-[9px] md:hidden md:text-sm text-white font-medium leading-tight">
+                  <p className="text-[8px] md:hidden md:text-sm text-white font-medium leading-tight">
                     Análisis estadístico académico
                   </p>
                 </div>
@@ -409,18 +360,9 @@ export function AuthScreen() {
                 {/* Item 3 */}
                 <div className="flex flex-col items-center gap-2 md:gap-3">
                   <div className="size-8 md:size-12 rounded-full bg-[#E8EEF7] flex items-center justify-center">
-                    <IconShieldLocked
-                      width={28}
-                      height={28}
-                      className="text-primary hidden md:block"
-                    />
-                    <IconShieldLocked
-                      width={22}
-                      height={22}
-                      className="text-primary block md:hidden"
-                    />
+                    <IconShieldLocked className="size-5 md:size-7 text-primary" />
                   </div>
-                  <p className="text-[9px] md:block md:text-sm text-white font-medium leading-tight">
+                  <p className="text-[8px] md:text-sm md:block text-white font-medium leading-tight">
                     Seguridad <br /> y confianza
                   </p>
                 </div>

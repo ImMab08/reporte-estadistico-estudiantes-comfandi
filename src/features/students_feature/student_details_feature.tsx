@@ -19,7 +19,6 @@ import {
   IconBarChart,
   IconCalendarMonth,
   IconClose,
-  IconGroup,
   IconIdCard,
   IconSchool,
   IconWebTraffic,
@@ -41,8 +40,9 @@ import { useRouter } from "next/navigation";
 interface Props {
   selectedStudent: StudentRecord | null;
   activeSnapshot: AcademicPeriodSnapshot;
-  // allSnapshots: AcademicPeriodSnapshot[];
   comparisonChartData: ComparisonChartItem[];
+
+  onPrint?: () => void;
 }
 
 type ComparisonChartItem = {
@@ -56,10 +56,11 @@ export function StudentDetailsFeacture({
   selectedStudent,
   activeSnapshot,
   comparisonChartData,
-  // allSnapshots
+
+  onPrint,
 }: Props) {
   const router = useRouter();
-  const [photoError, setPhotoError] = useState(false);
+  const [photoError] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
   const [subjectSort, setSubjectSort] = useState<"alphabetical" | "grade">(
@@ -146,7 +147,10 @@ export function StudentDetailsFeacture({
   }
 
   return (
-    <section className="w-full min-h-0 overflow-hidden bg-white border border-border rounded-xl flex flex-col">
+    <section
+      id="student-report"
+      className="flex-1 min-h-0 overflow-hidden bg-white border border-border rounded-xl flex flex-col"
+    >
       <div className="hidden md:flex p-4 gap-4 shrink-0">
         <div className="w-full">
           <div className="flex items-start gap-4">
@@ -168,9 +172,32 @@ export function StudentDetailsFeacture({
             </div>
             <div className=" w-full">
               <div className="flex-1 space-y-4">
-                <h2 className="text-4xl leading-tight font-bold text-slate-800">
-                  {displayStudentName(selectedStudent.name)}
-                </h2>
+                <div className="flex items-start justify-between gap-4">
+                  <h2 className="text-4xl leading-tight font-bold text-slate-800">
+                    {displayStudentName(selectedStudent.name)}
+                  </h2>
+
+                  <button
+                    onClick={onPrint}
+                    className="
+                      print:hidden
+                      shrink-0
+                      flex items-center gap-2
+                      rounded-xl
+                      border border-slate-200
+                      bg-white
+                      px-4 py-2
+                      text-sm font-medium
+                      text-slate-700
+                      hover:bg-slate-50
+                      hover:border-slate-300
+                      transition 
+                      cursor-pointer
+                    "
+                  >
+                    Descargar
+                  </button>
+                </div>
 
                 <div>
                   <div className=" mt-2 space-y-2 w-36">

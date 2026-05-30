@@ -21,6 +21,7 @@ export function ResultadosIcfesFeature({ controller }: Props) {
     comparisons,
     scoreDistribution,
     topStudents,
+    lowestStudents
   } = controller;
 
   return (
@@ -54,6 +55,7 @@ export function ResultadosIcfesFeature({ controller }: Props) {
           analytics={analytics}
           comparisons={comparisons}
           topStudents={topStudents}
+          lowestStudents={lowestStudents}
           groupsAnalytics={groupsAnalytics}
           selectedStudent={selectedStudent}
           scoreDistribution={scoreDistribution}

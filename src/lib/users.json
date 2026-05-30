@@ -337,5 +337,11 @@
     "password": "CYAlexandracortes123",
     "role": "coordinadora",
     "niveles": ["todos"]
+  },
+  {
+    "email": "prueba@comfandi.edu.co",
+    "password": "123",
+    "role": "Rector",
+    "niveles": ["todos"]
   }
 ]

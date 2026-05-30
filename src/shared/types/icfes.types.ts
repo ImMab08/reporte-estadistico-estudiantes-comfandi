@@ -128,6 +128,7 @@ export type IcfesDataset = {
   analytics: IcfesGlobalAnalytics;
   groupsAnalytics: IcfesGroupAnalytics[];
   topStudents: IcfesTopStudent[];
+  lowestStudents: IcfesTopStudent[];
   comparisons: IcfesComparisonItem[];
   scoreDistribution: IcfesScoreDistribution[];
 };

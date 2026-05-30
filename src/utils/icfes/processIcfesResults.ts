@@ -55,7 +55,7 @@ const COLUMN_KEYS = {
   group: ["grupo", "curso"],
   grade: ["grado"],
   globalScore: ["puntaje global", "global", "puntaje_total"],
-  percentile: ["percentil"],
+  percentile: ["percentil global"],
   lecturaCritica: ["lectura critica", "lectura_crítica"],
   matematicas: ["matematicas", "matemáticas"],
   socialesCiudadanas: ["sociales ciudadanas", "sociales"],
@@ -99,8 +99,12 @@ function createCompetencies(row: ExcelRow): IcfesCompetencyResult[] {
       label: "Lectura crítica",
       shortLabel: "Lectura",
       score: normalizeNumber(getColumnValue(row, COLUMN_KEYS.lecturaCritica)),
-      percentile: normalizeNumber(getColumnValue(row, COLUMN_KEYS.lecturaCriticaPercentile)),
-      performanceLevel: String(getColumnValue(row, COLUMN_KEYS.lecturaCriticaNivelDesempeño) ?? "",),
+      percentile: normalizeNumber(
+        getColumnValue(row, COLUMN_KEYS.lecturaCriticaPercentile),
+      ),
+      performanceLevel: String(
+        getColumnValue(row, COLUMN_KEYS.lecturaCriticaNivelDesempeño) ?? "",
+      ),
       maxScore: 100,
       color: "#8B5CF6",
       icon: "book",
@@ -111,8 +115,12 @@ function createCompetencies(row: ExcelRow): IcfesCompetencyResult[] {
       label: "Matemáticas",
       shortLabel: "Mate",
       score: normalizeNumber(getColumnValue(row, COLUMN_KEYS.matematicas)),
-      percentile: normalizeNumber(getColumnValue(row, COLUMN_KEYS.matematicasPercentile)),
-      performanceLevel: String(getColumnValue(row, COLUMN_KEYS.matematicasNivelDesempeño) ?? "",),
+      percentile: normalizeNumber(
+        getColumnValue(row, COLUMN_KEYS.matematicasPercentile),
+      ),
+      performanceLevel: String(
+        getColumnValue(row, COLUMN_KEYS.matematicasNivelDesempeño) ?? "",
+      ),
       maxScore: 100,
       color: "#F59E0B",
       icon: "calculator",
@@ -122,9 +130,15 @@ function createCompetencies(row: ExcelRow): IcfesCompetencyResult[] {
       key: "socialesCiudadanas",
       label: "Sociales y ciudadanas",
       shortLabel: "Sociales",
-      score: normalizeNumber(getColumnValue(row, COLUMN_KEYS.socialesCiudadanas)),
-      percentile: normalizeNumber(getColumnValue(row, COLUMN_KEYS.socialesPercentile)),
-      performanceLevel: String(getColumnValue(row, COLUMN_KEYS.socialesNivelDesempeño) ?? "",),      
+      score: normalizeNumber(
+        getColumnValue(row, COLUMN_KEYS.socialesCiudadanas),
+      ),
+      percentile: normalizeNumber(
+        getColumnValue(row, COLUMN_KEYS.socialesPercentile),
+      ),
+      performanceLevel: String(
+        getColumnValue(row, COLUMN_KEYS.socialesNivelDesempeño) ?? "",
+      ),
       maxScore: 100,
       color: "#EC4899",
       icon: "globe",
@@ -134,9 +148,15 @@ function createCompetencies(row: ExcelRow): IcfesCompetencyResult[] {
       key: "cienciasNaturales",
       label: "Ciencias naturales",
       shortLabel: "Naturales",
-      score: normalizeNumber(getColumnValue(row, COLUMN_KEYS.cienciasNaturales)),
-      percentile: normalizeNumber(getColumnValue(row, COLUMN_KEYS.naturalesPercentile)),
-      performanceLevel: String(getColumnValue(row, COLUMN_KEYS.naturalesNivelDesempeño) ?? "",),
+      score: normalizeNumber(
+        getColumnValue(row, COLUMN_KEYS.cienciasNaturales),
+      ),
+      percentile: normalizeNumber(
+        getColumnValue(row, COLUMN_KEYS.naturalesPercentile),
+      ),
+      performanceLevel: String(
+        getColumnValue(row, COLUMN_KEYS.naturalesNivelDesempeño) ?? "",
+      ),
       maxScore: 100,
       color: "#10B981",
       icon: "flask",
@@ -147,8 +167,12 @@ function createCompetencies(row: ExcelRow): IcfesCompetencyResult[] {
       label: "Inglés",
       shortLabel: "English",
       score: normalizeNumber(getColumnValue(row, COLUMN_KEYS.ingles)),
-      percentile: normalizeNumber(getColumnValue(row, COLUMN_KEYS.inglesPercentile)),
-      performanceLevel: String(getColumnValue(row, COLUMN_KEYS.inglesNivelDesempeño) ?? "",),
+      percentile: normalizeNumber(
+        getColumnValue(row, COLUMN_KEYS.inglesPercentile),
+      ),
+      performanceLevel: String(
+        getColumnValue(row, COLUMN_KEYS.inglesNivelDesempeño) ?? "",
+      ),
       maxScore: 100,
       color: "#EAB308",
       icon: "languages",
@@ -295,7 +319,24 @@ function createGroupAnalytics(students: IcfesStudent[]): IcfesGroupAnalytics[] {
 function createTopStudents(students: IcfesStudent[]): IcfesTopStudent[] {
   return [...students]
     .sort((a, b) => b.globalScore - a.globalScore)
-    .slice(0, 5)
+    .slice(0, 10)
+    .map((student, index) => ({
+      position: index + 1,
+      studentId: student.id,
+      name: student.name,
+      group: student.group,
+      score: student.globalScore,
+      percentile: student.percentile,
+      level: student.level,
+    }));
+}
+
+export function createLowestStudents(
+  students: IcfesStudent[],
+): IcfesTopStudent[] {
+  return [...students]
+    .sort((a, b) => a.globalScore - b.globalScore)
+    .slice(0, 10)
     .map((student, index) => ({
       position: index + 1,
       studentId: student.id,
@@ -388,6 +429,7 @@ export function processIcfesResults(
     analytics: createAnalytics(students),
     groupsAnalytics: createGroupAnalytics(students),
     topStudents: createTopStudents(students),
+    lowestStudents: createLowestStudents(students),
     comparisons: createComparisons(students),
     scoreDistribution: createScoreDistribution(students),
   };

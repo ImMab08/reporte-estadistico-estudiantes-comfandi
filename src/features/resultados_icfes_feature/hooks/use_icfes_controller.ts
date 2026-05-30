@@ -137,6 +137,7 @@ export function useIcfesController() {
     analytics: dataset?.analytics ?? null,
     groupsAnalytics: dataset?.groupsAnalytics ?? [],
     topStudents: dataset?.topStudents ?? [],
+    lowestStudents: dataset?.lowestStudents ?? [],
     comparisons: dataset?.comparisons ?? [],
     scoreDistribution: dataset?.scoreDistribution ?? [],
 

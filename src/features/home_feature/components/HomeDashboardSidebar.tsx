@@ -1,6 +1,14 @@
 "use client";
 
-import { IconRefresh, IconClose } from "@/src/shared/icons";
+import { CustomSelect } from "@/src/components/ui/custom_select";
+import {
+  IconRefresh,
+  IconClose,
+  IconCalendarMonth,
+  IconFilterAlt,
+  IconSchool,
+  IconGroup,
+} from "@/src/shared/icons";
 
 type SnapshotOption = {
   id: string;
@@ -46,9 +54,12 @@ export function DashboardSidebar({
 }: Props) {
   return (
     <>
-      <aside className="hidden md:flex max-w-100 w-120 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex-col space-y-2 shrink-0">
+      <aside className="hidden md:flex w-100 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex-col space-y-2 shrink-0">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold text-primary">Filtros</h1>
+          <div className="flex items-center text-primary justify-center space-x-2">
+            <IconFilterAlt className="size-6.5" />
+            <h1 className="text-2xl font-bold">Filtros</h1>
+          </div>
 
           <button
             onClick={clearFilters}
@@ -58,52 +69,52 @@ export function DashboardSidebar({
           </button>
         </div>
 
-        <select
-          className="rounded-xl w-full border border-slate-200 p-2 cursor-pointer"
+        <CustomSelect
           value={selectedId}
-          onChange={(e) => setSelectedId(e.target.value)}
-        >
-          {snapshots.map((snapshot) => (
-            <option key={snapshot.id} value={snapshot.id}>
-              Periodo {snapshot.period} · Año {snapshot.year}
-            </option>
-          ))}
-        </select>
+          onChange={setSelectedId}
+          icon={<IconCalendarMonth className="text-primary size-5" />}
+          options={snapshots.map((snapshot) => ({
+            value: snapshot.id,
+            label: `Periodo ${snapshot.period} · Año ${snapshot.year}`,
+          }))}
+        />
 
-        <select
-          className="rounded-xl w-full border border-slate-200 p-2 cursor-pointer"
-          value={selectedGrade}
-          onChange={(e) => setSelectedGrade(e.target.value)}
-        >
-          <option value="all">Todos los grados</option>
+        <div className="flex w-full space-x-2">
+          <CustomSelect
+            value={selectedGrade}
+            onChange={setSelectedGrade}
+            icon={<IconSchool className="text-primary size-5" />}
+            options={[
+              {
+                value: "all",
+                label: "Grados",
+              },
 
-          {gradeOptions.map((grade) => (
-            <option key={grade} value={grade}>
-              {grade}°
-            </option>
-          ))}
-        </select>
+              ...gradeOptions.map((grade) => ({
+                value: grade,
+                label: `${grade}°`,
+              })),
+            ]}
+          />
 
-        <select
-          disabled={selectedGrade === "all"}
-          className="
-            rounded-xl w-full border border-slate-200 p-2
-            cursor-pointer
-            disabled:bg-slate-100
-            disabled:text-slate-400
-            disabled:cursor-not-allowed
-          "
-          value={selectedGroup}
-          onChange={(e) => setSelectedGroup(e.target.value)}
-        >
-          <option value="all">Todos los grupos</option>
+          <CustomSelect
+            disabled={selectedGrade === "all"}
+            value={selectedGroup}
+            onChange={setSelectedGroup}
+            icon={<IconGroup className="text-primary size-5" />}
+            options={[
+              {
+                value: "all",
+                label: "Grupos",
+              },
 
-          {groupOptions.map((group) => (
-            <option key={group} value={group}>
-              Grupo {group}
-            </option>
-          ))}
-        </select>
+              ...groupOptions.map((group) => ({
+                value: group,
+                label: `Grupo ${group}`,
+              })),
+            ]}
+          />
+        </div>
       </aside>
 
       {isMobile && (

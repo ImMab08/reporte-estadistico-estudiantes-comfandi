@@ -1,7 +1,12 @@
 import Image from "next/image";
 
 import { useState } from "react";
-import { IconBarChart, IconIdCard, IconSchool, IconWebTraffic } from "@/src/shared/icons";
+import {
+  IconBarChart,
+  IconIdCard,
+  IconSchool,
+  IconWebTraffic,
+} from "@/src/shared/icons";
 import {
   IcfesDataset,
   IcfesStudent,
@@ -24,41 +29,262 @@ import {
   Tooltip,
   Cell,
   LabelList,
+  Line,
+  Legend,
+  ComposedChart,
 } from "recharts";
+import { dataComparativa } from "./data_comparativa";
+import { displayStudentName } from "@/src/utils/periodic/displayStudentName";
 
 type Props = {
   hasData: boolean;
   selectedStudent: IcfesStudent | null;
-
   dataset: IcfesDataset | null;
   analytics: IcfesGlobalAnalytics | null;
   groupsAnalytics: IcfesGroupAnalytics[];
   comparisons: IcfesComparisonItem[];
   scoreDistribution: IcfesScoreDistribution[];
   topStudents: IcfesTopStudent[];
-
+  lowestStudents: IcfesTopStudent[];
   students: IcfesStudent[];
 };
 
+function StatsCard({
+  title,
+  subtitle,
+  value,
+  icon: Icon,
+  variant = "blue",
+}: {
+  title: string;
+  subtitle: string;
+  value: string | number;
+  icon: React.ElementType;
+  variant?: "blue" | "purple" | "emerald" | "red";
+}) {
+  const styles = {
+    blue: {
+      text: "text-primary",
+      soft: "bg-blue-50",
+      border: "from-blue-500 to-blue-200",
+      ghost: "text-blue-300",
+    },
+
+    purple: {
+      text: "text-violet-600",
+      soft: "bg-violet-50",
+      border: "from-violet-600 to-violet-200",
+      ghost: "text-violet-300",
+    },
+
+    emerald: {
+      text: "text-emerald-600",
+      soft: "bg-emerald-50",
+      border: "from-emerald-500 to-emerald-200",
+      ghost: "text-emerald-300",
+    },
+
+    red: {
+      text: "text-red-600",
+      soft: "bg-red-50",
+      border: "from-red-500 to-red-200",
+      ghost: "text-red-300",
+    },
+  };
+
+  const theme = styles[variant];
+
+  return (
+    <div
+      className={`
+        relative overflow-hidden rounded-xl
+        border border-slate-200
+        bg-white
+        shadow-sm
+        p-4
+        min-h-42.5 justify-between
+        flex flex-col
+        transition-all duration-300
+        hover:shadow-md
+        hover:-translate-y-1
+      `}
+    >
+      {/* Glow suave */}
+      <div className={`absolute inset-0 opacity-40 ${theme.soft}`} />
+
+      {/* contenido */}
+      <div className="relative z-10 flex flex-col justify-between h-full">
+        <p
+          className="
+            text-sm md:text-base
+            text-slate-600
+            font-medium
+            leading-tight
+            max-w-[75%]
+          "
+        >
+          {title}
+        </p>
+
+        <h3
+          className={`
+            mt-3
+            text-5xl
+            font-black
+            tracking-tight
+
+            ${theme.text}
+          `}
+        >
+          {value}
+        </h3>
+
+        <p
+          className="
+            mt-2
+            text-sm
+            text-slate-500
+          "
+        >
+          {subtitle}
+        </p>
+      </div>
+
+      {/* Icon */}
+      <div
+        className={`
+          absolute
+          -right-5 -bottom-4
+
+          opacity-10
+
+          ${theme.ghost}
+        `}
+      >
+        <Icon className="w-32 h-32" />
+      </div>
+
+      {/* Barra */}
+      <div
+        className={`
+          absolute bottom-0 left-0
+          h-2 w-full
+
+          bg-linear-to-r
+          ${theme.border}
+        `}
+      />
+    </div>
+  );
+}
+
 export function ResultadosIcfesDetails({
   hasData,
-  selectedStudent,
-
   dataset,
-  analytics,
-  groupsAnalytics,
-  comparisons,
-  scoreDistribution,
-  topStudents,
   students,
+  analytics,
+  topStudents,
+  lowestStudents,
+  groupsAnalytics,
+  selectedStudent,
 }: Props) {
   const [isLoading, setIsLoading] = useState(true);
-  console.log("xd: ", selectedStudent);
+  const [selectedCompetencies, setSelectedCompetencies] = useState([
+    "lectura",
+    "matematicas",
+    "sociales",
+    "naturales",
+    "ingles",
+  ]);
+
+  function getRowStyles(score: number) {
+    if (score >= 325) {
+      return `
+        text-emerald-700
+        bg-emerald-100
+        hover:bg-emerald-100
+      `;
+    }
+
+    if (score >= 300) {
+      return `
+      text-green-700
+        bg-green-50
+        hover:bg-green-50
+      `;
+    }
+
+    if (score >= 250) {
+      return `
+      text-amber-700
+        bg-amber-100
+        hover:bg-amber-100
+      `;
+    }
+
+    if (score >= 200) {
+      return `
+      text-orange-700
+        bg-orange-100
+        hover:bg-orange-100
+      `;
+    }
+
+    return `
+    text-red-700
+      bg-red-100
+      hover:bg-red-100
+    `;
+  }
+
+  function handleToggleCompetency(key: string) {
+    setSelectedCompetencies((prev) => {
+      // si solo queda 1 no dejar quitarla
+      if (prev.includes(key) && prev.length === 1) {
+        return prev;
+      }
+
+      // quitar
+      if (prev.includes(key)) {
+        return prev.filter((item) => item !== key);
+      }
+
+      // agregar
+      return [...prev, key];
+    });
+  }
 
   const averageByGroupChartData = groupsAnalytics.map((group) => ({
     group: `11-${group.group}`,
     promedio: group.averageScore,
   }));
+
+  const competencyMeta = {
+    lectura: {
+      label: "Lectura crítica",
+      color: "#F59E0B",
+    },
+
+    matematicas: {
+      label: "Matemáticas",
+      color: "#DC2626",
+    },
+
+    sociales: {
+      label: "Sociales",
+      color: "#92400E",
+    },
+
+    naturales: {
+      label: "Naturales",
+      color: "#10B981",
+    },
+
+    ingles: {
+      label: "Inglés",
+      color: "#2563EB",
+    },
+  };
 
   if (!hasData) {
     async function handleUploadFile(
@@ -118,332 +344,347 @@ export function ResultadosIcfesDetails({
     return (
       <div className="flex-1 bg-white border border-border rounded-2xl p-4 overflow-y-auto">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-3xl font-bold text-slate-800">
-              Dashboard institucional
-            </h2>
-
-            <p className="mt-2 text-slate-500">
-              Análisis general de resultados ICFES Saber 11
-            </p>
-          </div>
-
-          <div className="size-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <IconWebTraffic className="size-8 text-primary" />
-          </div>
+          <h2 className="text-3xl text-primary font-bold">Reporte general</h2>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-          <div className="rounded-2xl border border-border p-5 bg-white">
-            <p className="text-sm text-slate-500">Estudiantes evaluados</p>
-
-            <h3 className="mt-2 text-5xl font-black text-slate-800">
-              {dataset?.totalStudents ?? 0}
-            </h3>
-
-            <p className="mt-2 text-sm text-slate-500">Total institucional</p>
-          </div>
-
-          <div className="rounded-2xl border border-border p-5 bg-white">
-            <p className="text-sm text-slate-500">Promedio institucional</p>
-
-            <h3 className="mt-2 text-5xl font-black text-primary">
-              {analytics?.institutionAverage ?? 0}
-            </h3>
-
-            <p className="mt-2 text-sm text-slate-500">/ 500 puntos</p>
-          </div>
-
-          <div className="rounded-2xl border border-border p-5 bg-white">
-            <p className="text-sm text-slate-500">Percentil promedio</p>
-
-            <h3 className="mt-2 text-5xl font-black text-violet-600">
-              {analytics?.averagePercentile ?? 0}
-            </h3>
-
-            <p className="mt-2 text-sm text-slate-500">Promedio global</p>
-          </div>
-
-          <div className="rounded-2xl border border-border p-5 bg-white">
-            <p className="text-sm text-slate-500">Mejor puntaje</p>
-
-            <h3 className="mt-2 text-5xl font-black text-emerald-500">
-              {analytics?.highestScore ?? 0}
-            </h3>
-
-            <p className="mt-2 text-sm text-slate-500">Máximo institucional</p>
-          </div>
-        </div>
-
-        <div className="mt-5 grid grid-cols-1 xl:grid-cols-2 gap-4">
-          {/* Distribución */}
-          <div className="rounded-2xl border border-border p-5 bg-white">
-            <h3 className="text-xl font-bold text-slate-800">
-              Distribución de niveles
-            </h3>
-
-            <div className="mt-6 space-y-5">
-              {[
-                {
-                  label: "Superior",
-                  value: analytics?.levelDistribution.superior ?? 0,
-                  color: "#10B981",
-                },
-
-                {
-                  label: "Alto",
-                  value: analytics?.levelDistribution.alto ?? 0,
-                  color: "#2563EB",
-                },
-
-                {
-                  label: "Medio",
-                  value: analytics?.levelDistribution.medio ?? 0,
-                  color: "#F59E0B",
-                },
-
-                {
-                  label: "Bajo",
-                  value: analytics?.levelDistribution.bajo ?? 0,
-                  color: "#EF4444",
-                },
-              ].map((item) => {
-                const total = dataset?.totalStudents ?? 1;
-
-                const percentage = Math.round((item.value / total) * 100);
-
-                return (
-                  <div key={item.label}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-slate-700">
-                        {item.label}
-                      </span>
-
-                      <span className="text-sm font-bold text-slate-700">
-                        {percentage}%
-                      </span>
-                    </div>
-
-                    <div className="h-3 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${percentage}%`,
-                          background: item.color,
-                        }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Competencias */}
-          <div className="rounded-2xl border border-border p-5 bg-white">
-            <h3 className="text-xl font-bold text-slate-800">
-              Promedio por competencia
-            </h3>
-
-            <div className="mt-6 space-y-5">
-              {analytics?.competencyAnalytics.map((item) => {
-                const competencyMeta = {
-                  lecturaCritica: {
-                    label: "Lectura crítica",
-                    color: "#8B5CF6",
-                  },
-
-                  matematicas: {
-                    label: "Matemáticas",
-                    color: "#F59E0B",
-                  },
-
-                  socialesCiudadanas: {
-                    label: "Sociales",
-                    color: "#EC4899",
-                  },
-
-                  cienciasNaturales: {
-                    label: "Naturales",
-                    color: "#10B981",
-                  },
-
-                  ingles: {
-                    label: "Inglés",
-                    color: "#EAB308",
-                  },
-                };
-
-                const meta =
-                  competencyMeta[
-                    item.competency as keyof typeof competencyMeta
-                  ];
-
-                return (
-                  <div key={item.competency}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-slate-700">
-                        {meta?.label}
-                      </span>
-
-                      <span className="text-sm font-bold text-slate-700">
-                        {item.average}
-                      </span>
-                    </div>
-
-                    <div className="h-3 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${item.average}%`,
-                          background: meta?.color,
-                        }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-5 rounded-2xl border border-border bg-white overflow-hidden">
-          <div className="p-5 border-b border-border">
-            <h3 className="text-xl font-bold text-slate-800">
-              Top estudiantes institucionales
-            </h3>
-          </div>
-
-          <div className="divide-y divide-border">
-            {topStudents.map((student) => (
-              <div
-                key={student.studentId}
-                className="flex items-center justify-between p-5"
-              >
-                <div>
-                  <p className="font-semibold text-slate-800">
-                    #{student.position} {student.name}
-                  </p>
-
-                  <p className="text-sm text-slate-500">
-                    Grupo {student.group}
-                  </p>
-                </div>
-
-                <div className="text-right">
-                  <p className="text-2xl font-black text-primary">
-                    {student.score}
-                  </p>
-
-                  <p className="text-sm text-slate-500">
-                    Percentil {student.percentile}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-<div className="mt-5 rounded-2xl border border-border bg-white p-5">
-  <div className="mb-4">
-    <div className="flex items-center space-x-2">
-      <IconBarChart className="text-primary" />
-
-      <h3 className="text-2xl font-bold text-primary">
-        Promedio global por grupo
-      </h3>
-    </div>
-
-    <p className="text-sm text-slate-500 mt-1">
-      Comparativa institucional por cursos
-    </p>
-  </div>
-
-  <div className="h-72">
-    <ResponsiveContainer width="100%" height="100%">
-      <BarChart
-        data={averageByGroupChartData}
-        barCategoryGap="25%"
-        margin={{
-          top: 20,
-          right: 10,
-          left: -10,
-          bottom: 0,
-        }}
-      >
-        <CartesianGrid
-          strokeDasharray="3 3"
-          vertical={false}
-        />
-
-        <XAxis
-          dataKey="group"
-          tick={{
-            fill: "#475569",
-            fontSize: 12,
-          }}
-        />
-
-        <YAxis
-          domain={[0, 500]}
-          tick={{
-            fill: "#64748b",
-            fontSize: 11,
-          }}
-        />
-
-        <Tooltip
-          contentStyle={{
-            borderRadius: "14px",
-            border: "1px solid #e2e8f0",
-            fontSize: "12px",
-          }}
-        />
-
-        <Bar
-          dataKey="promedio"
-          radius={[16, 16, 0, 0]}
-        >
-          {averageByGroupChartData.map((_, index) => {
-            const colors = [
-              "#3B82F6",
-              "#1D4ED8",
-              "#93C5FD",
-              "#6366F1",
-            ];
-
-            return (
-              <Cell
-                key={index}
-                fill={colors[index % colors.length]}
-              />
-            );
-          })}
-
-          <LabelList
-            dataKey="promedio"
-            position="top"
-            style={{
-              fill: "#1e293b",
-              fontWeight: 800,
-              fontSize: 18,
-            }}
+        <div className="mt-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <StatsCard
+            icon={IconBarChart}
+            title="Estudiantes evaluados"
+            subtitle="Total colegio"
+            value={dataset?.totalStudents ?? 0}
+            variant="blue"
           />
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
-  </div>
-</div>
 
-        {/* TABLA GENERAL DE ESTUDIANTES */}
-        <div className="mt-5 rounded-2xl border border-border bg-white overflow-hidden">
-          <div className="p-5 border-b border-border">
-            <div className="flex items-center justify-between">
+          <StatsCard
+            icon={IconBarChart}
+            title="Promedio puntaje global"
+            subtitle="/ 500 puntos"
+            value={analytics?.institutionAverage ?? 0}
+            variant="purple"
+          />
+
+          <StatsCard
+            icon={IconBarChart}
+            title="Mejor puntaje"
+            subtitle="Máximo colegio"
+            value={analytics?.highestScore ?? 0}
+            variant="emerald"
+          />
+
+          <StatsCard
+            icon={IconBarChart}
+            title="Menor puntaje"
+            subtitle="Mínimo colegio"
+            value={analytics?.lowestScore ?? 0}
+            variant="red"
+          />
+        </div>
+
+        <div className="mt-5 rounded-2xl border border-border bg-white shadow-sm overflow-hidden">
+          {/* HEADER */}
+          <div className="p-4 border-b border-border">
+            <div className="flex items-start justify-between gap-4">
               <div>
-                <h3 className="text-xl font-bold text-slate-800">
-                  Resultados generales institucionales
+                <h3 className="text-xl font-bold text-primary">
+                  Evolución histórica por competencia
                 </h3>
 
+                <p className="text-sm text-slate-500">
+                  Campues E Yumbo, pruebas saber 11 (2021 - 2026)
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* CHART */}
+          <div className="p-4">
+            <div className="h-90">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart
+                  data={dataComparativa}
+                  margin={{
+                    top: 10,
+                    right: 10,
+                    left: -20,
+                    bottom: 0,
+                  }}
+                >
+                  {/* GRID */}
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#E2E8F0"
+                    vertical={false}
+                  />
+
+                  {/* X */}
+                  <XAxis
+                    dataKey="year"
+                    tick={{
+                      fill: "#64748B",
+                      fontSize: 13,
+                      fontWeight: 500,
+                    }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+
+                  {/* Y */}
+                  <YAxis
+                    domain={[40, 80]}
+                    tick={{
+                      fill: "#64748B",
+                      fontSize: 12,
+                    }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+
+                  {/* TOOLTIP */}
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: "16px",
+                      border: "1px solid #E2E8F0",
+                      boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+                    }}
+                  />
+
+                  {/* BARRAS SUAVES */}
+                  <Bar
+                    dataKey="top"
+                    fill="#F8FAFC"
+                    radius={[10, 10, 0, 0]}
+                    barSize={42}
+                  />
+
+                  {/* LECTURA */}
+                  {selectedCompetencies.includes("lectura") && (
+                    <Line
+                      type="linear"
+                      dataKey="lectura"
+                      name={competencyMeta.lectura.label}
+                      stroke={competencyMeta.lectura.color}
+                      strokeWidth={4}
+                      dot={{
+                        r: 5,
+                        strokeWidth: 3,
+                        fill: "#fff",
+                      }}
+                      activeDot={{
+                        r: 7,
+                      }}
+                      animationDuration={500}
+                    />
+                  )}
+
+                  {/* MATEMÁTICAS */}
+                  {selectedCompetencies.includes("matematicas") && (
+                    <Line
+                      type="linear"
+                      dataKey="matematicas"
+                      name={competencyMeta.matematicas.label}
+                      stroke={competencyMeta.matematicas.color}
+                      strokeWidth={4}
+                      dot={{
+                        r: 5,
+                        strokeWidth: 3,
+                        fill: "#fff",
+                      }}
+                      activeDot={{
+                        r: 7,
+                      }}
+                      animationDuration={500}
+                    />
+                  )}
+
+                  {/* SOCIALES */}
+                  {selectedCompetencies.includes("sociales") && (
+                    <Line
+                      type="linear"
+                      dataKey="sociales"
+                      name={competencyMeta.sociales.label}
+                      stroke={competencyMeta.sociales.color}
+                      strokeWidth={4}
+                      dot={{
+                        r: 5,
+                        strokeWidth: 3,
+                        fill: "#fff",
+                      }}
+                      activeDot={{
+                        r: 7,
+                      }}
+                      animationDuration={500}
+                    />
+                  )}
+
+                  {/* NATURALES */}
+                  {selectedCompetencies.includes("naturales") && (
+                    <Line
+                      type="linear"
+                      dataKey="naturales"
+                      name={competencyMeta.naturales.label}
+                      stroke={competencyMeta.naturales.color}
+                      strokeWidth={4}
+                      dot={{
+                        r: 5,
+                        strokeWidth: 3,
+                        fill: "#fff",
+                      }}
+                      activeDot={{
+                        r: 7,
+                      }}
+                      animationDuration={500}
+                    />
+                  )}
+
+                  {/* INGLÉS */}
+                  {selectedCompetencies.includes("ingles") && (
+                    <Line
+                      type="linear"
+                      dataKey="ingles"
+                      name={competencyMeta.ingles.label}
+                      stroke={competencyMeta.ingles.color}
+                      strokeWidth={4}
+                      dot={{
+                        r: 5,
+                        strokeWidth: 3,
+                        fill: "#fff",
+                      }}
+                      activeDot={{
+                        r: 7,
+                      }}
+                      animationDuration={500}
+                    />
+                  )}
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* BOTONES INTERACTIVOS */}
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              {Object.entries(competencyMeta).map(([key, meta]) => {
+                const isActive = selectedCompetencies.includes(key);
+
+                return (
+                  <button
+                    key={key}
+                    onClick={() => handleToggleCompetency(key)}
+                    className={`
+          px-4 py-2 rounded-xl
+          border transition-all duration-200
+          cursor-pointer
+          flex items-center gap-2
+
+          ${
+            isActive
+              ? "bg-white border-slate-300 shadow-sm"
+              : "bg-slate-50 border-slate-200 opacity-40"
+          }
+
+          hover:opacity-100 hover:scale-100
+        `}
+                  >
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{
+                        background: meta.color,
+                      }}
+                    />
+
+                    <span
+                      className="text-sm font-semibold"
+                      style={{
+                        color: meta.color,
+                      }}
+                    >
+                      {meta.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* <div className="grid grid-cols-2 mt-5 gap-5">
+          <div className="rounded-xl border border-border bg-white overflow-hidden">
+            <div className="p-4 border-b border-border">
+              <h3 className="text-xl font-bold text-slate-800 text-center">
+                Mejores puntajes
+              </h3>
+            </div>
+
+            <div className="divide-y divide-border">
+              {topStudents.map((student) => (
+                <div
+                  key={student.studentId}
+                  className="flex items-center justify-between p-3"
+                >
+                  <div>
+                    <p className="font-semibold text-slate-800">
+                      #{student.position} {student.name}
+                    </p>
+
+                    <p className="text-sm text-slate-500">11-{student.group}</p>
+                  </div>
+
+                  <div className="text-right">
+                    <p className="text-2xl font-black text-primary">
+                      {student.score}
+                    </p>
+
+                    <p className="text-sm text-slate-500">
+                      Percentil {student.percentile}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-border bg-white overflow-hidden">
+            <div className="p-4 border-b border-border">
+              <h3 className="text-xl font-bold text-slate-800 text-center">
+                Menores puntajes
+              </h3>
+            </div>
+
+            <div className="divide-y divide-border">
+              {lowestStudents.map((student) => (
+                <div
+                  key={student.studentId}
+                  className="flex items-center justify-between p-3"
+                >
+                  <div>
+                    <p className="font-semibold text-slate-800">
+                      #{student.position} {student.name}
+                    </p>
+
+                    <p className="text-sm text-slate-500">11-{student.group}</p>
+                  </div>
+
+                  <div className="text-right">
+                    <p className="text-2xl font-black text-primary">
+                      {student.score}
+                    </p>
+
+                    <p className="text-sm text-slate-500">
+                      Percentil {student.percentile}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div> */}
+
+        <div className="mt-5 rounded-2xl border border-border bg-white overflow-hidden shadow-sm">
+          <div className="px-5 py-4 border-b border-border">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-primary">
+                  Resultados
+                </h3>
                 <p className="text-sm text-slate-500 mt-1">
                   Ranking completo de estudiantes
                 </p>
@@ -457,47 +698,44 @@ export function ResultadosIcfesDetails({
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-300">
-              <thead className="bg-slate-50">
-                <tr className="border-b border-border">
-                  <th className="px-5 py-4 text-left text-sm font-semibold text-slate-600">
+          {/* TABLA */}
+          <div className="overflow-auto max-h-175">
+            <table className="border-separate border-spacing-0 min-w-max w-full">
+              <thead className="sticky top-0 z-30 bg-slate-50">
+                <tr>
+                  <th className="sticky left-0 z-40 bg-slate-50 px-4 py-3 text-left text-xs font-semibold text-slate-600 border-b border-r border-slate-200">
                     Puesto
                   </th>
 
-                  <th className="px-5 py-4 text-left text-sm font-semibold text-slate-600">
+                  <th className="sticky left-18 z-40 bg-slate-50 min-w-70 px-4 py-3 text-left text-[13px] font-semibold text-slate-600 border-b border-border border-r">
                     Estudiante
                   </th>
 
-                  <th className="px-5 py-4 text-left text-sm font-semibold text-slate-600">
-                    Grupo
-                  </th>
-
-                  <th className="px-5 py-4 text-center text-sm font-semibold text-slate-600">
+                  <th className="px-4 py-3 text-center text-[13px] font-semibold text-slate-600 border-b border-border">
                     Global
                   </th>
 
-                  <th className="px-5 py-4 text-center text-sm font-semibold text-slate-600">
+                  <th className="px-4 py-3 text-center text-[13px] font-semibold text-slate-600 border-b border-border">
                     Lectura
                   </th>
 
-                  <th className="px-5 py-4 text-center text-sm font-semibold text-slate-600">
+                  <th className="px-4 py-3 text-center text-[13px] font-semibold text-slate-600 border-b border-border">
                     Matemáticas
                   </th>
 
-                  <th className="px-5 py-4 text-center text-sm font-semibold text-slate-600">
+                  <th className="px-4 py-3 text-center text-[13px] font-semibold text-slate-600 border-b border-border">
                     Sociales
                   </th>
 
-                  <th className="px-5 py-4 text-center text-sm font-semibold text-slate-600">
+                  <th className="px-4 py-3 text-center text-[13px] font-semibold text-slate-600 border-b border-border">
                     Naturales
                   </th>
 
-                  <th className="px-5 py-4 text-center text-sm font-semibold text-slate-600">
+                  <th className="px-4 py-3 text-center text-[13px] font-semibold text-slate-600 border-b border-border">
                     Inglés
                   </th>
 
-                  <th className="px-5 py-4 text-center text-sm font-semibold text-slate-600">
+                  <th className="px-4 py-3 text-center text-[13px] font-semibold text-slate-600 border-b border-border">
                     Nivel inglés
                   </th>
                 </tr>
@@ -532,58 +770,189 @@ export function ResultadosIcfesDetails({
                     return (
                       <tr
                         key={student.id}
-                        className="border-b border-border hover:bg-slate-50 transition-colors"
+                        className={`
+            transition-colors duration-200
+
+            ${getRowStyles(student.globalScore)}
+          `}
                       >
-                        <td className="px-5 py-4">
-                          <div className="size-10 rounded-xl bg-primary/10 text-primary font-black flex items-center justify-center">
-                            #{student.rankings.institution}
+                        {/* PUESTO */}
+                        <td
+                          className={`
+              sticky left-0 z-20
+
+              px-4 py-3
+
+              border-b
+              border-r border-slate-100
+
+              ${getRowStyles(student.globalScore)}
+            `}
+                        >
+                          <div
+                            className="
+                size-7
+                rounded-lg
+                bg-white/60
+                backdrop-blur-sm
+
+                text-sm
+                font-black
+
+                flex items-center justify-center
+
+                shadow-xs
+              "
+                          >
+                            {student.rankings.institution}
                           </div>
                         </td>
 
-                        <td className="px-5 py-4">
+                        {/* NOMBRE */}
+                        <td
+                          className={`
+              sticky left-18 z-20
+
+              min-w-70
+
+              px-4 py-3
+
+              border-b
+              border-r border-slate-100
+
+              ${getRowStyles(student.globalScore)}
+            `}
+                        >
                           <div>
-                            <p className="font-semibold text-slate-800">
+                            <p
+                              className="
+                  font-semibold
+                  text-[14px]
+                  whitespace-nowrap
+                "
+                            >
                               {student.name}
                             </p>
 
-                            <p className="text-sm text-slate-500">
-                              Código: {student.id}
+                            <p
+                              className="
+                  text-sm
+                  text-slate-500
+                  font-medium
+                "
+                            >
+                              11-{student.group}
                             </p>
                           </div>
                         </td>
 
-                        <td className="px-5 py-4 text-slate-600 font-medium">
-                          11-{student.group}
-                        </td>
-
-                        <td className="px-5 py-4 text-center">
-                          <span className="text-lg font-black text-primary">
+                        {/* GLOBAL */}
+                        <td
+                          className="
+              px-4 py-3
+              text-center
+              border-b border-slate-100
+            "
+                        >
+                          <span
+                            className="
+                text-lg
+                font-black
+                tracking-tight
+              "
+                          >
                             {student.globalScore}
                           </span>
                         </td>
 
-                        <td className="px-5 py-4 text-center font-semibold text-slate-700">
+                        {/* LECTURA */}
+                        <td
+                          className="
+              px-4 py-3
+              text-center
+              font-semibold
+              text-[14px]
+              border-b border-slate-100
+            "
+                        >
                           {lectura?.score ?? 0}
                         </td>
 
-                        <td className="px-5 py-4 text-center font-semibold text-slate-700">
+                        {/* MATEMÁTICAS */}
+                        <td
+                          className="
+              px-4 py-3
+              text-center
+              font-semibold
+              text-[14px]
+              border-b border-slate-100
+            "
+                        >
                           {matematicas?.score ?? 0}
                         </td>
 
-                        <td className="px-5 py-4 text-center font-semibold text-slate-700">
+                        {/* SOCIALES */}
+                        <td
+                          className="
+              px-4 py-3
+              text-center
+              font-semibold
+              text-[14px]
+              border-b border-slate-100
+            "
+                        >
                           {sociales?.score ?? 0}
                         </td>
 
-                        <td className="px-5 py-4 text-center font-semibold text-slate-700">
+                        {/* NATURALES */}
+                        <td
+                          className="
+              px-4 py-3
+              text-center
+              font-semibold
+              text-[14px]
+              border-b border-slate-100
+            "
+                        >
                           {naturales?.score ?? 0}
                         </td>
 
-                        <td className="px-5 py-4 text-center font-semibold text-slate-700">
+                        {/* INGLÉS */}
+                        <td
+                          className="
+              px-4 py-3
+              text-center
+              font-semibold
+              text-[14px]
+              border-b border-slate-100
+            "
+                        >
                           {ingles?.score ?? 0}
                         </td>
 
-                        <td className="px-5 py-4 text-center">
-                          <span className="inline-flex items-center justify-center rounded-xl bg-amber-100 text-amber-700 font-bold px-3 py-2 min-w-16">
+                        {/* NIVEL */}
+                        <td
+                          className="
+              px-4 py-3
+              text-center
+              border-b border-slate-100
+            "
+                        >
+                          <span
+                            className={`
+                inline-flex items-center justify-center
+
+                rounded-lg
+
+                px-3 py-1.5
+                min-w-14
+
+                text-sm
+                font-bold
+                bg-white
+                
+              `}
+                          >
                             {ingles?.performanceLevel || "-"}
                           </span>
                         </td>
@@ -592,6 +961,83 @@ export function ResultadosIcfesDetails({
                   })}
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <div className="mt-5 rounded-xl border border-border bg-white p-5">
+          <div className="mb-4">
+            <div className="flex items-center space-x-2">
+              <IconBarChart className="text-primary" />
+
+              <h3 className="text-2xl font-bold text-primary">
+                Promedio global por grupo
+              </h3>
+            </div>
+
+            <p className="text-sm text-slate-500 mt-1">
+              Comparativa institucional por cursos
+            </p>
+          </div>
+
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={averageByGroupChartData}
+                barCategoryGap="25%"
+                margin={{
+                  top: 20,
+                  right: 10,
+                  left: -10,
+                  bottom: 0,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+
+                <XAxis
+                  dataKey="group"
+                  tick={{
+                    fill: "#475569",
+                    fontSize: 12,
+                  }}
+                />
+
+                <YAxis
+                  domain={[0, 500]}
+                  tick={{
+                    fill: "#64748b",
+                    fontSize: 11,
+                  }}
+                />
+
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "14px",
+                    border: "1px solid #e2e8f0",
+                    fontSize: "12px",
+                  }}
+                />
+
+                <Bar dataKey="promedio" radius={[16, 16, 0, 0]}>
+                  {averageByGroupChartData.map((_, index) => {
+                    const colors = ["#3B82F6", "#1D4ED8", "#93C5FD", "#6366F1"];
+
+                    return (
+                      <Cell key={index} fill={colors[index % colors.length]} />
+                    );
+                  })}
+
+                  <LabelList
+                    dataKey="promedio"
+                    position="top"
+                    style={{
+                      fill: "#1e293b",
+                      fontWeight: 800,
+                      fontSize: 18,
+                    }}
+                  />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
@@ -659,6 +1105,7 @@ export function ResultadosIcfesDetails({
       </div>
     );
   }
+
   return (
     <div className="flex-1 bg-white border border-border rounded-2xl overflow-y-auto">
       <div className="p-4 border-b border-border">
@@ -687,8 +1134,8 @@ export function ResultadosIcfesDetails({
             <div className="">
               <p className="text-sm text-slate-500">Resultado individual</p>
 
-              <h2 className="text-3xl font-bold text-slate-800 mt-1 leading-tight">
-                {selectedStudent.name}
+              <h2 className="text-[26px] font-bold text-slate-800 mt-1 leading-tight">
+                {displayStudentName(selectedStudent.name)}
               </h2>
 
               {/* TAGS */}
@@ -713,41 +1160,65 @@ export function ResultadosIcfesDetails({
             </div>
           </div>
 
-          <div className="relative overflow-hidden w-full h-45 xl:w-90 rounded-2xl bg-linear-to-br from-primary via-blue-700 to-indigo-700 p-4 text-white shadow-2xl shadow-primary/20">
-            <div className="absolute inset-0 opacity-10">
-              <div className="absolute -bottom-10 -right-10 w-52 h-52 rounded-full border border-white"></div>
+          <div className="flex flex-col gap-4">
+            <div className="relative overflow-hidden w-full h-45 xl:w-90 rounded-2xl bg-linear-to-br from-primary via-blue-700 to-indigo-700 p-4 text-white shadow-2xl shadow-primary/20">
+              <div className="absolute inset-0 opacity-10">
+                <div className="absolute -bottom-10 -right-10 w-52 h-52 rounded-full border border-white"></div>
 
-              <div className="absolute -top-16 -left-10 w-40 h-40 rounded-full border border-white"></div>
-            </div>
-
-            <div className="relative z-10">
-              <p className="text-sm text-white/70 mb-2">Puntaje global</p>
-
-              <div className="flex items-end gap-2">
-                <span className="text-6xl font-black leading-none">
-                  {selectedStudent.globalScore}
-                </span>
-
-                <span className="text-lg text-white/70 mb-1">/ 500</span>
+                <div className="absolute -top-16 -left-10 w-40 h-40 rounded-full border border-white"></div>
               </div>
 
-              <div className="mt-5">
-                <div className="w-full h-3 rounded-full bg-white/20 overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-white"
-                    style={{
-                      width: `${(selectedStudent.globalScore / 500) * 100}%`,
-                    }}
-                  />
-                </div>
+              <div className="relative z-10">
+                <p className="text-sm text-white/70 mb-2">Puntaje global</p>
 
-                <div className="mt-3 flex items-center justify-between text-sm">
-                  <span className="text-white/70">Percentil</span>
-
-                  <span className="font-bold">
-                    {selectedStudent.percentile}
+                <div className="flex items-end gap-2">
+                  <span className="text-6xl font-black leading-none">
+                    {selectedStudent.globalScore}
                   </span>
+
+                  <span className="text-lg text-white/70 mb-1">/ 500</span>
                 </div>
+
+                <div className="mt-5">
+                  <div className="w-full h-3 rounded-full bg-white/20 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-white"
+                      style={{
+                        width: `${(selectedStudent.globalScore / 500) * 100}%`,
+                      }}
+                    />
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between text-sm">
+                    <span className="text-white/70">Percentil</span>
+
+                    <span className="font-bold">
+                      {selectedStudent.percentile}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="rounded-xl border border-border p-2 bg-slate-50">
+                <p className="text-sm text-slate-500">
+                  Puesto a nivel de colegio
+                </p>
+
+                <h3 className="mt-2 text-3xl font-black text-slate-800">
+                  #{selectedStudent.rankings.institution}
+                </h3>
+              </div>
+
+              <div className="rounded-xl border border-border p-2 bg-slate-50">
+                <p className="text-sm text-slate-500">
+                  Puesto a nivel de grado
+                </p>
+
+                <h3 className="mt-2 text-3xl font-black text-slate-800">
+                  #{selectedStudent.rankings.group}
+                </h3>
               </div>
             </div>
           </div>
@@ -755,90 +1226,57 @@ export function ResultadosIcfesDetails({
       </div>
 
       <div className="p-4">
-        {/* cards */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="rounded-xl border border-border p-4 bg-slate-50">
-            <p className="text-sm text-slate-500">Percentil global</p>
+        <div className="grid grid-cols-2 gap-4">
+          {selectedStudent.competencies.map((competency) => (
+            <div
+              key={competency.key}
+              className="rounded-xl border border-border p-3"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold text-slate-800">
+                    {competency.label}
+                  </h4>
 
-            <h3 className="mt-2 text-4xl font-black text-primary">
-              {selectedStudent.percentile}
-            </h3>
-          </div>
-
-          <div className="rounded-xl border border-border p-4 bg-slate-50">
-            <p className="text-sm text-slate-500">Puesto a nivel de colegio</p>
-
-            <h3 className="mt-2 text-4xl font-black text-slate-800">
-              #{selectedStudent.rankings.institution}
-            </h3>
-          </div>
-
-          <div className="rounded-xl border border-border p-4 bg-slate-50">
-            <p className="text-sm text-slate-500">Puesto a nivel de grado</p>
-
-            <h3 className="mt-2 text-4xl font-black text-slate-800">
-              #{selectedStudent.rankings.group}
-            </h3>
-          </div>
-        </div>
-
-        <div className="mt-5">
-          <h3 className="text-2xl font-bold text-slate-800">
-            Competencias evaluadas
-          </h3>
-
-          <div className="mt-5 grid grid-cols-2 gap-4">
-            {selectedStudent.competencies.map((competency) => (
-              <div
-                key={competency.key}
-                className="rounded-xl border border-border p-4"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-semibold text-slate-800">
-                      {competency.label}
-                    </h4>
-
-                    <p className="text-sm text-slate-500 mt-1">
-                      Nivel de desempeño:{" "}
-                      <span className="font-semibold">
-                        {competency.performanceLevel}
-                      </span>
-                    </p>
-                  </div>
-
-                  <div
-                    className="size-16 rounded-2xl flex items-center justify-center text-white font-black text-2xl"
-                    style={{
-                      background: competency.color,
-                    }}
-                  >
-                    {competency.score}
-                  </div>
+                  <p className="text-sm text-slate-500">
+                    Nivel de desempeño:{" "}
+                    <span className="font-semibold">
+                      {competency.performanceLevel}
+                    </span>
+                  </p>
                 </div>
 
-                <div className="mt-5">
-                  <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-slate-500">Percentil</span>
-
-                    <span className="font-semibold text-slate-700">
-                      {competency.percentile}
-                    </span>
-                  </div>
-
-                  <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${competency.percentile ?? 0}%`,
-                        background: competency.color,
-                      }}
-                    />
-                  </div>
+                <div
+                  className="size-14 rounded-2xl flex items-center justify-center text-white font-black text-2xl"
+                  style={{
+                    background: competency.color,
+                  }}
+                >
+                  {competency.score}
                 </div>
               </div>
-            ))}
-          </div>
+
+              <div className="mt-5">
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <span className="text-slate-500">Percentil</span>
+
+                  <span className="font-semibold text-slate-700">
+                    {competency.percentile}
+                  </span>
+                </div>
+
+                <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${competency.percentile ?? 0}%`,
+                      background: competency.color,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

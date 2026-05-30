@@ -27,12 +27,12 @@ export const navItems: NavItem[] = [
     icon: IconCognition,
     position: "main",
   },
-  {
-    text: "Perfil",
-    href: "/account",
-    icon: IconAccountCircle,
-    position: "bottom",
-  },
+  // {
+  //   text: "Perfil",
+  //   href: "/account",
+  //   icon: IconAccountCircle,
+  //   position: "bottom",
+  // },
   {
     text: "Configuración",
     href: "/settings",
