@@ -77,20 +77,15 @@ export function AuthScreen() {
       <div className="w-full max-w-7xl relative z-10 h-auto md:h-full flex flex-col items-center justify-center lg:grid lg:grid-cols-2">
         {/* Lado izquierdo */}
         <div className="h-full flex flex-col items-center lg:items-start justify-between py-5 md:py-10 gap-5 md:gap-0 relative z-40">
-          <Image
-            width={150}
-            height={64}
-            alt="Logo Comfandi"
-            src="/img/logo/logo_comfandi_blue.svg"
-            className="object-contain hidden md:block"
-          />
-          <Image
-            width={100}
-            height={64}
-            alt="Logo Comfandi"
-            src="/img/logo/logo_comfandi_blue.svg"
-            className="object-contain block md:hidden"
-          />
+          <div className="w-25 md:w-37.5">
+            <Image
+              width={150}
+              height={64}
+              alt="Logo Comfandi"
+              src="/img/logo/logo_comfandi_blue.svg"
+              className="object-contain w-full h-auto"
+            />
+          </div>
 
           <div className="w-full lg:max-w-sm space-y-5 md:space-y-10 rounded-xl bg-white py-10 p-6 md:p-12 lg:p-8">
             <div className="space-y-2 text-primary">
@@ -110,12 +105,18 @@ export function AuthScreen() {
             <div className="space-y-5">
               {/* Correo */}
               <div className="space-y-1.5 md:space-y-2">
-                <label className={`block text-[10px] md:text-base lg:text-sm ${errors.general ? "text-red-500" : "text-primary"} font-semibold`}>
+                <label
+                  className={`block text-[10px] md:text-base lg:text-sm ${errors.general ? "text-red-500" : "text-primary"} font-semibold`}
+                >
                   Correo electrónico
                 </label>
 
-                <div className={`w-full flex items-center h-8 md:h-12 lg:h-10 rounded-lg md:rounded-xl border space-x-1.5 ${errors.general ? "border-red-500/70 focus:ring-red-500/15" : "border-primary/70 focus:ring-primary/15"} bg-transparent px-2 md:px-3 outline-none focus:ring-2 `}>
-                  <IconMail className={`size-4.5 md:size-6 lg:size-5.5 ${errors.general ? "text-red-500" : "text-primary"}`}/>
+                <div
+                  className={`w-full flex items-center h-8 md:h-12 lg:h-10 rounded-lg md:rounded-xl border space-x-1.5 ${errors.general ? "border-red-500/70 focus:ring-red-500/15" : "border-primary/70 focus:ring-primary/15"} bg-transparent px-2 md:px-3 outline-none focus:ring-2 `}
+                >
+                  <IconMail
+                    className={`size-4.5 md:size-6 lg:size-5.5 ${errors.general ? "text-red-500" : "text-primary"}`}
+                  />
                   <input
                     type="text"
                     value={email}
@@ -141,7 +142,9 @@ export function AuthScreen() {
               {/* Contraseña */}
               <div className="space-y-1.5 md:space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <label className={`text-[10px] md:text-base lg:text-sm  ${errors.general ? "text-red-500" : "text-primary"} font-semibold`}>
+                  <label
+                    className={`text-[10px] md:text-base lg:text-sm  ${errors.general ? "text-red-500" : "text-primary"} font-semibold`}
+                  >
                     Contraseña
                   </label>
 

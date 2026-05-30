@@ -54,7 +54,7 @@ export function DashboardSidebar({
 }: Props) {
   return (
     <>
-      <aside className="hidden md:flex w-100 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex-col space-y-2 shrink-0">
+      <aside className="hidden lg:flex w-100 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex-col space-y-2 shrink-0">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center text-primary justify-center space-x-2">
             <IconFilterAlt className="size-6.5" />
@@ -120,7 +120,9 @@ export function DashboardSidebar({
       {isMobile && (
         <div
           className={`
-            fixed inset-0 z-50 md:hidden transition-all duration-300
+            fixed inset-0 z-50 lg:hidden
+            flex items-end justify-center
+            transition-all duration-300
             ${isOpen ? "pointer-events-auto" : "pointer-events-none"}
           `}
         >
@@ -128,7 +130,7 @@ export function DashboardSidebar({
           <div
             onClick={onClose}
             className={`
-              absolute inset-0 bg-black/40 transition-opacity duration-300
+              absolute inset-0  bg-black/40 transition-opacity duration-300
               ${isOpen ? "opacity-100" : "opacity-0"}
             `}
           />
@@ -136,12 +138,12 @@ export function DashboardSidebar({
           {/* Drawer */}
           <aside
             className={`
-              absolute bottom-0 left-0 right-0
-              bg-white rounded-t-3xl
-              px-4 pt-3 pb-28
+              w-full mx-4
+              bg-slate-50 rounded-t-3xl
+              px-4 pt-3 pb-16
               shadow-2xl
-              transition-transform duration-300
-              ${isOpen ? "translate-y-0" : "translate-y-full"}
+              transition-all duration-300
+              ${isOpen ? "translate-y-0 mb-12" : "translate-y-full mb-0"}
             `}
           >
             {/* Handle */}
@@ -209,7 +211,7 @@ export function DashboardSidebar({
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={clearFilters}
-                className="rounded-xl border border-slate-200 py-3 font-medium text-slate-700"
+                className="rounded-xl bg-white border border-slate-200 py-3 font-medium text-slate-700"
               >
                 Limpiar
               </button>
