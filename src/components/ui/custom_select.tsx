@@ -15,6 +15,7 @@ type Props = {
   value: string;
   options: Option[];
   onChange: (value: string) => void;
+  direction?: "up" | "down";
 
   disabled?: boolean;
   icon?: React.ReactNode;
@@ -25,6 +26,7 @@ export function CustomSelect({
   options,
   onChange,
   disabled,
+  direction = "down",
   icon,
 }: Props) {
   const [open, setOpen] = useState(false);
@@ -85,16 +87,18 @@ export function CustomSelect({
       {/* DROPDOWN */}
       {open && !disabled && (
         <div
-          className="
-            absolute z-50 mt-2 w-full
-            overflow-hidden
+          className={`
+            absolute z-50 w-full
+            ${direction === "up" ? "bottom-full mb-2" : "top-full mt-2"}
+
+            max-h-64 overflow-y-auto
             rounded-xl
             border border-slate-200
             bg-white
             shadow-xl
             animate-in fade-in zoom-in-95
             duration-100
-          "
+          `}
         >
           {options.map((option) => {
             const active = option.value === value;

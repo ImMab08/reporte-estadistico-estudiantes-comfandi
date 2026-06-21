@@ -6,6 +6,7 @@ import {
   IconLogout,
   IconSchool,
   IconSettings,
+  IconSocialLeaderboard,
 } from "@/src/shared/icons";
 
 export const navItems: NavItem[] = [
@@ -22,7 +23,13 @@ export const navItems: NavItem[] = [
     position: "main",
   },
   {
-    text:  "ICFES",
+    text: "Promoción",
+    href: "/promotion",
+    icon: IconSocialLeaderboard,
+    position: "main",
+  },
+  {
+    text: "P. Saber",
     href: "/resultados-icfes",
     icon: IconCognition,
     position: "main",

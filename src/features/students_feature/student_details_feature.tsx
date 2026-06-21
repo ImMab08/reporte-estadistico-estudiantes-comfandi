@@ -21,6 +21,7 @@ import {
   IconClose,
   IconIdCard,
   IconSchool,
+  IconSettings,
   IconWebTraffic,
 } from "@/src/shared/icons";
 import {
@@ -36,11 +37,16 @@ import {
 } from "recharts";
 import { displayStudentName } from "@/src/utils/periodic/displayStudentName";
 import { useRouter } from "next/navigation";
+import { CustomSelect } from "@/src/components/ui/custom_select";
 
 interface Props {
   selectedStudent: StudentRecord | null;
   activeSnapshot: AcademicPeriodSnapshot;
   comparisonChartData: ComparisonChartItem[];
+
+  snapshots: AcademicPeriodSnapshot[];
+  selectedPeriodId: string;
+  onPeriodChange: (value: string) => void;
 
   onPrint?: () => void;
 }
@@ -56,6 +62,9 @@ export function StudentDetailsFeacture({
   selectedStudent,
   activeSnapshot,
   comparisonChartData,
+  snapshots,
+  selectedPeriodId,
+  onPeriodChange,
 
   onPrint,
 }: Props) {
@@ -107,6 +116,8 @@ export function StudentDetailsFeacture({
     img.src = getStudentPhotoPath(selectedStudent);
   }, [selectedStudent]);
 
+    console.log("selectedStudent: ", selectedStudent);
+
   if (!selectedStudent) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center text-center leading-6 text-slate-400 text-xl font-medium">
@@ -145,6 +156,8 @@ export function StudentDetailsFeacture({
 
     return "bg-slate-400";
   }
+
+
 
   return (
     <section
@@ -339,22 +352,47 @@ export function StudentDetailsFeacture({
 
       <div className="flex-1 min-h-0 scroll-auto overflow-y-auto p-4">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex space-x-2 text-slate-800 items-center">
-            <IconAutoStories className="mt-1" width={24} height={24} />
-            <h3 className="text-xl font-bold text-slate-800">Materias</h3>
+          <div className="flex space-x-2 items-center text-primary">
+            <IconAutoStories
+              className="mt-1 text-primary"
+              width={24}
+              height={24}
+            />
+            <h3 className="text-xl font-bold text-primary">Materias</h3>
           </div>
 
-          <div className="flex gap-3">
-            <select
-              value={subjectSort}
-              onChange={(e) =>
-                setSubjectSort(e.target.value as "alphabetical" | "grade")
-              }
-              className="rounded-xl border border-slate-300 px-3 py-2 text-sm cursor-pointer"
-            >
-              <option value="grade">Por rendimiento</option>
-              <option value="alphabetical">Por materias</option>
-            </select>
+          <div className="flex gap-2">
+            <div className="w-40">
+              <CustomSelect
+                value={selectedPeriodId}
+                onChange={onPeriodChange}
+                icon={<IconCalendarMonth className="text-primary size-4" />}
+                options={snapshots.map((snapshot) => ({
+                  value: snapshot.id,
+                  label: `Periodo: ${snapshot.period}`,
+                }))}
+              />
+            </div>
+
+            <div className="w-40">
+              <CustomSelect
+                value={subjectSort}
+                onChange={(value) =>
+                  setSubjectSort(value as "alphabetical" | "grade")
+                }
+                icon={<IconSettings className="text-primary size-4" />}
+                options={[
+                  {
+                    value: "grade",
+                    label: "Rendimiento",
+                  },
+                  {
+                    value: "alphabetical",
+                    label: "Materias",
+                  },
+                ]}
+              />
+            </div>
           </div>
         </div>
 

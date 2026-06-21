@@ -14,7 +14,7 @@ type Props = {
 };
 
 export function StudentDetails({ controller }: Props) {
-  const { selectedStudent, activeSnapshot, comparisonData } = controller;
+  const { selectedStudent, activeSnapshot, comparisonData, snapshots, selectedPeriodId, handlePeriodChange } = controller;
 
   const reportRef = useRef<HTMLDivElement>(null);
 
@@ -30,6 +30,9 @@ export function StudentDetails({ controller }: Props) {
         activeSnapshot={activeSnapshot}
         comparisonChartData={comparisonData}
         onPrint={handlePrint}
+        snapshots={snapshots}
+        selectedPeriodId={selectedPeriodId}
+        onPeriodChange={handlePeriodChange}
       />
 
       <div className="hidden">

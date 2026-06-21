@@ -1,40 +1,39 @@
 "use client";
 
-import Image from "next/image";
-
 import { StudentsSidebar } from "./components/students_sidebar";
 import { StudentDetails } from "./components/student_details";
 import { StudentsMobileView } from "./components/students_mobile_view";
 
 import { useStudentsController } from "./hooks/use_students_controller";
+import { IconQuickReference } from "@/src/shared/icons";
+import Link from "next/link";
 
 export function StudentsFeaturePage() {
   const controller = useStudentsController();
 
+  const { snapshots} = controller;
+
+  if (snapshots.length === 0) {
+    return (
+      <div className="size-full h-screen flex flex-col space-y-10 items-center justify-center">
+        <div className="text-center text-slate-400">
+          <IconQuickReference className="size-14 mx-auto mb-3" />
+          No hay datos cargados
+        </div>
+        <div className="">
+          <Link
+            href="/settings"
+            className="bg-primary px-6 py-4 text-white rounded-2xl"
+          >
+            Ir a configuraciónes
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <section className="size-full bg-slate-50 p-4 flex flex-col overflow-hidden">
-      <header className="mb-4 border-b border-border py-2 md:py-3 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-primary">
-            Estudiantes
-          </h1>
-
-          <p className="text-xs md:text-base text-slate-500">
-            Consulta individual del rendimiento académico
-          </p>
-        </div>
-
-        <div className="w-24 h-12 relative">
-          <Image
-            src="/img/logo/logo_comfandi_blue.svg"
-            alt="Comfandi"
-            fill
-            className="object-contain"
-            priority
-          />
-        </div>
-      </header>
-
       <section className="gap-4 hidden md:flex flex-1 min-h-0 overflow-hidden rounded-xl">
         <StudentDetails controller={controller} />
         <StudentsSidebar controller={controller} />

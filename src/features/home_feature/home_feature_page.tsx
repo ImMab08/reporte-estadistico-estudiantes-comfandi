@@ -11,13 +11,12 @@ import { CriticalGrades } from "./components/CriticalGrades";
 import { SubjectHealthGrid } from "./components/SubjectHealthGrid";
 
 import { IconFilterAlt, IconQuickReference } from "@/src/shared/icons";
+import Link from "next/link";
 
 export function HomeFeaturePage() {
   const controller = useHomeController();
 
   const {
-    activeSnapshot,
-
     snapshots,
     selectedPeriodId,
     selectedGrade,
@@ -48,15 +47,19 @@ export function HomeFeaturePage() {
         : `Reporte: grado ${selectedGrade}-${selectedGroup}`;
 
   if (snapshots.length === 0) {
-    return null;
-  }
-
-  if (!activeSnapshot) {
     return (
-      <div className="size-full flex items-center justify-center">
+      <div className="size-full h-screen flex flex-col space-y-10 items-center justify-center">
         <div className="text-center text-slate-400">
           <IconQuickReference className="size-14 mx-auto mb-3" />
           No hay datos cargados
+        </div>
+        <div className="">
+          <Link
+            href="/settings"
+            className="bg-primary px-6 py-4 text-white rounded-2xl"
+          >
+            Ir a configuraciónes
+          </Link>
         </div>
       </div>
     );
@@ -88,9 +91,7 @@ export function HomeFeaturePage() {
             />
 
             <div className="grid md:grid-cols-2 gap-6 my-6">
-              <PerformancePie
-                data={analytics.pieData}
-              />
+              <PerformancePie data={analytics.pieData} />
               <TopStudents data={analytics.topStudents} />
             </div>
 

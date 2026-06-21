@@ -6,6 +6,8 @@ import { StudentDetailsFeacture } from "@/src/features/students_feature/student_
 import { getAcademicSnapshots } from "@/src/utils/periodic/academicStorage";
 
 import type { StudentRecord } from "@/src/shared/types/academic.types";
+import { useRef, useState } from "react";
+import { useReactToPrint } from "react-to-print";
 
 export default function StudentModalContent() {
   const router = useRouter();
@@ -15,19 +17,36 @@ export default function StudentModalContent() {
   const studentId = searchParams.get("student");
   const periodId = searchParams.get("period");
 
-  if (!isModal || !studentId) {
-    return null;
-  }
-
   const snapshots = Object.values(getAcademicSnapshots()).sort(
     (a, b) => b.period - a.period,
   );
 
+  const [selectedPeriodId, setSelectedPeriodId] = useState(
+    periodId ?? snapshots[0]?.id,
+  );
+
   const activeSnapshot =
-    snapshots.find((snapshot) => snapshot.id === periodId) ?? snapshots[0];
+    snapshots.find((snapshot) => snapshot.id === selectedPeriodId) ??
+    snapshots[0];
 
   const selectedStudent =
     activeSnapshot.students.find((student) => student.id === studentId) ?? null;
+
+    
+  const reportRef = useRef<HTMLDivElement>(null);
+
+  const handlePrint = useReactToPrint({
+    contentRef: reportRef,
+    documentTitle: `Reporte-${selectedStudent?.name ?? "estudiante"}`,
+  });
+
+  const handlePeriodChange = (value: string) => {
+    setSelectedPeriodId(value);
+  };
+
+  if (!isModal || !studentId) {
+    return null;
+  }
 
   function getPerformanceChartData(student: StudentRecord | null) {
     if (!student) return [];
@@ -73,6 +92,8 @@ export default function StudentModalContent() {
     Bajo: { level: "Bajo" },
   };
 
+  
+
   snapshots
     .sort((a, b) => a.period - b.period)
     .forEach((snapshot) => {
@@ -91,6 +112,7 @@ export default function StudentModalContent() {
 
   const comparisonChartData = Object.values(baseLevels);
 
+
   return (
     <div
       className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4"
@@ -104,6 +126,10 @@ export default function StudentModalContent() {
           selectedStudent={selectedStudent}
           activeSnapshot={activeSnapshot}
           comparisonChartData={comparisonChartData}
+          onPrint={handlePrint}
+          snapshots={snapshots}
+          selectedPeriodId={selectedPeriodId}
+          onPeriodChange={handlePeriodChange}
         />
       </div>
     </div>
