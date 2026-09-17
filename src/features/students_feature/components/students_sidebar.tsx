@@ -1,18 +1,28 @@
 import { StudentInteractiveCard } from "@/src/components/layout/student_interactive_card";
 import type { useStudentsController } from "../hooks/use_students_controller";
 
-import { IconRefresh } from "@/src/shared/icons";
-import { displayStudentName } from "@/src/utils/displayStudentName";
+import {
+  IconCalendarMonth,
+  IconChevronRight,
+  IconDeleteForever,
+  IconFilterAlt,
+  IconGroup,
+  IconRefresh,
+  IconSchool,
+} from "@/src/shared/icons";
+import { displayStudentName } from "@/src/utils/periodic/displayStudentName";
+import { CustomSelect } from "@/src/components/ui/custom_select";
+import { useState } from "react";
 
-type StudentsController = ReturnType<
-  typeof useStudentsController
->;
+type StudentsController = ReturnType<typeof useStudentsController>;
 
 type Props = {
   controller: StudentsController;
 };
 
 export function StudentsSidebar({ controller }: Props) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   const {
     localSearch,
     setLocalSearch,
@@ -33,116 +43,154 @@ export function StudentsSidebar({ controller }: Props) {
   } = controller;
 
   return (
-    <aside className="hidden md:flex max-w-100 w-145 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4  flex-col space-y-2">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold text-primary">
-          Filtros
-        </h1>
+    <aside className="flex relative">
+      <button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className={`
+          absolute
+          left-0
+          top-16
+          -translate-x-full
+          cursor-pointer
 
-        <button
-          onClick={clearFilters}
-          className="rounded-xl border border-slate-200 p-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer"
-        >
-          <IconRefresh className="text-primary" />
-        </button>
-      </div>
+          h-14
+          w-7
 
-      <input
-        value={localSearch}
-        onChange={(e) => setLocalSearch(e.target.value)}
-        className="w-full rounded-xl border border-slate-200 p-2"
-        placeholder="Buscar estudiante..."
-      />
+          bg-white
+          border
+          border-slate-200
+          border-r-0
 
-      <div className="w-full">
-        <select
-          value={selectedPeriodId}
-          onChange={(e) =>
-            handlePeriodChange(e.target.value)
-          }
-          className="rounded-xl w-full border border-slate-200 p-2 cursor-pointer"
-        >
-          {snapshots.map((snapshot) => (
-            <option
-              key={snapshot.id}
-              value={snapshot.id}
+          rounded-l-xl
+
+          shadow-sm
+
+          flex
+          items-center
+          justify-center
+
+          hover:w-8
+          transition-all
+          duration-300`}
+      >
+        <IconChevronRight
+          className={`size-8 text-primary ${
+            isCollapsed ? "rotate-180" : ""
+          } transition-transform duration-300`}
+        />
+      </button>
+
+      <div
+        className={`
+          overflow-hidden
+          transition-all
+          duration-300
+          ease-in-out
+
+          ${isCollapsed ? "w-0 opacity-0" : "w-75 lg:w-100 opacity-100"}
+        `}
+      >
+        <div className="relative hidden md:flex max-w-100 w-75 lg:w-100 h-full bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex-col space-y-2">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center text-primary justify-center space-x-2">
+              <IconFilterAlt className="size-6.5" />
+              <h1 className="text-2xl font-bold">Filtros</h1>
+            </div>
+
+            <button
+              onClick={clearFilters}
+              className="rounded-xl border border-slate-200 p-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition cursor-pointer"
             >
-              Periodo {snapshot.period} ·{" "}
-              {snapshot.year}
-            </option>
-          ))}
-        </select>
-      </div>
+              <IconRefresh className="text-primary" />
+            </button>
+          </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <select
-          value={selectedGrade}
-          onChange={(e) =>
-            handleGradeChange(e.target.value)
-          }
-          className="rounded-xl border border-slate-200 p-2 cursor-pointer"
-        >
-          <option value="all">Grados</option>
+          <input
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            className="w-full rounded-xl border border-slate-200 p-2"
+            placeholder="Buscar estudiante..."
+          />
 
-          {gradeOptions.map((grade: string) => (
-            <option key={grade} value={grade}>
-              {grade}°
-            </option>
-          ))}
-        </select>
+          <CustomSelect
+            value={selectedPeriodId}
+            onChange={handlePeriodChange}
+            icon={<IconCalendarMonth className="text-primary size-5" />}
+            options={snapshots.map((snapshot) => ({
+              value: snapshot.id,
+              label: `Periodo ${snapshot.period} · ${snapshot.year}`,
+            }))}
+          />
 
-        <select
-          value={selectedGroup}
-          disabled={isGroupDisabled}
-          onChange={(e) =>
-            handleGroupChange(e.target.value)
-          }
-          className="rounded-xl border border-slate-200 p-2 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400"
-        >
-          <option value="all">Grupo</option>
+          <div className="grid grid-cols-2 gap-2">
+            <CustomSelect
+              value={selectedGrade}
+              onChange={handleGradeChange}
+              icon={<IconSchool className="text-primary size-5" />}
+              options={[
+                {
+                  value: "all",
+                  label: "Grados",
+                },
 
-          {groupOptions.map((group: string) => (
-            <option key={group} value={group}>
-              {group}
-            </option>
-          ))}
-        </select>
-      </div>
+                ...gradeOptions.map((grade: string) => ({
+                  value: grade,
+                  label: `${grade}°`,
+                })),
+              ]}
+            />
 
-      <div className="rounded-2xl border border-slate-200 overflow-hidden max-h-175 overflow-y-auto">
-        {filteredStudents.map((student) => (
-          <StudentInteractiveCard
-            key={student.id}
-            student={student}
-            onClick={() =>
-              handleStudentSelect(student.id)
-            }
-          >
-            <div
-              className={`w-full text-left px-4 py-3 border-t cursor-pointer border-slate-100 transition-all duration-300 ${
-                selectedStudent?.id === student.id
-                  ? "bg-primary text-white"
-                  : "text-slate-700 hover:bg-slate-200 hover:text-primary"
-              }`}
-            >
-              <div>
-                <p
-                  className={`text-sm ${
-                    selectedStudent?.id ===
-                    student.id
-                      ? "text-slate-300"
-                      : "text-slate-500"
+            <CustomSelect
+              value={selectedGroup}
+              disabled={isGroupDisabled}
+              onChange={handleGroupChange}
+              icon={<IconGroup className="text-primary size-5" />}
+              options={[
+                {
+                  value: "all",
+                  label: "Grupo",
+                },
+
+                ...groupOptions.map((group: string) => ({
+                  value: group,
+                  label: group,
+                })),
+              ]}
+            />
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 overflow-hidden max-h-175 overflow-y-auto">
+            {filteredStudents.map((student) => (
+              <StudentInteractiveCard
+                key={student.id}
+                student={student}
+                onClick={() => handleStudentSelect(student.id)}
+              >
+                <div
+                  className={`w-full text-left px-4 py-3 border-t cursor-pointer border-slate-100 transition-all duration-300 ${
+                    selectedStudent?.id === student.id
+                      ? "bg-primary text-white"
+                      : "text-slate-700 hover:bg-slate-200 hover:text-primary"
                   }`}
                 >
-                  Curso: {student.grade}-
-                  {student.group}
-                </p>
+                  <div>
+                    <p
+                      className={`text-sm ${
+                        selectedStudent?.id === student.id
+                          ? "text-slate-300"
+                          : "text-slate-500"
+                      }`}
+                    >
+                      Curso: {student.grade}-{student.group}
+                    </p>
 
-                {displayStudentName(student.name)}
-              </div>
-            </div>
-          </StudentInteractiveCard>
-        ))}
+                    {displayStudentName(student.name)}
+                  </div>
+                </div>
+              </StudentInteractiveCard>
+            ))}
+          </div>
+        </div>
       </div>
     </aside>
   );

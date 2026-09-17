@@ -45,7 +45,7 @@ export function processAcademicPeriod({
     groupColumn,
   ].filter(Boolean);
 
-  // 📚 materias reales (excluye vacíos y columnas estructurales)
+  // Materias reales (excluye vacíos y columnas estructurales)
   const subjects = columns.filter(
     (col) =>
       !structuralColumns.includes(col) &&

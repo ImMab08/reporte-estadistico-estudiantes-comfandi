@@ -28,7 +28,7 @@ export function MobileMenu() {
   };
 
   return (
-    <aside className="w-full md:hidden z-50 px-4 py-2 bg-white">
+    <aside className="w-full lg:hidden z-50 px-4 py-2 ">
       <div className="relative h-18 flex items-center justify-center">
         <div className="absolute bottom-0 w-full h-full bg-primary rounded-full shadow-2xl" />
 

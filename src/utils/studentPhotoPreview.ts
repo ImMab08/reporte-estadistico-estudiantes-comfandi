@@ -6,7 +6,13 @@ export function normalizePhotoName(value: string) {
 
 const CLOUD_NAME = "dhwcij51c";
 
-export function getStudentPhotoPath(student: StudentRecord) {
+type StudentPhotoData = {
+  name: string;
+  grade: string | number;
+  group: string | number;
+};
+
+export function getStudentPhotoPath(student: StudentPhotoData) {
   const baseUrl = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload`;
 
   const normalizedName = student.name

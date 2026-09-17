@@ -5,7 +5,7 @@ import {
   PolarAngleAxis,
   RadialBar,
   RadialBarChart,
-  ResponsiveContainer,
+  // ResponsiveContainer,
   Tooltip,
 } from "recharts";
 import { SubjectStudentsModal } from "./SubjectStudentsModal";
@@ -46,7 +46,7 @@ function SubjectGauge({
   ];
 
   const totalHealth = Math.min(superior + alto, 100);
-
+  
   return (
     <button
       onClick={onClick}
@@ -57,55 +57,55 @@ function SubjectGauge({
       </h3>
 
       <div className="relative h-44">
-        <ResponsiveContainer width="100%" height="100%">
-          <RadialBarChart
-            data={chartData}
-            innerRadius="25%"
-            outerRadius="100%"
-            startAngle={180}
-            endAngle={0}
-            barSize={8}
-          >
-            <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
+        <RadialBarChart
+          width={250}
+          height={180}
+          data={chartData}
+          innerRadius="25%"
+          outerRadius="100%"
+          startAngle={180}
+          endAngle={0}
+          barSize={8}
+        >
+          <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
 
-            <Tooltip
-              formatter={(value, name) => [
-                `${Number(value ?? 0)}%`,
-                String(name).charAt(0).toUpperCase() + String(name).slice(1),
-              ]}
-              contentStyle={{
-                borderRadius: "12px",
-                border: "1px solid #e2e8f0",
-                fontSize: "12px",
-              }}
-            />
+          <Tooltip
+            formatter={(value, name) => [
+              `${Number(value ?? 0)}%`,
+              String(name).charAt(0).toUpperCase() + String(name).slice(1),
+            ]}
+            contentStyle={{
+              borderRadius: "12px",
+              border: "1px solid #e2e8f0",
+              fontSize: "12px",
+            }}
+          />
 
-            <RadialBar
-              dataKey="superior"
-              fill="#10b981"
-              cornerRadius={10}
-              background
-            />
-            <RadialBar
-              dataKey="alto"
-              fill="#3b82f6"
-              cornerRadius={10}
-              background
-            />
-            <RadialBar
-              dataKey="basico"
-              fill="#fbbf24"
-              cornerRadius={10}
-              background
-            />
-            <RadialBar
-              dataKey="bajo"
-              fill="#ef4444"
-              cornerRadius={10}
-              background
-            />
-          </RadialBarChart>
-        </ResponsiveContainer>
+          <RadialBar
+            dataKey="superior"
+            fill="#10b981"
+            cornerRadius={10}
+            background
+          />
+          <RadialBar
+            dataKey="alto"
+            fill="#3b82f6"
+            cornerRadius={10}
+            background
+          />
+          <RadialBar
+            dataKey="basico"
+            fill="#fbbf24"
+            cornerRadius={10}
+            background
+          />
+          <RadialBar
+            dataKey="bajo"
+            fill="#ef4444"
+            cornerRadius={10}
+            background
+          />
+        </RadialBarChart>
 
         <div className="absolute inset-0 flex items-center justify-center pt-10">
           <span className="text-2xl font-bold text-primary">

@@ -1,7 +1,7 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { ReactNode, useRef, useState } from "react";
+import { ReactNode, useMemo, useRef, useState } from "react";
 
 import type { StudentRecord } from "@/src/shared/types/academic.types";
 import { StudentQuickPreview } from "./student_quick_preview";
@@ -22,7 +22,19 @@ export function StudentInteractiveCard({
 
   const cardRef = useRef<HTMLDivElement>(null);
 
+  /**
+   * Solo dispositivos que soportan hover real
+   * (mouse / trackpad)
+   */
+  const canHover = useMemo(() => {
+    if (typeof window === "undefined") return false;
+
+    return window.matchMedia("(hover: hover)").matches;
+  }, []);
+
   const handleMouseEnter = () => {
+    if (!canHover) return;
+
     if (cardRef.current) {
       setRect(cardRef.current.getBoundingClientRect());
     }
@@ -30,12 +42,16 @@ export function StudentInteractiveCard({
     setShowPreview(true);
   };
 
+  const handleMouseLeave = () => {
+    setShowPreview(false);
+  };
+
   return (
     <div
       ref={cardRef}
       className="relative w-full"
       onMouseEnter={handleMouseEnter}
-      onMouseLeave={() => setShowPreview(false)}
+      onMouseLeave={handleMouseLeave}
     >
       <div
         onClick={onClick}
@@ -44,7 +60,8 @@ export function StudentInteractiveCard({
         {children}
       </div>
 
-      {showPreview &&
+      {canHover &&
+        showPreview &&
         rect &&
         createPortal(
           (() => {
@@ -53,52 +70,19 @@ export function StudentInteractiveCard({
             const GAP = 8;
             const VIEWPORT_PADDING = 12;
 
-            const isMobile = window.innerWidth < 768;
+            let left = rect.left - PREVIEW_WIDTH - GAP;
+            let top = rect.top;
 
-            let left = 0;
-            let top = 0;
+            const maxTop =
+              window.innerHeight -
+              PREVIEW_HEIGHT -
+              VIEWPORT_PADDING;
 
-            if (isMobile) {
-              /**
-               * MOBILE:
-               * centrado horizontalmente
-               */
-              left = (window.innerWidth - PREVIEW_WIDTH) / 2;
+            if (top > maxTop) top = maxTop;
+            if (top < VIEWPORT_PADDING) top = VIEWPORT_PADDING;
 
-              // debajo inicialmente
-              top = rect.bottom + GAP;
-
-              // si no cabe abajo, subirlo pegado al item
-              if (
-                top + PREVIEW_HEIGHT >
-                window.innerHeight - VIEWPORT_PADDING
-              ) {
-                top = rect.top - PREVIEW_HEIGHT;
-              }
-
-              // límites
-              if (top < VIEWPORT_PADDING) {
-                top = VIEWPORT_PADDING;
-              }
-            } else {
-              /**
-               * DESKTOP:
-               * izquierda
-               */
-              left = rect.left - PREVIEW_WIDTH - GAP;
-              top = rect.top;
-
-              const maxTop =
-                window.innerHeight -
-                PREVIEW_HEIGHT -
-                VIEWPORT_PADDING;
-
-              if (top > maxTop) top = maxTop;
-              if (top < VIEWPORT_PADDING) top = VIEWPORT_PADDING;
-
-              if (left < VIEWPORT_PADDING) {
-                left = VIEWPORT_PADDING;
-              }
+            if (left < VIEWPORT_PADDING) {
+              left = VIEWPORT_PADDING;
             }
 
             return (
@@ -108,7 +92,6 @@ export function StudentInteractiveCard({
                   top,
                   left,
                   width: PREVIEW_WIDTH,
-                  maxWidth: "calc(100vw - 24px)",
                 }}
               >
                 <StudentQuickPreview student={student} />

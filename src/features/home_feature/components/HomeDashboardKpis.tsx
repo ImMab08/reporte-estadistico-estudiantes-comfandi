@@ -1,8 +1,4 @@
-import {
-  IconGroup,
-  IconSchool,
-  // IconWorkspacePremium,
-} from "@/src/shared/icons";
+import { IconGroup, IconSchool } from "@/src/shared/icons";
 
 type DashboardKpisProps = {
   totalStudents: number;

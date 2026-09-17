@@ -90,7 +90,7 @@ export function DesktopMenu() {
   };
 
   return (
-    <aside className="hidden md:block max-w-50 w-full h-screen bg-white">
+    <aside className="hidden lg:block max-w-50 w-full h-screen bg-white">
       <div className="h-full p-4 flex flex-col">
         {/* Logo */}
         <div className="flex w-full justify-center pb-4 border-b-2 border-primary/10">

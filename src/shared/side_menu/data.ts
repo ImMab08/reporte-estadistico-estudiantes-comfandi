@@ -1,9 +1,13 @@
 import { NavItem } from "@/src/shared/types/type";
 import {
+  IconAccountCircle,
+  IconCognition,
   IconHome,
+  IconInventoryTwo,
   IconLogout,
   IconSchool,
   IconSettings,
+  IconSocialLeaderboard,
 } from "@/src/shared/icons";
 
 export const navItems: NavItem[] = [
@@ -19,6 +23,30 @@ export const navItems: NavItem[] = [
     icon: IconSchool,
     position: "main",
   },
+  {
+    text: "Promoción",
+    href: "/promotion",
+    icon: IconSocialLeaderboard,
+    position: "main",
+  },
+  {
+    text: "Inventory",
+    href: "/inventory",
+    icon: IconInventoryTwo,
+    position: "main",
+  },
+  // {
+  //   text: "P. Saber",
+  //   href: "/resultados-icfes",
+  //   icon: IconCognition,
+  //   position: "main",
+  // },
+  // {
+  //   text: "Perfil",
+  //   href: "/account",
+  //   icon: IconAccountCircle,
+  //   position: "bottom",
+  // },
   {
     text: "Configuración",
     href: "/settings",
