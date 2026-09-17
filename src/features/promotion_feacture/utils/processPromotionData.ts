@@ -89,6 +89,22 @@ export function processPromotionData({
     .filter((student) => student.promoted && student.failedSubjects > 0)
     .sort((a, b) => b.failedSubjects - a.failedSubjects);
 
+  const promotionRate =
+    totalStudents === 0
+      ? 0
+      : Number(((promotedStudents / totalStudents) * 100).toFixed(1));
+
+  const nonPromotionRate =
+    totalStudents === 0
+      ? 0
+      : Number(
+          (((totalStudents - promotedStudents) / totalStudents) * 100).toFixed(
+            1,
+          ),
+        );
+
+  const criticalSubject = failedSubjectsMetrics[0] ?? null;
+
   return {
     uploadedAt: new Date().toISOString(),
     sourceFileName: fileName,
@@ -99,10 +115,11 @@ export function processPromotionData({
       promotedStudents,
       notPromotedStudents: totalStudents - promotedStudents,
 
-      promotionRate:
-        totalStudents === 0
-          ? 0
-          : Number(((promotedStudents / totalStudents) * 100).toFixed(1)),
+      criticalSubject,
+
+      promotionRate,
+      nonPromotionRate,
+
       gradeMetrics,
       failedSubjects: failedSubjectsMetrics,
       lossDistribution,
@@ -219,45 +236,26 @@ function buildFailedSubjects(students: PromotionStudent[]) {
 }
 
 function buildLossDistribution(students: PromotionStudent[]) {
-  const distribution = {
-    zero: 0,
-    one: 0,
-    two: 0,
-    threePlus: 0,
-  };
+  const distribution: Record<number, number> = {};
 
   students.forEach((student) => {
     const losses = student.failedSubjects;
 
-    if (losses === 0) {
-      distribution.zero++;
-    } else if (losses === 1) {
-      distribution.one++;
-    } else if (losses === 2) {
-      distribution.two++;
-    } else {
-      distribution.threePlus++;
-    }
+    distribution[losses] = (distribution[losses] ?? 0) + 1;
   });
 
-  return [
-    {
-      label: "0 pérdidas",
-      count: distribution.zero,
-    },
-    {
-      label: "1 pérdida",
-      count: distribution.one,
-    },
-    {
-      label: "2 pérdidas",
-      count: distribution.two,
-    },
-    {
-      label: "3+ pérdidas",
-      count: distribution.threePlus,
-    },
-  ];
+  const maxLosses = Math.max(...students.map((s) => s.failedSubjects), 0);
+
+  return Array.from({ length: maxLosses + 1 }, (_, losses) => ({
+    label:
+      losses === 0
+        ? "Sin pérdidas"
+        : losses === 1
+          ? "1 pérdida"
+          : `${losses} pérdidas`,
+    losses,
+    count: distribution[losses] ?? 0,
+  }));
 }
 
 export type { PromotionSnapshot };

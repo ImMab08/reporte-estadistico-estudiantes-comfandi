@@ -2,7 +2,7 @@ type Props = {
   title: string;
   value: string | number;
   subtitle: string;
-  color?: "emerald" | "red";
+  color?: "emerald" | "red" | "blue";
 };
 
 export function PromotionKpiCard({
@@ -17,6 +17,20 @@ export function PromotionKpiCard({
       bg: "bg-emerald-50",
       title: "text-emerald-700",
       value: "text-emerald-600",
+    },
+
+    blue: {
+      border: "border-blue-200",
+      bg: "bg-blue-100",
+      title: "text-blue-700",
+      value: "text-primary",
+    },
+
+    purple: {
+      border: "border-violet-200",
+      bg: "bg-violet-100",
+      title: "text-violet-700",
+      value: "text-violet-600",
     },
 
     red: {
@@ -54,18 +68,16 @@ export function PromotionKpiCard({
 
       <h2
         className={`
-          text-6xl
+          text-3xl
           font-bold
           mt-4
           ${current.value}
         `}
       >
-        {value}°
+        {value}
       </h2>
 
-      <p className="text-slate-500 mt-3">
-        {subtitle}
-      </p>
+      <p className="text-slate-500 mt-3">{subtitle}</p>
     </div>
   );
 }

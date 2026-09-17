@@ -17,7 +17,7 @@ export function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  const isPublicRoute = pathname.startsWith("/auth");
+  const isPublicRoute = pathname.startsWith("/auth") || pathname.startsWith("/attendance");
 
   // Si ya está logueado y entra a /auth → lo sacamos
   if (isPublicRoute && isAuthenticated) {

@@ -27,12 +27,13 @@ export default function StudentModalContent() {
 
   const activeSnapshot =
     snapshots.find((snapshot) => snapshot.id === selectedPeriodId) ??
-    snapshots[0];
+    snapshots[0] ??
+    null;
 
   const selectedStudent =
-    activeSnapshot.students.find((student) => student.id === studentId) ?? null;
+    activeSnapshot?.students.find((student) => student.id === studentId) ??
+    null;
 
-    
   const reportRef = useRef<HTMLDivElement>(null);
 
   const handlePrint = useReactToPrint({
@@ -92,8 +93,6 @@ export default function StudentModalContent() {
     Bajo: { level: "Bajo" },
   };
 
-  
-
   snapshots
     .sort((a, b) => a.period - b.period)
     .forEach((snapshot) => {
@@ -112,10 +111,9 @@ export default function StudentModalContent() {
 
   const comparisonChartData = Object.values(baseLevels);
 
-
   return (
     <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-xs z-100 flex items-center justify-center p-4"
       onClick={() => router.back()}
     >
       <div

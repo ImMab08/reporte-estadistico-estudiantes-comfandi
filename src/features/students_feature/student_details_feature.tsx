@@ -350,8 +350,8 @@ export function StudentDetailsFeacture({
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 scroll-auto overflow-y-auto p-4">
-        <div className="flex items-center justify-between mb-4">
+      <div className="flex-1 min-h-0 scroll-auto overflow-y-auto pb-4 px-4">
+        <div className="flex items-center justify-between sticky top-0 z-20 bg-white">
           <div className="flex space-x-2 items-center text-primary">
             <IconAutoStories
               className="mt-1 text-primary"

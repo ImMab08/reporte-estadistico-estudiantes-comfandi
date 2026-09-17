@@ -28,14 +28,24 @@ export interface FailedSubjectMetric {
 
 export interface LossDistributionMetric {
   label: string;
+  losses: number;
   count: number;
+}
+
+export interface CriticalSubject {
+  subject: string;
+  failedStudents: number;
+  percentage: number;
 }
 
 export interface PromotionAnalytics {
   totalStudents: number;
   promotedStudents: number;
   notPromotedStudents: number;
+  criticalSubject: CriticalSubject | null;
+
   promotionRate: number;
+  nonPromotionRate: number;
 
   gradeMetrics: GradeMetric[];
 

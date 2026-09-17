@@ -4,65 +4,116 @@ import { GradeMetric } from "../promotion.types";
 
 type Props = {
   data: GradeMetric[];
+  onSelectGrade: (grade: string) => void;
 };
 
-export function PromotionGrade({ data }: Props) {
+export function PromotionGrade({
+  data,
+  onSelectGrade,
+}: Props) {
+  const getStyles = (rate: number) => {
+    if (rate >= 95) {
+      return {
+        card: "bg-emerald-50 border-emerald-100",
+        text: "text-emerald-600",
+        bar: "bg-emerald-500",
+      };
+    }
+
+    if (rate >= 85) {
+      return {
+        card: "bg-amber-50 border-amber-100",
+        text: "text-amber-500",
+        bar: "bg-amber-500",
+      };
+    }
+
+    return {
+      card: "bg-red-50 border-red-100",
+      text: "text-red-500",
+      bar: "bg-red-500",
+    };
+  };
+
+  console.log("grado: ", onSelectGrade)
+
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm">
+      <div className="mb-5">
         <h3 className="text-xl font-bold text-primary">
           Promoción por grado
         </h3>
+
+        <p className="text-sm text-slate-500 mt-1">
+          Tasa de promoción por cada grado
+        </p>
       </div>
 
-      {/* Encabezados */}
-      <div className="grid grid-cols-12 gap-4 text-sm text-slate-500 font-medium mb-3">
-        <div className="px-2 col-span-2">Grado</div>
-        <div className="px-2 col-span-5">Promoción</div>
-        <div className="px-2 col-span-2 text-center">Promovidos</div>
-        <div className="px-2 col-span-3 text-center">No promovidos</div>
-      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {data.map((grade) => {
+          const styles = getStyles(grade.rate);
 
-      {/* Filas */}
-      <div className="">
-        {data.map((grade) => (
-          <div
-            key={grade.grade}
-            className="grid grid-cols-12 p-2 gap-4 items-center hover:scale-101 transition-all duration-300 hover:bg-slate-100 cursor-pointer"
-          >
-            {/* Grado */}
-            <div className="col-span-2 font-semibold text-slate-700">
-              {grade.grade}°
-            </div>
+          return (
+            <button
+              key={grade.grade}
+              onClick={() => onSelectGrade(grade.grade)}
+              className={`
+                rounded-xl
+                border
+                p-3
+                text-left
+                cursor-pointer
+                transition-all
+                duration-300
+                hover:shadow-md
+                hover:-translate-y-0.5
+                hover:scale-[1.02]
+                ${styles.card}
+              `}
+            >
+              <div className="text-lg font-bold text-slate-700 mb-1">
+                {grade.grade}°
+              </div>
 
-            {/* Barra */}
-            <div className="col-span-5 flex items-center gap-3">
-              <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className={`text-2xl font-bold mb-2 ${styles.text}`}
+              >
+                {grade.rate}%
+              </div>
+
+              <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden mb-3">
                 <div
-                  className="h-full rounded-full bg-emerald-500 transition-all"
+                  className={`h-full rounded-full ${styles.bar}`}
                   style={{
                     width: `${grade.rate}%`,
                   }}
                 />
               </div>
 
-              <span className="w-12 text-sm font-semibold text-slate-700">
-                {grade.rate}%
-              </span>
-            </div>
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">
+                    Promovidos
+                  </span>
 
-            {/* Promovidos */}
-            <div className="col-span-2 text-center font-semibold text-slate-700">
-              {grade.promoted}
-            </div>
+                  <span className="font-semibold text-slate-700">
+                    {grade.promoted}
+                  </span>
+                </div>
 
-            {/* No promovidos */}
-            <div className="col-span-3 text-center font-semibold text-slate-700">
-              {grade.notPromoted}
-            </div>
-          </div>
-        ))}
+                <div className="flex justify-between">
+                  <span className="text-slate-500">
+                    No promovidos
+                  </span>
+
+                  <span className="font-semibold text-slate-700">
+                    {grade.notPromoted}
+                  </span>
+                </div>
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

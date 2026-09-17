@@ -4,6 +4,7 @@ import { FailedSubjectMetric } from "../promotion.types";
 
 type Props = {
   data: FailedSubjectMetric[];
+  onSelectSubject: (subject: string) => void;
 };
 
 const COLORS = [
@@ -16,19 +17,20 @@ const COLORS = [
   "bg-cyan-500",
 ];
 
-export function PromotionFailedSubjects({ data }: Props) {
+export function PromotionFailedSubjects({
+  data,
+  onSelectSubject,
+}: Props) {
   const maxValue = data.length > 0 ? data[0].failedStudents : 1;
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-bold text-primary">
           Materias con mayor reprobación
         </h3>
       </div>
 
-      {/* Encabezados */}
       <div className="grid grid-cols-12 gap-4 text-sm text-slate-500 font-medium mb-4">
         <div className="px-2 col-span-5">Materias</div>
         <div className="px-2 col-span-4"></div>
@@ -36,12 +38,18 @@ export function PromotionFailedSubjects({ data }: Props) {
         <div className="px-2 col-span-2 text-center">%</div>
       </div>
 
-      {/* Filas */}
-      <div className="">
+      <div>
         {data.map((subject, index) => (
           <div
             key={subject.subject}
-            className="grid p-2 grid-cols-12 gap-4 items-center hover:scale-101 transition-all duration-300 hover:bg-slate-100 cursor-pointer"
+            onClick={() => onSelectSubject(subject.subject)}
+            className="
+              grid p-2 grid-cols-12 gap-4 items-center
+              hover:scale-101
+              transition-all duration-300
+              hover:bg-slate-100
+              cursor-pointer
+            "
           >
             <div className="col-span-5 font-medium text-slate-700 truncate">
               {subject.subject}
@@ -70,7 +78,6 @@ export function PromotionFailedSubjects({ data }: Props) {
           </div>
         ))}
       </div>
-
     </div>
   );
 }

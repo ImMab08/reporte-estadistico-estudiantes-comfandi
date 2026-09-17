@@ -3,6 +3,7 @@ import {
   IconAccountCircle,
   IconCognition,
   IconHome,
+  IconInventoryTwo,
   IconLogout,
   IconSchool,
   IconSettings,
@@ -29,11 +30,17 @@ export const navItems: NavItem[] = [
     position: "main",
   },
   {
-    text: "P. Saber",
-    href: "/resultados-icfes",
-    icon: IconCognition,
+    text: "Inventory",
+    href: "/inventory",
+    icon: IconInventoryTwo,
     position: "main",
   },
+  // {
+  //   text: "P. Saber",
+  //   href: "/resultados-icfes",
+  //   icon: IconCognition,
+  //   position: "main",
+  // },
   // {
   //   text: "Perfil",
   //   href: "/account",
