@@ -3,6 +3,14 @@ export type NavItem = {
   href: string;
   icon: React.ElementType;
   position: "main" | "bottom";
+  adminOnly?: boolean;
+  children?: NavItemChild[];
+};
+
+export type NavItemChild = {
+  text: string;
+  href: string;
+  icon: React.ElementType;
 };
 
 export type DropboxGradeStudents = {

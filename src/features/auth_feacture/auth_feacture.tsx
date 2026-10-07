@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 
-import users from "@/src/lib/users.json";
+import { login } from "@/src/app/auth/actions";
 import { ERROR_MESSAGES } from "@/src/shared/constants/errors";
 
 import {
@@ -21,6 +21,7 @@ export function AuthScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<{
     email?: string;
     password?: string;
@@ -44,30 +45,30 @@ export function AuthScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validate()) return;
 
-    const user = users.find(
-      (u) =>
-        u.email === email.trim().toLowerCase() &&
-        u.password === password.trim(),
-    );
+    setIsSubmitting(true);
 
-    if (user) {
-      document.cookie = `user=${encodeURIComponent(
-        JSON.stringify(user),
-      )}; path=/; max-age=86400`;
+    try {
+      const result = await login(email, password);
 
+      if (result.success) {
       sessionStorage.removeItem("app_initialized");
       sessionStorage.setItem("just_logged_in", "true");
 
       window.location.href = "/";
       return;
-    }
+      }
 
-    setErrors({
-      general: ERROR_MESSAGES.INVALID_CREDENTIALS,
-    });
+      setErrors({ general: ERROR_MESSAGES.INVALID_CREDENTIALS });
+    } catch {
+      setErrors({
+        general: "No fue posible iniciar sesión. Inténtalo de nuevo.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -226,9 +227,10 @@ export function AuthScreen() {
               {/* Botón */}
               <button
                 onClick={handleSubmit}
+                disabled={isSubmitting}
                 className="w-full h-9 md:h-12 mt-4 md:mt-6 cursor-pointer rounded-lg lg:rounded-full bg-primary text-white text-lg md:text-[22px] font-semibold hover:opacity-95 transition"
               >
-                Ingresar
+                {isSubmitting ? "Ingresando..." : "Ingresar"}
               </button>
 
               <p className="relative md:hidden -bottom-4 text-xs md:text-sm text-gray-500 text-center font-medium">

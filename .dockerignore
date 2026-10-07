@@ -1,0 +1,10 @@
+.git
+.next
+node_modules
+.env*
+env.production
+*.tsbuildinfo
+.agents
+.claude
+.windsurf
+src/lib/users.json

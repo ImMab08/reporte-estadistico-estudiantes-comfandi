@@ -1,0 +1,404 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  fullName     String
+  passwordHash String
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  roles     UserRole[]
+  auditLogs AuditLog[]
+  session   Session[]
+
+  teacher           Teacher?
+  updatedGrades     Grade[]
+  academicImports   AcademicImport[]
+  attendanceRecords Attendance[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  users       UserRole[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String  @id @default(cuid())
+  name        String  @unique
+  description String?
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model UserRole {
+  userId String
+  roleId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  oldValue  Json?
+  newValue  Json?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================================
+// ESTRUCTURA ACADÉMICA
+// ============================================================
+
+model AcademicYear {
+  id        String   @id @default(cuid())
+  year      Int      @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  groups           Group[]
+  enrollments      StudentEnrollment[]
+  periods          AcademicPeriod[]
+  promotionResults PromotionResult[]
+  imports          AcademicImport[]
+
+  @@map("academic_years")
+}
+
+model GradeLevel {
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  groups Group[]
+
+  @@map("grade_levels")
+}
+
+model Group {
+  id             String @id @default(cuid())
+  academicYearId String
+  gradeLevelId   String
+  number         Int
+  name           String
+
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  gradeLevel   GradeLevel   @relation(fields: [gradeLevelId], references: [id], onDelete: Cascade)
+
+  students           StudentEnrollment[]
+  subjectAssignments TeacherSubjectAssignment[]
+  staffAssignments   GroupStaffAssignment[]
+  attendanceRecords  Attendance[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([academicYearId, gradeLevelId, number])
+  @@index([academicYearId])
+  @@index([gradeLevelId])
+  @@map("groups")
+}
+
+model Subject {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  grades             Grade[]
+  teacherAssignments TeacherSubjectAssignment[]
+
+  @@map("subjects")
+}
+
+// ============================================================
+// ESTUDIANTES
+// ============================================================
+
+enum StudentSex {
+  MALE
+  FEMALE
+  UNDEFINED
+}
+
+model Student {
+  id          String     @id @default(cuid())
+  studentCode String     @unique
+  fullName    String
+  sex         StudentSex @default(UNDEFINED)
+  photoPath   String?
+  active      Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  enrollments      StudentEnrollment[]
+  promotionResults PromotionResult[]
+
+  @@index([fullName])
+  @@index([sex])
+  @@map("students")
+}
+
+model StudentEnrollment {
+  id             String   @id @default(cuid())
+  studentId      String
+  academicYearId String
+  groupId        String
+  status         String   @default("ACTIVO")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  student      Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
+  group        Group        @relation(fields: [groupId], references: [id])
+
+  grades Grade[]
+
+  @@unique([studentId, academicYearId])
+  @@index([groupId])
+  @@index([academicYearId])
+  @@map("student_enrollments")
+}
+
+// ============================================================
+// PERIODOS ACADÉMICOS
+// ============================================================
+
+model AcademicPeriod {
+  id             String   @id @default(cuid())
+  academicYearId String
+  number         Int
+  name           String?
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  grades  Grade[]
+  imports AcademicImport[]
+
+  @@unique([academicYearId, number])
+  @@map("academic_periods")
+}
+
+// ============================================================
+// NOTAS
+// ============================================================
+
+model Grade {
+  id           String   @id @default(cuid())
+  enrollmentId String
+  subjectId    String
+  periodId     String
+  value        Decimal? @db.Decimal(5, 2)
+  updatedById  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  enrollment StudentEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  subject    Subject           @relation(fields: [subjectId], references: [id])
+  period     AcademicPeriod    @relation(fields: [periodId], references: [id])
+  updatedBy  User?             @relation(fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@unique([enrollmentId, subjectId, periodId])
+  @@index([subjectId])
+  @@index([periodId])
+  @@index([updatedById])
+  @@map("grades")
+}
+
+// ============================================================
+// DOCENTES
+// ============================================================
+
+model Teacher {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  subjectAssignments    TeacherSubjectAssignment[]
+  groupStaffAssignments GroupStaffAssignment[]
+
+  @@map("teachers")
+}
+
+model TeacherSubjectAssignment {
+  id        String   @id @default(cuid())
+  teacherId String
+  subjectId String
+  groupId   String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id])
+  group   Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, subjectId, groupId])
+  @@index([teacherId])
+  @@index([subjectId])
+  @@index([groupId])
+  @@map("teacher_subject_assignments")
+}
+
+enum GroupStaffRole {
+  DIRECTOR
+  FACILITATOR
+}
+
+model GroupStaffAssignment {
+  id        String         @id @default(cuid())
+  teacherId String
+  groupId   String
+  role      GroupStaffRole
+  active    Boolean        @default(true)
+  createdAt DateTime       @default(now())
+
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  group   Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, groupId, role])
+  @@index([teacherId])
+  @@index([groupId])
+  @@index([role])
+  @@map("group_staff_assignments")
+}
+
+// ============================================================
+// PROMOCIÓN
+// ============================================================
+
+model PromotionResult {
+  id             String   @id @default(cuid())
+  studentId      String
+  academicYearId String
+  result         String
+  observations   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  student      Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
+
+  @@unique([studentId, academicYearId])
+  @@index([academicYearId])
+  @@map("promotion_results")
+}
+
+model Attendance {
+  id             String   @id @default(cuid())
+  groupId        String
+  registeredById String
+  date           DateTime @db.Date
+
+  totalStudents Int?
+  boysPresent  Int
+  girlsPresent Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  group        Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  registeredBy User  @relation(fields: [registeredById], references: [id], onDelete: Restrict)
+
+  @@unique([groupId, date])
+  @@index([date])
+  @@index([groupId])
+  @@index([registeredById])
+  @@map("attendance")
+}
+
+// ============================================================
+// IMPORTACIONES DE EXCEL
+// ============================================================
+
+model AcademicImport {
+  id             String   @id @default(cuid())
+  academicYearId String
+  periodId       String
+  sourceFileName String
+  uploadedById   String
+  status         String   @default("PENDIENTE")
+  totalStudents  Int      @default(0)
+  totalGrades    Int      @default(0)
+  errorMessage   String?
+  uploadedAt     DateTime @default(now())
+
+  academicYear AcademicYear   @relation(fields: [academicYearId], references: [id])
+  period       AcademicPeriod @relation(fields: [periodId], references: [id])
+  uploadedBy   User           @relation(fields: [uploadedById], references: [id])
+
+  @@index([academicYearId])
+  @@index([periodId])
+  @@index([uploadedById])
+  @@map("academic_imports")
+}

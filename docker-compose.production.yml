@@ -1,0 +1,47 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    init: true
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+      DATABASE_URL: ${DATABASE_URL_DOCKER:?Set DATABASE_URL_DOCKER in env.production}
+      AUTH_SECRET: ${AUTH_SECRET:?Set AUTH_SECRET in env.production}
+    expose:
+      - "3000"
+    networks:
+      - edumetricks
+      - frontend
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - web
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:?Set APP_DOMAIN in env.production}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - frontend
+
+networks:
+  edumetricks:
+    external: true
+    name: edumetricks_default
+  frontend:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:

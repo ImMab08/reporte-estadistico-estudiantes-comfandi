@@ -45,3 +45,5 @@ public/img/fotos_estudiantes_yumbo_2026/
 
 # scripts
 /scripts/
+/src/generated/prisma
+/src/lib/users.json

@@ -5,13 +5,10 @@ import { GlobalLoader } from "./global_loader";
 import { getUserFromCookie } from "@/src/lib/auth";
 
 export function AppInitializer({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    setMounted(true);
-
     const user = getUserFromCookie();
     if (!user) return;
 
@@ -19,7 +16,9 @@ export function AppInitializer({ children }: { children: React.ReactNode }) {
 
     if (!justLoggedIn) return;
 
-    setIsInitializing(true);
+    const startTimeout = setTimeout(() => {
+      setIsInitializing(true);
+    }, 0);
 
     const interval = setInterval(() => {
       setProgress((prev) => {
@@ -42,12 +41,11 @@ export function AppInitializer({ children }: { children: React.ReactNode }) {
     }, 2000);
 
     return () => {
+      clearTimeout(startTimeout);
       clearInterval(interval);
       clearTimeout(timeout);
     };
   }, []);
-
-  if (!mounted) return null;
 
   if (isInitializing) {
     return (

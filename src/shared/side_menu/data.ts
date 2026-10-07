@@ -1,10 +1,10 @@
 import { NavItem } from "@/src/shared/types/type";
 import {
-  IconAccountCircle,
-  IconCognition,
+  IconBarChart,
   IconHome,
   IconInventoryTwo,
   IconLogout,
+  IconMonitoring,
   IconSchool,
   IconSettings,
   IconSocialLeaderboard,
@@ -28,6 +28,20 @@ export const navItems: NavItem[] = [
     href: "/promotion",
     icon: IconSocialLeaderboard,
     position: "main",
+  },
+  {
+    text: "Reportes",
+    href: "#",
+    icon: IconBarChart,
+    position: "main",
+    adminOnly: true,
+    children: [
+      {
+        text: "Asistencia",
+        href: "/statistics",
+        icon: IconMonitoring,
+      },
+    ],
   },
   {
     text: "Inventory",

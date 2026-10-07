@@ -1,6 +1,7 @@
 "use client"
 import { Suspense } from "react";
 import { HomeFeaturePage } from "@/src/features/home_feature/home_feature_page";
+import { AppInitializer } from "@/src/shared/app_initializer";
 
 function HomeContent() {
   return <HomeFeaturePage />;
@@ -8,8 +9,10 @@ function HomeContent() {
 
 export default function Page() {
   return (
-    <Suspense fallback={null}>
-      <HomeContent />
-    </Suspense>
+    <AppInitializer>
+      <Suspense fallback={null}>
+        <HomeContent />
+      </Suspense>
+    </AppInitializer>
   );
 }

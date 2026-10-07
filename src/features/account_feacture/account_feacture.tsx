@@ -207,7 +207,7 @@ export function AccountFeacture() {
             {/* HEADER */}
             <div className="bg-slate-50 border-b border-r border-slate-200 flex items-center justify-center text-xs font-semibold sticky left-0 z-20">
               Hora
-              {b.time}
+              {/* {b.time} */}
             </div>
 
             {days.map((d, i) => (
@@ -232,7 +232,7 @@ export function AccountFeacture() {
               >
                 <span className="font-semibold text-xs">{b.label}</span>
                 <span className="text-[10px]">
-                  {b.start} - {b.end}
+                  {/* {b.start} - {b.end} */}
                 </span>
               </div>
             ))}

@@ -1,6 +1,11 @@
 export type Role =
+  | "admin"
   | "docente"
+  | "administrador"
+  | "administradora"
+  | "administrativo"
   | "coordinadora"
+  | "coordinador"
   | "rector"
   | "psicologa";
 
@@ -13,7 +18,7 @@ export type Nivel =
 
 export interface User {
   email: string;
-  password: string;
+  name?: string;
   role: Role;
   niveles: Nivel[];
 }

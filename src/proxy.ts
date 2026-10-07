@@ -1,32 +1,41 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { canViewAttendanceStatistics } from "@/src/lib/attendance_statistics_access";
+import { verifySessionToken } from "@/src/lib/session";
 
 export function proxy(request: NextRequest) {
-  const userCookie = request.cookies.get("user");
-
-  let isAuthenticated = false;
-
-  if (userCookie) {
-    try {
-      JSON.parse(decodeURIComponent(userCookie.value));
-      isAuthenticated = true;
-    } catch {
-      isAuthenticated = false;
-    }
-  }
-
+  const user = verifySessionToken(request.cookies.get("session")?.value);
+  const isAuthenticated = user !== null;
   const { pathname } = request.nextUrl;
 
-  const isPublicRoute = pathname.startsWith("/auth") || pathname.startsWith("/attendance");
+  const isAuthRoute = pathname === "/auth" || pathname.startsWith("/auth/");
+  const normalizedPath = pathname.replace(/\/+$/, "") || "/";
+  const isStatisticsRoute =
+    normalizedPath === "/statistics" || normalizedPath.startsWith("/statistics/");
 
-  // Si ya está logueado y entra a /auth → lo sacamos
-  if (isPublicRoute && isAuthenticated) {
-    return NextResponse.redirect(new URL("/", request.url));
+  if (isAuthRoute) {
+    if (isAuthenticated) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    const response = NextResponse.next();
+    response.cookies.delete("user");
+    response.cookies.delete("session");
+    return response;
   }
 
-  // Si NO está logueado y entra a rutas privadas → lo mandamos a login
-  if (!isPublicRoute && !isAuthenticated) {
-    return NextResponse.redirect(new URL("/auth", request.url));
+  if (!isAuthenticated) {
+    const response = NextResponse.redirect(new URL("/auth", request.url));
+    response.cookies.delete("user");
+    response.cookies.delete("session");
+    return response;
+  }
+
+  if (
+    isStatisticsRoute &&
+    !canViewAttendanceStatistics(user.role)
+  ) {
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next();

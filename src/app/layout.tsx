@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
 import { MobileMenu } from "../shared/side_menu/mobile_menu";
 import { DesktopMenu } from "../shared/side_menu/desktop_menu";
 import { AppInitializer } from "../shared/app_initializer";
+import { verifySessionToken } from "@/src/lib/session";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,13 +24,15 @@ export const metadata: Metadata = {
     "Edumetricks es una plataforma de analítica educativa que permite a colegios e instituciones monitorear el rendimiento académico, identificar estudiantes en riesgo y tomar decisiones basadas en datos.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
   modal,
 }: Readonly<{
   children: React.ReactNode;
   modal: React.ReactNode;
 }>) {
+  const user = verifySessionToken((await cookies()).get("session")?.value);
+
   return (
     <html
       lang="en"
@@ -37,9 +41,9 @@ export default function RootLayout({
       <body className="w-full min-h-full h-full flex flex-col bg-background">
         <AppInitializer>
           <div className="flex flex-col lg:flex-row h-full">
-            <DesktopMenu />
+            <DesktopMenu user={user} />
             {children}
-            <MobileMenu />
+            <MobileMenu user={user} />
             {modal}
           </div>
         </AppInitializer>
