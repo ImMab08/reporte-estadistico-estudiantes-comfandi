@@ -130,16 +130,16 @@ export default async function AttendanceStatisticsPage({
 
   const selectedGrade =
     typeof params.grade === "string" &&
-    gradeLevels.some((grade) => grade.id === params.grade)
+      gradeLevels.some((grade) => grade.id === params.grade)
       ? params.grade
       : "";
   const selectedGroup =
     typeof params.group === "string" &&
-    groups.some(
-      (group) =>
-        group.id === params.group &&
-        (!selectedGrade || group.gradeLevel.id === selectedGrade),
-    )
+      groups.some(
+        (group) =>
+          group.id === params.group &&
+          (!selectedGrade || group.gradeLevel.id === selectedGrade),
+      )
       ? params.group
       : "";
 
@@ -230,228 +230,229 @@ export default async function AttendanceStatisticsPage({
     .sort((first, second) => first.grade.localeCompare(second.grade, "es"));
 
   return (
-    <main className="min-h-screen w-full flex-1 overflow-y-auto bg-background pb-8">
-      <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-7 sm:py-10 lg:px-10">
-        <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="mb-2 text-xs font-bold tracking-[0.14em] text-primary">
-              CONTROL ESCOLAR <span className="px-1 text-text-muted">/</span> ASISTENCIA
-            </p>
-            <h1 className="text-2xl font-bold text-text-main sm:text-3xl">
-              Estadísticas de asistencia
-            </h1>
-            <p className="mt-1 text-sm text-text-muted">
-              Seguimiento de asistencia por período, grado y grupo.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 rounded-lg border border-border bg-card-bg px-3 py-2 text-sm font-semibold text-primary">
-            <IconCalendarToday className="size-4" />
-            Año activo: {activeYear?.year ?? "Sin configurar"}
-          </div>
-        </header>
-
-        <form
-          action="/statistics"
-          className="mb-6 rounded-xl border border-border bg-card-bg p-4 shadow-sm sm:p-5"
-        >
-          <div className="mb-4 flex items-center gap-2 text-sm font-bold text-text-main">
-            <IconFilterAlt className="size-5 text-primary" />
-            Filtros
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <label className="space-y-1 text-xs font-semibold text-text-muted">
-              Desde
-              <input
-                type="date"
-                name="from"
-                defaultValue={rangeFrom}
-                className="h-10 w-full rounded-lg border border-border bg-card-bg px-3 text-sm text-text-main outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
-              />
-            </label>
-            <label className="space-y-1 text-xs font-semibold text-text-muted">
-              Hasta
-              <input
-                type="date"
-                name="to"
-                defaultValue={rangeTo}
-                className="h-10 w-full rounded-lg border border-border bg-card-bg px-3 text-sm text-text-main outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
-              />
-            </label>
-            <label className="space-y-1 text-xs font-semibold text-text-muted">
-              Grado
-              <select
-                name="grade"
-                defaultValue={selectedGrade}
-                className="h-10 w-full rounded-lg border border-border bg-card-bg px-3 text-sm text-text-main outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
-              >
-                <option value="">Todos los grados</option>
-                {gradeLevels.map((grade) => (
-                  <option key={grade.id} value={grade.id}>
-                    {grade.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="space-y-1 text-xs font-semibold text-text-muted">
-              Grupo
-              <select
-                name="group"
-                defaultValue={selectedGroup}
-                className="h-10 w-full rounded-lg border border-border bg-card-bg px-3 text-sm text-text-main outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
-              >
-                <option value="">Todos los grupos</option>
-                {groups
-                  .filter(
-                    (group) =>
-                      !selectedGrade || group.gradeLevel.id === selectedGrade,
-                  )
-                  .map((group) => (
-                    <option key={group.id} value={group.id}>
-                      {group.gradeLevel.name} · Grupo {group.number} · {group.academicYear.year}
-                    </option>
-                  ))}
-              </select>
-            </label>
-            <div className="flex items-end gap-2">
-              <button
-                type="submit"
-                className="h-10 flex-1 rounded-lg bg-primary px-4 text-sm font-bold text-white transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/30"
-              >
-                Aplicar filtros
-              </button>
-              <a
-                href="/statistics"
-                aria-label="Limpiar filtros"
-                title="Limpiar filtros"
-                className="flex size-10 items-center justify-center rounded-lg border border-border text-primary transition hover:bg-background"
-              >
-                <IconRefresh className="size-5" />
-              </a>
-            </div>
-          </div>
-        </form>
-
-        <section
-          aria-label="Resumen de asistencia"
-          className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5"
-        >
-          <SummaryItem label="Registros" value={records.length} accent="primary" />
-          <SummaryItem
-            label="Cupos reportados"
-            value={totalStudents}
-            accent="secondary"
-            description="Suma de matrícula por registro"
-          />
-          <SummaryItem label="Asistencias" value={totalPresent} accent="superior" />
-          <SummaryItem label="Faltas estimadas" value={totalAbsent} accent="bajo" />
-          <SummaryItem
-            label="Tasa de asistencia"
-            value={`${attendanceRate.toFixed(1)}%`}
-            accent="basico"
-          />
-        </section>
-
-        <section className="mb-6 grid gap-4 lg:grid-cols-2">
-          <div className="min-w-0 rounded-xl border border-border bg-card-bg p-4 shadow-sm sm:p-5">
-            <h2 className="mb-4 font-bold text-text-main">Tendencia mensual</h2>
-            <AttendanceStatisticsCharts
-              monthlyData={buildMonthlyTrend(records, rangeFrom, rangeTo)}
-              gradeData={[]}
-              chart="monthly"
-            />
-          </div>
-          <div className="min-w-0 rounded-xl border border-border bg-card-bg p-4 shadow-sm sm:p-5">
-            <h2 className="mb-4 font-bold text-text-main">Asistencia por grado</h2>
-            <AttendanceStatisticsCharts
-              monthlyData={[]}
-              gradeData={gradeChartData}
-              chart="grade"
-            />
-          </div>
-        </section>
-
-        <section className="overflow-hidden rounded-xl border border-border bg-card-bg shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-4 sm:px-5">
+    <section className="size-full bg-slate-50 p-3 md:p-4 flex flex-col overflow-hidden">
+      <section className="gap-4 flex flex-1 min-h-0 overflow-hidden lg:mb-0">
+        <section className="w-full overflow-auto bg-white border border-border rounded-xl">
+          <header className="-3 md:p-4 sticky top-0 z-20 flex justify-between w-full bg-white py-2">
             <div>
-              <h2 className="font-bold text-text-main">Registros recientes</h2>
-              <p className="text-xs text-text-muted">
-                {records.length} registros en el período seleccionado
+              <h1 className="text-2xl font-bold text-text-main sm:text-3xl">
+                Estadísticas de asistencia
+              </h1>
+              <p className="mt-1 text-sm text-text-muted">
+                Seguimiento de asistencia por período, grado y grupo.
               </p>
             </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] text-left text-sm">
-              <thead className="bg-background text-xs uppercase text-text-muted">
-                <tr>
-                  <th className="px-4 py-3 font-semibold">Fecha asistencia</th>
-                  <th className="px-4 py-3 font-semibold">Hora de registro</th>
-                  <th className="px-4 py-3 font-semibold">Grado / grupo</th>
-                  <th className="px-4 py-3 font-semibold">Responsable</th>
-                  <th className="px-4 py-3 text-right font-semibold">Matrícula</th>
-                  <th className="px-4 py-3 text-right font-semibold">Presentes</th>
-                  <th className="px-4 py-3 text-right font-semibold">Faltantes</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {records.slice(0, 15).map((record) => {
-                  const present = record.boysPresent + record.girlsPresent;
-                  const absent =
-                    record.totalStudents === null
-                      ? null
-                      : Math.max(record.totalStudents - present, 0);
+          </header>
 
-                  return (
-                    <tr key={record.id} className="text-text-main">
-                      <td className="whitespace-nowrap px-4 py-3">
-                        {record.date.toLocaleDateString("es-CO", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                          timeZone: "UTC",
-                        })}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-text-muted">
-                        {record.createdAt.toLocaleString("es-CO", {
-                          dateStyle: "short",
-                          timeStyle: "short",
-                          timeZone: "America/Bogota",
-                        })}
-                      </td>
-                      <td className="px-4 py-3">
-                        {record.group.gradeLevel.name} · Grupo {record.group.number}
-                        <span className="ml-2 text-xs text-text-muted">
-                          {record.group.academicYear.year}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">{record.registeredBy.fullName}</td>
-                      <td className="px-4 py-3 text-right">
-                        {record.totalStudents ?? "Sin dato"}
-                      </td>
-                      <td className="px-4 py-3 text-right font-semibold text-primary">
-                        {present}
-                      </td>
-                      <td className="px-4 py-3 text-right font-semibold text-bajo">
-                        {absent ?? "—"}
-                      </td>
+          <div className="p-3 md:p-4">
+            <form
+              action="/statistics"
+              className="mb-6 rounded-xl border border-border bg-card-bg p-4 shadow-sm sm:p-5"
+            >
+              <div className="mb-4 flex items-center gap-2 text-sm font-bold text-text-main">
+                <IconFilterAlt className="size-5 text-primary" />
+                Filtros
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                <label className="space-y-1 text-xs font-semibold text-text-muted">
+                  Desde
+                  <input
+                    type="date"
+                    name="from"
+                    defaultValue={rangeFrom}
+                    className="h-10 w-full rounded-lg border border-border bg-card-bg px-3 text-sm text-text-main outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                  />
+                </label>
+                <label className="space-y-1 text-xs font-semibold text-text-muted">
+                  Hasta
+                  <input
+                    type="date"
+                    name="to"
+                    defaultValue={rangeTo}
+                    className="h-10 w-full rounded-lg border border-border bg-card-bg px-3 text-sm text-text-main outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                  />
+                </label>
+                <label className="space-y-1 text-xs font-semibold text-text-muted">
+                  Grado
+                  <select
+                    name="grade"
+                    defaultValue={selectedGrade}
+                    className="h-10 w-full rounded-lg border border-border bg-card-bg px-3 text-sm text-text-main outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                  >
+                    <option value="">Todos los grados</option>
+                    {gradeLevels.map((grade) => (
+                      <option key={grade.id} value={grade.id}>
+                        {grade.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="space-y-1 text-xs font-semibold text-text-muted">
+                  Grupo
+                  <select
+                    name="group"
+                    defaultValue={selectedGroup}
+                    className="h-10 w-full rounded-lg border border-border bg-card-bg px-3 text-sm text-text-main outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"
+                  >
+                    <option value="">Todos los grupos</option>
+                    {groups
+                      .filter(
+                        (group) =>
+                          !selectedGrade || group.gradeLevel.id === selectedGrade,
+                      )
+                      .map((group) => (
+                        <option key={group.id} value={group.id}>
+                          {group.gradeLevel.name} · Grupo {group.number} · {group.academicYear.year}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+                <div className="flex items-end gap-2">
+                  <button
+                    type="submit"
+                    className="h-10 flex-1 rounded-lg bg-primary px-4 text-sm font-bold text-white transition hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    Aplicar filtros
+                  </button>
+                  <a
+                    href="/statistics"
+                    aria-label="Limpiar filtros"
+                    title="Limpiar filtros"
+                    className="flex size-10 items-center justify-center rounded-lg border border-border text-primary transition hover:bg-background"
+                  >
+                    <IconRefresh className="size-5" />
+                  </a>
+                </div>
+              </div>
+            </form>
+
+            <section
+              aria-label="Resumen de asistencia"
+              className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5"
+            >
+              <SummaryItem label="Registros" value={records.length} accent="primary" />
+              <SummaryItem
+                label="Cupos reportados"
+                value={totalStudents}
+                accent="secondary"
+                description="Suma de matrícula por registro"
+              />
+              <SummaryItem label="Asistencias" value={totalPresent} accent="superior" />
+              <SummaryItem label="Faltas estimadas" value={totalAbsent} accent="bajo" />
+              <SummaryItem
+                label="Tasa de asistencia"
+                value={`${attendanceRate.toFixed(1)}%`}
+                accent="basico"
+              />
+            </section>
+
+            <section className="mb-6 grid gap-4 lg:grid-cols-2">
+              <div className="min-w-0 rounded-xl border border-border bg-card-bg p-4 shadow-sm sm:p-5">
+                <h2 className="mb-4 font-bold text-text-main">Tendencia mensual</h2>
+                <AttendanceStatisticsCharts
+                  monthlyData={buildMonthlyTrend(records, rangeFrom, rangeTo)}
+                  gradeData={[]}
+                  chart="monthly"
+                />
+              </div>
+              <div className="min-w-0 rounded-xl border border-border bg-card-bg p-4 shadow-sm sm:p-5">
+                <h2 className="mb-4 font-bold text-text-main">Asistencia por grado</h2>
+                <AttendanceStatisticsCharts
+                  monthlyData={[]}
+                  gradeData={gradeChartData}
+                  chart="grade"
+                />
+              </div>
+            </section>
+
+            <section className="overflow-hidden rounded-xl border border-border bg-card-bg shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-4 sm:px-5">
+                <div>
+                  <h2 className="font-bold text-text-main">Registros recientes</h2>
+                  <p className="text-xs text-text-muted">
+                    {records.length} registros en el período seleccionado
+                  </p>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[760px] text-left text-sm">
+                  <thead className="bg-background text-xs uppercase text-text-muted">
+                    <tr>
+                      <th className="px-4 py-3 font-semibold">Fecha asistencia</th>
+                      <th className="px-4 py-3 font-semibold">Hora de registro</th>
+                      <th className="px-4 py-3 font-semibold">Grado / grupo</th>
+                      <th className="px-4 py-3 font-semibold">Responsable</th>
+                      <th className="px-4 py-3 text-right font-semibold">Matrícula</th>
+                      <th className="px-4 py-3 text-right font-semibold">Presentes</th>
+                      <th className="px-4 py-3 text-right font-semibold">Faltantes</th>
                     </tr>
-                  );
-                })}
-                {records.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={7}
-                      className="px-4 py-12 text-center text-sm text-text-muted"
-                    >
-                      No hay registros de asistencia para los filtros seleccionados.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {records.slice(0, 15).map((record) => {
+                      const present = record.boysPresent + record.girlsPresent;
+                      const absent =
+                        record.totalStudents === null
+                          ? null
+                          : Math.max(record.totalStudents - present, 0);
+
+                      return (
+                        <tr key={record.id} className="text-text-main">
+                          <td className="whitespace-nowrap px-4 py-3">
+                            {record.date.toLocaleDateString("es-CO", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                              timeZone: "UTC",
+                            })}
+                          </td>
+                          <td className="whitespace-nowrap px-4 py-3 text-text-muted">
+                            {record.createdAt.toLocaleString("es-CO", {
+                              dateStyle: "short",
+                              timeStyle: "short",
+                              timeZone: "America/Bogota",
+                            })}
+                          </td>
+                          <td className="px-4 py-3">
+                            {record.group.gradeLevel.name} · Grupo {record.group.number}
+                            <span className="ml-2 text-xs text-text-muted">
+                              {record.group.academicYear.year}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">{record.registeredBy.fullName}</td>
+                          <td className="px-4 py-3 text-right">
+                            {record.totalStudents ?? "Sin dato"}
+                          </td>
+                          <td className="px-4 py-3 text-right font-semibold text-primary">
+                            {present}
+                          </td>
+                          <td className="px-4 py-3 text-right font-semibold text-bajo">
+                            {absent ?? "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {records.length === 0 && (
+                      <tr>
+                        <td
+                          colSpan={7}
+                          className="px-4 py-12 text-center text-sm text-text-muted"
+                        >
+                          No hay registros de asistencia para los filtros seleccionados.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
           </div>
+
+
+
         </section>
-      </div>
-    </main>
+      </section>
+    </section>
+
   );
 }
 

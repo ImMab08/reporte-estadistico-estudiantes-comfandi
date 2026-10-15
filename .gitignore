@@ -1,7 +1,6 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
+# Dependencies
+/node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -10,40 +9,51 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
-# next.js
+# Next.js
 /.next/
 /out/
-
-# production
 /build
 
-# misc
-.DS_Store
-*.pem
+# Testing
+/coverage
 
-# debug
+# Environment variables and secrets
+.env*
+!.env.example
+
+# Certificates and private keys
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
 
-# env files (can opt-in for committing if needed)
-.env*
+# Operating system
+.DS_Store
+Thumbs.db
 
-# vercel
+# IDE
+.vscode/*
+!.vscode/extensions.json
+
+# Deployment platforms
 .vercel
 
-# typescript
+# TypeScript
 *.tsbuildinfo
 next-env.d.ts
 
-# Imagenes
-public/img/fotos_estudiantes_yumbo_2026/
+# Student images - private data
+/public/img/fotos_estudiantes_yumbo_2026/
 
-# scripts
-/scripts/
-/src/generated/prisma
+# Generated Prisma Client
+/src/generated/prisma/
+
+# Temporary local credentials
 /src/lib/users.json

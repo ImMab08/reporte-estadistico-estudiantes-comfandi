@@ -21,13 +21,6 @@ export function DesktopMenu({ user }: { user: SessionUser | null }) {
       )?.text ?? null,
   );
 
-  if (
-    pathname?.startsWith("/auth") ||
-    pathname === "/attendance"
-  ) {
-    return null;
-  }
-
   const handleLogout = async () => {
     sessionStorage.removeItem("app_initialized");
     sessionStorage.removeItem("just_logged_in");
@@ -78,7 +71,7 @@ export function DesktopMenu({ user }: { user: SessionUser | null }) {
           {openGroup === item.text && (
             <div
               id="reports-submenu"
-              className="ml-4 mt-10 space-y-1 border-l border-primary/15 pl-2"
+              className="ml-4 mt-4 space-y-1 border-l border-primary/15 pl-2"
             >
               {item.children.map((child) => {
                 const ChildIcon = child.icon;

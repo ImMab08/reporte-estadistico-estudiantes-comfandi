@@ -30,6 +30,18 @@ export const navItems: NavItem[] = [
     position: "main",
   },
   {
+    text: "Courses",
+    href: "/courses",
+    icon: IconSocialLeaderboard,
+    position: "main",
+  },
+  {
+    text: "Asistencia",
+    href: "/attendance",
+    icon: IconMonitoring,
+    position: "main",
+  },
+  {
     text: "Reportes",
     href: "#",
     icon: IconBarChart,
